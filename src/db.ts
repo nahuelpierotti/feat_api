@@ -1,7 +1,7 @@
 import { createConnection } from "typeorm";
 import { User } from "./models/User";
 import { UserType } from "./models/UserType";
-import {Person} from "./models/Person";
+import { Person } from "./models/Person";
 import { Sport } from "./models/Sport";
 import { Day } from "./models/Day";
 import { Valuation } from "./models/Valuation";
