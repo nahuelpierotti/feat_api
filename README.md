@@ -40,7 +40,7 @@ And repeat
 
 ```
 # download and run docker image.
-docker-compose up -d gamydb
+docker-compose up -d featdb
 
 #run nodemon in developer mode
 npm run dev
