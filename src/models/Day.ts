@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Availability } from "./Availability";
+import { Periodicity } from "./Periodicity";
 
 @Entity()
 
@@ -11,4 +12,6 @@ export class Day extends BaseEntity{
     @Column()
     description: string;
     
+    @OneToMany(() => Availability, availability=> availability.day)
+    availability: Availability;
 }

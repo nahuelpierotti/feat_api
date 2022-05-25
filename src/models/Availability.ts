@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Day } from "./Day";
 import { Person } from "./Person";
 
@@ -18,15 +18,7 @@ export class Availability extends BaseEntity{
     @ManyToOne(() => Person, (person) => person.availability)
     person: Person
 
-    @ManyToMany(() => Day)
-    @JoinTable({
-        name: 'day_availability',
-        joinColumn:{
-            name: 'availabilityId',
-        },
-        inverseJoinColumn:{
-            name: 'dayId'
-        },
-    })
+    @ManyToOne(() => Day)
+    @JoinColumn()
     day: Day[]
 }
