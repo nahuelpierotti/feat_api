@@ -30,7 +30,7 @@ export class Sport extends BaseEntity{
     @OneToMany(() => Player, (player) => player.sport)
     player: Player[]
 
-    @OneToOne(()=>Event)
+    @OneToMany(()=>Event, event =>event.sport)
     event: Event;
 
     @OneToMany(() => Level, (level) => level.sport)

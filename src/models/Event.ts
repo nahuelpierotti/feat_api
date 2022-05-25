@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity,JoinColumn,OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity,JoinColumn,JoinTable,ManyToMany,ManyToOne,OneToMany,OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EventApply } from "./EventApply";
 import { Periodicity } from "./Periodicity";
 import { Player } from "./Player";
@@ -32,22 +32,32 @@ export class Event extends BaseEntity{
     @Column()
     logitude: string
 
-    @OneToOne(() => State)
+    /*
+    @ManyToMany(() => State, state => state.event)
+    @JoinTable({
+        name: 'event_state',
+        joinColumn:{
+            name: 'eventId',
+        },
+        inverseJoinColumn:{
+            name: 'stateId'
+        },
+    })
+    state: State[];*/
+
+    @ManyToOne(() => State)
     @JoinColumn()
-    state: State;
+    state: State[];
     
-    @OneToOne(() => Sport)
+    @ManyToOne(() => Sport)
     @JoinColumn()
-    sport: Sport;
+    sport: Sport[];
 
-    @OneToOne(() => Periodicity)
+    @ManyToOne(() => Periodicity)
     @JoinColumn()
-    periodicity: Periodicity;
+    periodicity: Periodicity[];
 
-    @OneToOne(() => Player)
-    Event: Event;
-   
-    @OneToOne(() => EventApply)
+    @OneToMany(() => EventApply, eventApply=> eventApply.event)
     eventApply: EventApply;
 
     @OneToOne(() => PlayerList)

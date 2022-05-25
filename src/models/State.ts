@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EventApply } from "./EventApply";
 import { Event } from "./Event";
 
@@ -12,10 +12,10 @@ export class State extends BaseEntity{
     @Column()
     description: string;
 
-    @OneToOne(() => Event)
-    event: Event;
-
     @OneToOne(() => EventApply)
     eventApply: EventApply;
+
+    @ManyToMany(()=> Event, event => event.state)
+    event: Event    
 
 }
