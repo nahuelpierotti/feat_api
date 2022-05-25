@@ -19,6 +19,14 @@ export class Availability extends BaseEntity{
     person: Person
 
     @ManyToMany(() => Day)
-    @JoinTable()
+    @JoinTable({
+        name: 'day_availability',
+        joinColumn:{
+            name: 'availabilityId',
+        },
+        inverseJoinColumn:{
+            name: 'dayId'
+        },
+    })
     day: Day[]
 }

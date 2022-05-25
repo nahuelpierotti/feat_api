@@ -9,9 +9,9 @@ export const findAll = async (req: Request, res: Response) => {
   try {
     const event= await getRepository(Event)
     .createQueryBuilder("event")
-    .leftJoinAndSelect("event.sportId", "sport")
-    .leftJoinAndSelect("event.stateId", "state")
-    .leftJoinAndSelect("event.periodicityId", "periodicity")
+    .leftJoinAndSelect("event.sport", "sport")
+    .leftJoinAndSelect("event.state", "state")
+    .leftJoinAndSelect("event.periodicity", "periodicity")
     .getMany()
 
     //console.log(event);
@@ -27,9 +27,9 @@ export const findOne = async (req: Request, res: Response) => {
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .where("event.id = :id", { id: req.params.id})
-    .leftJoinAndSelect("event.sportId", "sport")
-    .leftJoinAndSelect("event.stateId", "state")
-    .leftJoinAndSelect("event.periodicityId", "periodicity")
+    .leftJoinAndSelect("event.sport", "sport")
+    .leftJoinAndSelect("event.state", "state")
+    .leftJoinAndSelect("event.periodicity", "periodicity")
     .getOne()
 
     //console.log(event);

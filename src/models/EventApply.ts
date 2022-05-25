@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity,JoinColumn,OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity,JoinColumn,ManyToOne,OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Player } from "./Player";
 import { Event } from "./Event";
 import { State } from "./State";
@@ -11,15 +11,15 @@ export class EventApply extends BaseEntity{
     @Column({ length: 1 })
     origin: String
 
-    @OneToOne(() => State)
+    @ManyToOne(() => State)
     @JoinColumn()
-    state: State
+    state: State[]
     
-    @OneToOne(() => Event)
+    @ManyToOne(() => Event)
     @JoinColumn()
-    event: Event
+    event: Event[]
 
-    @OneToOne(() => Player)
+    @ManyToOne(() => Player)
     @JoinColumn()
-    player: Player
+    player: Player[]
 }
