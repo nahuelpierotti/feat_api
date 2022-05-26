@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
+import { stat } from "fs";
 import { createQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
 import { Event } from "../models/Event";
 import { Sport } from "../models/Sport";
+import { State } from "../models/State";
 
 
 export const findAll = async (req: Request, res: Response) => {
@@ -39,3 +41,42 @@ export const findOne = async (req: Request, res: Response) => {
     res.status(400).json(error);
   }
 };
+
+export const update = (req: Request, res: Response) => {
+  res.send("update user");
+};
+
+export const deleteEvent = (req: Request, res: Response) => {
+  res.send("delete user");
+};
+
+export const create = (req: Request, res: Response) => {
+  try{
+    const event= 
+    createQueryBuilder()
+    .insert()
+    .into(Event)
+    .values({
+        name: req.body.name,
+        date: req.body.date,
+        start_time: req.body.start_time,
+        end_time: req.body.end_time,
+        description: req.body.description,
+        latitude: req.body.latitude,
+        logitude: req.body.longitude,
+        state: 1,
+        sport: + req.body.sport,
+        periodicity: + req.body.periodicity        
+    })
+    .execute()
+
+    event.then(function(result) {
+      console.log(result) 
+    })
+
+  }catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+

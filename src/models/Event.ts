@@ -45,19 +45,19 @@ export class Event extends BaseEntity{
     })
     state: State[];*/
 
-    @ManyToOne(() => State)
-    @JoinColumn()
-    state: State[];
+    @ManyToOne(() => State, state=> state.event,{ cascade: ['insert', 'update'] })
+    @JoinColumn({name: 'stateId'})
+    state: number;
     
     @ManyToOne(() => Sport)
-    @JoinColumn()
-    sport: Sport[];
+    @JoinColumn({name: 'sportId'})
+    sport: number;
 
     @ManyToOne(() => Periodicity)
-    @JoinColumn()
-    periodicity: Periodicity[];
+    @JoinColumn({name: 'periodicityId'})
+    periodicity: number;
 
-    @OneToMany(() => EventApply, eventApply=> eventApply.event)
+    @OneToMany(() => EventApply, eventApply=> eventApply.event, { cascade: ['insert', 'update'] })
     eventApply: EventApply;
 
     @OneToOne(() => PlayerList)

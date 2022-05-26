@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EventApply } from "./EventApply";
 import { Event } from "./Event";
 
@@ -15,7 +15,7 @@ export class State extends BaseEntity{
     @OneToOne(() => EventApply)
     eventApply: EventApply;
 
-    @ManyToMany(()=> Event, event => event.state)
+    @OneToMany(()=> Event, event => event.state,{ cascade: ['insert', 'update'] } )
     event: Event    
 
 }
