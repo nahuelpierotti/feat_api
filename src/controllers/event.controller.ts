@@ -14,9 +14,29 @@ export const findAll = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.sport", "sport")
     .leftJoinAndSelect("event.state", "state")
     .leftJoinAndSelect("event.periodicity", "periodicity")
+    .leftJoinAndSelect("event.organizer", "organizer")
     .getMany()
 
     //console.log(event);
+    res.status(200).json(event);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
+export const findAllByUser = async (req: Request, res: Response) => {
+  try {
+    const event= await getRepository(Event)
+    .createQueryBuilder("event")
+    .leftJoinAndSelect("event.sport", "sport")
+    .leftJoinAndSelect("event.state", "state")
+    .leftJoinAndSelect("event.periodicity", "periodicity")
+    .leftJoinAndSelect("event.organizer", "organizer")
+    .where('event.organizerId = :organizerId', {organizerId: req.params.organizer })
+    .getMany()
+
+    console.log(event);
     res.status(200).json(event);
   } catch (error) {
     console.log(error);
@@ -66,11 +86,11 @@ export const create = async (req: Request, res: Response) => {
         logitude: req.body.longitude,
         state: 1,
         sport: + req.body.sport,
-        periodicity: + req.body.periodicity        
+        periodicity: + req.body.periodicity,    
+        organizer: + req.body.organizer    
     })
     .execute()
-
-    console.log(event)
+    
     res.status(200).json("Evento Creado Exitosamente!");
 
   }catch (error) {
