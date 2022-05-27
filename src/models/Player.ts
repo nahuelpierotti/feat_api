@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity,ManyToOne,OneToMany,PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity,JoinColumn,ManyToOne,OneToMany,PrimaryGeneratedColumn } from "typeorm";
 import { Level } from "./Level";
 import { Person } from "./Person";
 import { PlayerList } from "./PlayerList";
@@ -17,20 +17,25 @@ export class Player extends BaseEntity{
     @Column()
     notifications: boolean
 
-    @ManyToOne(() => Person, (person) => person.player)
-    person: Person
+    @ManyToOne(() => Person)
+    @JoinColumn({name: 'personId'})
+    person: number;
 
-    @ManyToOne(() => Sport, (sport) => sport.player)
-    sport: Sport
+    @ManyToOne(() => Sport)
+    @JoinColumn({name: 'sportId'})
+    sport: number;
 
-    @ManyToOne(() => Position, (position) => position.player)
-    position: Position
+    @ManyToOne(() => Position)
+    @JoinColumn({name: 'positiontId'})
+    position: number;
 
-    @ManyToOne(() => Level, (level) => level.player)
-    level: Level
+    @ManyToOne(() => Level)
+    @JoinColumn({name: 'levelId'})
+    level: number;
 
-    @ManyToOne(() => Valuation, (valuation) => valuation.player)
-    valuation: Valuation
+    @ManyToOne(() => Valuation)
+    @JoinColumn({name: 'valuationId'})
+    valuation: number;
     
     @OneToMany(() => PlayerList, (playerList) => playerList.player)
     playerList: PlayerList[]
