@@ -50,9 +50,9 @@ export const deleteEvent = (req: Request, res: Response) => {
   res.send("delete user");
 };
 
-export const create = (req: Request, res: Response) => {
+export const create = async (req: Request, res: Response) => {
   try{
-    const event= 
+    const event= await
     createQueryBuilder()
     .insert()
     .into(Event)
@@ -70,9 +70,8 @@ export const create = (req: Request, res: Response) => {
     })
     .execute()
 
-    event.then(function(result) {
-      console.log(result) 
-    })
+    console.log(event)
+    res.status(200).json("Evento Creado Exitosamente!");
 
   }catch (error) {
     console.log(error);
