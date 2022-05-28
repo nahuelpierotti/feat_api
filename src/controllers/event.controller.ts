@@ -3,8 +3,11 @@ import { stat } from "fs";
 import { createQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
 import { Event } from "../models/Event";
+import { Person } from "../models/Person";
+import { Player } from "../models/Player";
 import { Sport } from "../models/Sport";
 import { State } from "../models/State";
+import { User } from "../models/User";
 
 
 export const findAll = async (req: Request, res: Response) => {
@@ -25,7 +28,7 @@ export const findAll = async (req: Request, res: Response) => {
   }
 };
 
-export const findAllByUser = async (req: Request, res: Response) => {
+export const findAllByOrganizer = async (req: Request, res: Response) => {
   try {
     const event= await getRepository(Event)
     .createQueryBuilder("event")
@@ -34,6 +37,28 @@ export const findAllByUser = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.periodicity", "periodicity")
     .leftJoinAndSelect("event.organizer", "organizer")
     .where('event.organizerId = :organizerId', {organizerId: req.params.organizer })
+    .getMany()
+
+    console.log(event);
+    res.status(200).json(event);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
+export const findAllByUser = async (req: Request, res: Response) => {
+  try {
+    const event= await getRepository(Event)
+    .createQueryBuilder("event")
+    .leftJoinAndSelect("event.sport", "sport")
+    .leftJoinAndSelect("event.state", "state")
+    .leftJoinAndSelect("event.periodicity", "periodicity")
+    .leftJoinAndSelect("event.organizer", "organizer")
+    .leftJoinAndSelect(Player, "player", "player.id = event.organizer")
+    .leftJoinAndSelect(Person, "person", "person.id = player.personId")
+    .leftJoinAndSelect(User, "user", "user.uid = person.userUid")
+    .where('user.uid = :uid', {uid: req.params.uid })
     .getMany()
 
     console.log(event);
