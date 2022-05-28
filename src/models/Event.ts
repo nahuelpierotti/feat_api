@@ -32,19 +32,6 @@ export class Event extends BaseEntity{
     @Column()
     logitude: string
 
-    /*
-    @ManyToMany(() => State, state => state.event)
-    @JoinTable({
-        name: 'event_state',
-        joinColumn:{
-            name: 'eventId',
-        },
-        inverseJoinColumn:{
-            name: 'stateId'
-        },
-    })
-    state: State[];*/
-
     @ManyToOne(() => State, state=> state.event,{ cascade: ['insert', 'update'] })
     @JoinColumn({name: 'stateId'})
     state: number;
@@ -62,4 +49,9 @@ export class Event extends BaseEntity{
 
     @OneToOne(() => PlayerList)
     playerList: PlayerList;
+
+    @ManyToOne(() => Player, (player) => player.events)
+    @JoinColumn({name: 'organizerId'})
+    organizer: number;
+
 }
