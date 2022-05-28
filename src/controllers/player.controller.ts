@@ -26,12 +26,12 @@ export const findAll = async (req: Request, res: Response) => {
     try {
       const player= await getRepository(Player)
       .createQueryBuilder("player")
-      .where("player.person = :personId", { personId: req.params.person})
       .leftJoinAndSelect("player.person", "person")
       .leftJoinAndSelect("player.sport", "sport")
       .leftJoinAndSelect("player.position", "position")
       .leftJoinAndSelect("player.level", "level")
       .leftJoinAndSelect("player.valuation", "valuation")
+      .where("player.person = :personId", { personId: req.params.person})
       .getMany()
   
       //console.log(player);
