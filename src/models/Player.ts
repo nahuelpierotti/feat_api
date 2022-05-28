@@ -1,10 +1,11 @@
-import { BaseEntity, Column, Entity,ManyToOne,OneToMany,PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity,ManyToMany,ManyToOne,OneToMany,OneToOne,PrimaryGeneratedColumn } from "typeorm";
 import { Level } from "./Level";
 import { Person } from "./Person";
 import { PlayerList } from "./PlayerList";
 import { Position } from "./Position";
 import { Sport } from "./Sport";
 import { Valuation } from "./Valuation";
+
 
 @Entity()
 export class Player extends BaseEntity{
