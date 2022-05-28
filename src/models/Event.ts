@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity,JoinColumn,JoinTable,ManyToMany,ManyToOne,OneToMany,OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EventApply } from "./EventApply";
 import { Periodicity } from "./Periodicity";
-import { Player } from "./Player";
+import { Person } from "./Person";
 import { PlayerList } from "./PlayerList";
 import { Sport } from "./Sport";
 import { State } from "./State";
@@ -30,7 +30,7 @@ export class Event extends BaseEntity{
     latitude: string
 
     @Column()
-    logitude: string
+    longitude: string
 
     @ManyToOne(() => State, state=> state.event,{ cascade: ['insert', 'update'] })
     @JoinColumn({name: 'stateId'})
@@ -50,7 +50,7 @@ export class Event extends BaseEntity{
     @OneToOne(() => PlayerList)
     playerList: PlayerList;
 
-    @ManyToOne(() => Player, (player) => player.events)
+    @ManyToOne(() => Person, (person) => person.events)
     @JoinColumn({name: 'organizerId'})
     organizer: number;
 

@@ -5,7 +5,7 @@ import { PlayerList } from "./PlayerList";
 import { Position } from "./Position";
 import { Sport } from "./Sport";
 import { Valuation } from "./Valuation";
-import { Event } from "./Event";
+
 
 @Entity()
 export class Player extends BaseEntity{
@@ -41,6 +41,4 @@ export class Player extends BaseEntity{
     @OneToMany(() => PlayerList, (playerList) => playerList.player)
     playerList: PlayerList[]
 
-    @OneToMany(() => Event, (event) => event.organizer)
-    events: Event[]
 }
