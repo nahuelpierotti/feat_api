@@ -13,7 +13,7 @@ import { UserType } from "./UserType";
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
-  uid: number;
+  uid: String;
 
   @Column()
   email: string;
