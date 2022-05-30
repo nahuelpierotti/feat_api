@@ -71,11 +71,11 @@ export const findAll = async (req: Request, res: Response) => {
       .values({
           abilities: req.body.abilities,
           notifications: false,
-          person: req.body.person,
-          sport: req.body.sport,
-          position: req.body.position,
-          level: req.body.level,
-          valuation: req.body.valuation   
+          person: + req.body.person,
+          sport: + req.body.sport,
+          position: + req.body.position,
+          level: + req.body.level,
+          valuation: + req.body.valuation   
       })
       .execute()
   

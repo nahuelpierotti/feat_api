@@ -14,6 +14,6 @@ router.route("/:id").get(findOne);
 
 router.route("/getAllBypPerson/:personId").get(findAllByPerson);
 
-router.route("/").post(create);
+router.route("/create").post(create);
 
 export default router;
