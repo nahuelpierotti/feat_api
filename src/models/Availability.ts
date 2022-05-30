@@ -8,12 +8,12 @@ export class Availability extends BaseEntity{
 
     @PrimaryGeneratedColumn()
     id: number
+    
+    @Column('time', {name: 'start_time'})
+    start_time: Date;
 
-    @Column()
-    start_time: number
-
-    @Column()
-    end_time: number
+    @Column('time', {name: 'end_time'})
+    end_time: Date;
     
     @ManyToOne(() => Person, (person) => person.availability)
     person: Person

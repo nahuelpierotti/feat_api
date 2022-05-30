@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { stat } from "fs";
-import { createQueryBuilder } from "typeorm";
+import { createQueryBuilder, getManager } from "typeorm";
 import {getRepository} from "typeorm";
 import { Event } from "../models/Event";
 import { EventApply } from "../models/EventApply";
+import { EventSuggestion } from "../models/EventSuggestion";
 import { Person } from "../models/Person";
 import { Player } from "../models/Player";
 import { PlayerList } from "../models/PlayerList";
@@ -120,36 +121,20 @@ export const findAllConfirmed = async (req: Request, res: Response) => {
 
 export const findAllByUser = async (req: Request, res: Response) => {
   try {
-    const confirmed= await getRepository(Event)
+    const eventList= await getRepository(Event)
     .createQueryBuilder("event")
     .innerJoinAndSelect("event.sport", "sport")
     .innerJoinAndSelect("event.state", "state")
     .innerJoinAndSelect("event.periodicity", "periodicity")
-    .innerJoinAndSelect("event.organizer", "organizer")
+    .innerJoin("event.organizer", "organizer")
     .innerJoin(Person, "person", "person.id = event.organizer")
     .innerJoin(User, "user", "user.uid = person.userUid")
-    .innerJoinAndSelect(Player, "player", "player.personId = person.id")
-    .innerJoinAndSelect(PlayerList, "list", "list.playerId = player.id")
+    .innerJoin(Player, "player", "player.personId = person.id")
     .where('user.uid = :uid', {uid: req.params.uid })
-    .andWhere('event.id = list.eventId')
+    .andWhere('player.id IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
     .getMany()
-
-    const applied= await getRepository(Event)
-    .createQueryBuilder("event")
-    .innerJoinAndSelect("event.sport", "sport")
-    .innerJoinAndSelect("event.state", "state")
-    .innerJoinAndSelect("event.periodicity", "periodicity")
-    .innerJoinAndSelect("event.organizer", "organizer")
-    .innerJoin(Person, "person", "person.id = event.organizer")
-    .innerJoin(User, "user", "user.uid = person.userUid")
-    .innerJoinAndSelect(Player, "player", "player.personId = person.id")
-    .innerJoinAndSelect(EventApply, "apply", "apply.playerId = player.id")
-    .where('user.uid = :uid', {uid: req.params.uid })
-    .andWhere('event.id = apply.eventId')
-    .getMany()
-
     
-    res.status(200).json(confirmed.concat(applied));
+    res.status(200).json(eventList);
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
@@ -173,6 +158,33 @@ export const findOne = async (req: Request, res: Response) => {
     res.status(400).json(error);
   }
 };
+
+export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
+  try{  
+      const result = await Event.query(
+        'call get_events_suggested_for_user_v2(?)',[req.params.uid]);
+
+        console.log(result) 
+
+        const event= await getRepository(Event)
+        .createQueryBuilder("event")
+        .innerJoinAndSelect("event.sport", "sport")
+        .innerJoinAndSelect("event.state", "state")
+        .innerJoinAndSelect("event.periodicity", "periodicity")
+        .innerJoinAndSelect("event.organizer", "organizer")
+        .innerJoin(Person, "person", "person.id = event.organizer")
+        .innerJoin(User, "user", "user.uid = person.userUid")
+        .innerJoinAndSelect(EventSuggestion, "sug", "person.id = sug.personid")
+        .where('user.uid = :uid', {uid: req.params.uid })
+        .andWhere('event.id = sug.eventId')
+        .getMany()
+        
+      res.status(200).json(event);   
+       
+  }catch(error){
+    res.status(400).json(error);
+  }
+}
 
 export const update = (req: Request, res: Response) => {
   res.send("update user");

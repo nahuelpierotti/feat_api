@@ -15,6 +15,7 @@ import { Periodicity } from "./models/Periodicity";
 import { State } from "./models/State";
 import { EventApply } from "./models/EventApply";
 import { PlayerList } from "./models/PlayerList";
+import { EventSuggestion } from "./models/EventSuggestion";
 
 
 export const connectDatabase = async () => {
@@ -29,7 +30,7 @@ export const connectDatabase = async () => {
       synchronize: true,
       entities: [User, UserType, Person, Sport,Day,Level,Valuation, 
         Position,Availability,Player,Address,Periodicity,
-        State,EventApply,PlayerList,Event],
+        State,EventApply,PlayerList,Event,EventSuggestion],
       ssl: false,
     });
     console.log("Database connected");

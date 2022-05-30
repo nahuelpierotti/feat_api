@@ -5,14 +5,14 @@ import {
   ManyToMany,
   ManyToOne,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from "typeorm";
 import { Person } from "./Person";
 import { UserType } from "./UserType";
 
 @Entity()
 export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   uid: String;
 
   @Column()

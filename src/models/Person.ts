@@ -4,6 +4,7 @@ import { Availability } from "./Availability";
 import { Player } from "./Player";
 import { User } from "./User";
 import { Event } from "./Event";
+import { EventSuggestion } from "./EventSuggestion";
 
 @Entity()
 export class Person extends BaseEntity{
@@ -46,4 +47,7 @@ export class Person extends BaseEntity{
 
     @OneToMany(() => Event, (event) => event.organizer)
     events: Event[]
+
+    @OneToMany(() => EventSuggestion, eventSuggestion=> eventSuggestion.person, { cascade: ['insert', 'update'] })
+    eventSuggestion: EventSuggestion;
 }
