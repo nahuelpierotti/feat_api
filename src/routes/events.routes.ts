@@ -7,12 +7,15 @@ import {
   findAllCreatedByUser,
   findAllApplied,
   findAllConfirmed,
-  findAllByUser
+  findAllByUser,
+  findAllEventSuggestedForUser
 } from "../controllers/event.controller";
 
 const router = Router();
 
 router.route("/").get(findAll);
+
+router.route("/getAllEventSuggestedForUser/:uid").get(findAllEventSuggestedForUser);
 
 router.route("/getAllCreatedByUser/:uid").get(findAllCreatedByUser);
 
