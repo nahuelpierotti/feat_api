@@ -15,5 +15,7 @@ export const instanceApp = () => {
   app.use("/events", Router.EventRoute);
   app.use("/players", Router.PlayerRoute);
   app.use("/levels", Router.LevelRoute);
+  app.use("/positions", Router.PositionRoute);
+  app.use("/availabilities", Router.AvailabilityRoute);
   return app;
 };

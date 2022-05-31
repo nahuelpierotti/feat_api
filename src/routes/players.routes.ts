@@ -12,7 +12,7 @@ router.route("/").get(findAll);
 
 router.route("/:id").get(findOne);
 
-router.route("/getAllBypPerson/:personId").get(findAllByPerson);
+router.route("/getAllByPerson/:personId").get(findAllByPerson);
 
 router.route("/create").post(create);
 

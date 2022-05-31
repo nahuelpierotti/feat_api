@@ -8,7 +8,7 @@ export const findAll = async (req: Request, res: Response) => {
     try {
       const position= await getRepository(Position)
       .createQueryBuilder("position")
-      .leftJoinAndSelect("postion.sport", "sport")
+      .leftJoinAndSelect("position.sport", "sport")
       .getMany()
   
       //console.log(position);
