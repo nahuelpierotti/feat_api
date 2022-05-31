@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `get_events_suggested_for_user_v2`(IN p_userUid INT)
+CREATE PROCEDURE `get_events_suggested_for_user_v2`(IN p_userUid INT)
 BEGIN
 -- variables 
 DECLARE done INT DEFAULT 0;
@@ -32,7 +32,6 @@ OPEN get_availabilities;
     SELECT 12 stateId, e.id,v_personId,current_date()
 	FROM event e 
 	JOIN sport s ON e.sportId=s.id
-	LEFT JOIN event_apply ap ON e.id=ap.eventId
 	WHERE e.date >= CURRENT_DATE 
     AND (s.capacity-(SELECT count(*) FROM player_list WHERE eventId=e.id AND stateId=9))>0 -- valido que el cupo > 0
 	AND e.date <= DATE_ADD(NOW(), INTERVAL 10 DAY) -- filtro de eventos dentro de los 10 dias
@@ -48,7 +47,24 @@ OPEN get_availabilities;
     AND DAYOFWEEK(DATE(e.date))=v_dayId
     AND v_start_time <= e.start_time 
     AND e.end_time <= v_end_time
-    AND NOT EXISTS(SELECT 1 FROM event_suggestion WHERE eventId=e.id AND personId=v_personId )
+    AND NOT EXISTS(
+		SELECT 1 FROM event_suggestion 
+        WHERE eventId=e.id 
+        AND personId=v_personId 
+	)
+    AND NOT EXISTS(
+		SELECT 1 FROM player_list  l
+        JOIN player pla ON l.playerId=pla.id
+        JOIN person per ON pla.personId=per.id 
+        WHERE l.eventId=e.id  
+	    AND per.id=v_personId
+        UNION
+        SELECT 1 FROM event_apply  ap
+        JOIN player pla ON ap.playerId=pla.id
+        JOIN person per ON pla.personId=per.id 
+        WHERE ap.eventId=e.id  
+	    AND per.id=v_personId
+	)
     ;
     
     END LOOP read_loop;   
