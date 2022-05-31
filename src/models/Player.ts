@@ -1,4 +1,5 @@
 import { BaseEntity, Column, Entity,JoinColumn,ManyToMany,ManyToOne,OneToMany,OneToOne,PrimaryGeneratedColumn } from "typeorm";
+import { EventSuggestion } from "./EventSuggestion";
 import { Level } from "./Level";
 import { Person } from "./Person";
 import { PlayerList } from "./PlayerList";
@@ -41,4 +42,6 @@ export class Player extends BaseEntity{
     @OneToMany(() => PlayerList, (playerList) => playerList.player)
     playerList: PlayerList[]
 
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
+    created: String;
 }

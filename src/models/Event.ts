@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity,JoinColumn,JoinTable,ManyToMany,ManyToOne,OneToMany,OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EventApply } from "./EventApply";
+import { EventSuggestion } from "./EventSuggestion";
 import { Periodicity } from "./Periodicity";
 import { Person } from "./Person";
 import { PlayerList } from "./PlayerList";
@@ -32,6 +33,9 @@ export class Event extends BaseEntity{
     @Column()
     longitude: string
 
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
+    created: String
+
     @ManyToOne(() => State, state=> state.event,{ cascade: ['insert', 'update'] })
     @JoinColumn({name: 'stateId'})
     state: number;
@@ -53,5 +57,8 @@ export class Event extends BaseEntity{
     @ManyToOne(() => Person, (person) => person.events)
     @JoinColumn({name: 'organizerId'})
     organizer: number;
+
+    @OneToMany(() => EventSuggestion, eventSuggestion=> eventSuggestion.event, { cascade: ['insert', 'update'] })
+    eventSuggestion: EventSuggestion;
 
 }

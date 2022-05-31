@@ -31,6 +31,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `availability` WRITE;
 /*!40000 ALTER TABLE `availability` DISABLE KEYS */;
+INSERT INTO `availability` VALUES (1,1,1,'20:00:00','22:00:00'),(2,1,2,'20:00:00','22:00:00'),(3,1,5,'20:00:00','22:00:00'),(4,1,6,'20:00:00','22:00:00'),(5,1,7,'20:00:00','22:00:00');
 /*!40000 ALTER TABLE `availability` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -50,7 +51,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `event` WRITE;
 /*!40000 ALTER TABLE `event` DISABLE KEYS */;
-INSERT INTO `event` VALUES (1,'Por la Coca','2022-06-22 00:00:00','19:00:00','21:00:00','Partido para conocer gente','-34.67017455940845','-58.556484569314776',1,1,1,1),(2,'Por la Coca Revancha','2022-06-29 00:00:00','19:00:00','21:00:00','Partido para conocer gente','-34.67017455940845','-58.556484569314776',1,1,1,1),(3,'Por la Coca Mataderos','2022-06-29 00:00:00','19:00:00','21:00:00','Partido para conocer gente','-34.67017455940845','-58.556484569314776',1,1,1,1),(16,'Prueba','2022-05-29 21:00:00','19:00:00','20:00:00','Partido de Prueba Insert','-34.67017455940845','-58.556484569314776',1,1,1,1),(17,'Prueba 2','2022-06-02 21:00:00','19:00:00','21:00:00','Partido Amistoso de Prueba Insert','-34.67017455940845','-58.556484569314776',1,1,1,1);
+INSERT INTO `event` VALUES (1,'Por la Coca','2022-06-02 00:00:00','20:00:00','21:00:00','Partido para conocer gente','-34.67017455940845','-58.556484569314776',1,1,1,1,'2022-05-29 01:02:55'),(2,'Por la Coca Revancha','2022-06-29 00:00:00','19:00:00','21:00:00','Partido para conocer gente','-34.67017455940845','-58.556484569314776',1,1,1,1,'2022-05-29 01:02:55'),(3,'Por la Coca Mataderos','2022-06-29 00:00:00','19:00:00','21:00:00','Partido para conocer gente','-34.67017455940845','-58.556484569314776',1,1,1,1,'2022-05-29 01:02:55'),(16,'Prueba','2022-06-29 21:00:00','19:00:00','20:00:00','Partido de Prueba Insert','-34.67017455940845','-58.556484569314776',1,1,1,1,'2022-05-29 01:02:55'),(17,'Prueba 2','2022-06-02 20:00:00','19:00:00','21:00:00','Partido Amistoso de Prueba Insert','-34.67017455940845','-58.556484569314776',1,1,1,1,'2022-05-29 01:02:55'),(18,'Evento Sabado 28-05','2022-06-02 21:00:00','20:00:00','21:00:00','Para mostrarle al profe','-34.64222113108822','-58.490307171164346',1,2,1,1,'2022-05-29 01:02:55'),(19,'Picadito Sabado 4 Junio (A. Bonzi)','2022-06-04 21:00:00','20:00:00','21:00:00','Para ver si me sugiere','-34.71491851271653','-58.520387015342614',1,2,1,1,'2022-05-30 04:18:38');
 /*!40000 ALTER TABLE `event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -60,8 +61,18 @@ UNLOCK TABLES;
 
 LOCK TABLES `event_apply` WRITE;
 /*!40000 ALTER TABLE `event_apply` DISABLE KEYS */;
-INSERT INTO `event_apply` VALUES (1,'S',6,1,1),(2,'S',6,2,1);
+INSERT INTO `event_apply` VALUES (1,'S',6,1,1,'2022-05-29 01:20:58'),(2,'S',6,2,1,'2022-05-29 01:20:58');
 /*!40000 ALTER TABLE `event_apply` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `event_suggestion`
+--
+
+LOCK TABLES `event_suggestion` WRITE;
+/*!40000 ALTER TABLE `event_suggestion` DISABLE KEYS */;
+INSERT INTO `event_suggestion` VALUES (1,'2022-05-30 00:00:00',12,1,1),(4,'2022-05-30 00:00:00',12,18,1),(5,'2022-05-30 00:00:00',12,19,1);
+/*!40000 ALTER TABLE `event_suggestion` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -90,7 +101,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `person` WRITE;
 /*!40000 ALTER TABLE `person` DISABLE KEYS */;
-INSERT INTO `person` VALUES (1,'Pierotti','Nahuel','1985-10-26 00:00:00','M',20,45,'npie',1);
+INSERT INTO `person` VALUES (1,'Pierotti','Nahuel','1985-10-26 00:00:00','M',20,45,'npie','1');
 /*!40000 ALTER TABLE `person` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -100,7 +111,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `player` WRITE;
 /*!40000 ALTER TABLE `player` DISABLE KEYS */;
-INSERT INTO `player` VALUES (1,'Rustico',1,1,1,11,30,1),(6,'Rustico',1,1,2,11,30,1);
+INSERT INTO `player` VALUES (1,'Rustico',1,1,1,11,30,1,'2022-05-29 01:04:01'),(6,'Rustico',1,1,2,11,30,1,'2022-05-29 01:04:01');
 /*!40000 ALTER TABLE `player` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -110,7 +121,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `player_list` WRITE;
 /*!40000 ALTER TABLE `player_list` DISABLE KEYS */;
-INSERT INTO `player_list` VALUES (1,1,1,1);
+INSERT INTO `player_list` VALUES (1,9,1,1,'2022-05-29 01:21:25','');
 /*!40000 ALTER TABLE `player_list` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -140,7 +151,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `state` WRITE;
 /*!40000 ALTER TABLE `state` DISABLE KEYS */;
-INSERT INTO `state` VALUES (1,'Evento Creado'),(2,'Evento Completo'),(3,'Evento Confirmado'),(4,'Evento Cancelado'),(5,'Evento Terminado'),(6,'Solicitud Enviada'),(7,'Solicitud Confirmada'),(8,'Solicitud Rechazada');
+INSERT INTO `state` VALUES (1,'Evento Creado'),(2,'Evento Completo'),(3,'Evento Confirmado'),(4,'Evento Cancelado'),(5,'Evento Terminado'),(6,'Solicitud Enviada'),(7,'Solicitud Confirmada'),(8,'Solicitud Rechazada'),(9,'Jugador Titular'),(10,'Jugador Suplente'),(11,'Jugador Excluido'),(12,'Sugerencia Creada'),(13,'Sugerencia Aceptada'),(14,'Sugerencia Rechazada');
 /*!40000 ALTER TABLE `state` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -150,7 +161,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'nahuelpierotti@gmail.com',1);
+INSERT INTO `user` VALUES ('nahuelpierotti@gmail.com',1,'1');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,4 +194,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-05-28 13:21:45
+-- Dump completed on 2022-05-30 19:55:54
