@@ -7,7 +7,7 @@ services:
       MYSQL_ROOT_USER: 'root'
       MYSQL_ROOT_PASSWORD: "root"
     ports:
-      - "3306:3306"
+      - "9000:3400"
     volumes:
       - "mysql:/var/lib/mysql"
 
