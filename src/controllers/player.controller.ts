@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import { createQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
+import { EventApply } from "../models/EventApply";
 import { Player } from "../models/Player";
+import { PlayerList } from "../models/PlayerList";
 import { PlayerSuggestion } from "../models/PlayerSuggestion";
 
 export const findAll = async (req: Request, res: Response) => {
@@ -105,6 +107,48 @@ export const findAll = async (req: Request, res: Response) => {
           .leftJoinAndSelect("player.valuation", "valuation")
           .innerJoinAndSelect(PlayerSuggestion, "sug", "player.id = sug.playerId")
           .where("sug.eventId = :id", { id: req.params.eventId})
+          .getMany()
+          
+        res.status(200).json(players);   
+         
+    }catch(error){
+      res.status(400).json(error);
+    }
+  }
+
+  export const findAllPlayersConfirmedByEvent=async (req: Request,res:Response)=>{
+    try{  
+  
+          const players= await getRepository(Player)
+          .createQueryBuilder("player")
+          .innerJoinAndSelect("player.person", "person")
+          .leftJoinAndSelect("player.sport", "sport")
+          .leftJoinAndSelect("player.position", "position")
+          .leftJoinAndSelect("player.level", "level")
+          .leftJoinAndSelect("player.valuation", "valuation")
+          .innerJoinAndSelect(PlayerList, "playerlist", "player.id = playerlist.playerId")
+          .where("playerlist.eventId = :id", { id: req.params.eventId})
+          .getMany()
+          
+        res.status(200).json(players);   
+         
+    }catch(error){
+      res.status(400).json(error);
+    }
+  }
+
+  export const findAllPlayersAppliedByEvent=async (req: Request,res:Response)=>{
+    try{  
+  
+          const players= await getRepository(Player)
+          .createQueryBuilder("player")
+          .innerJoinAndSelect("player.person", "person")
+          .leftJoinAndSelect("player.sport", "sport")
+          .leftJoinAndSelect("player.position", "position")
+          .leftJoinAndSelect("player.level", "level")
+          .leftJoinAndSelect("player.valuation", "valuation")
+          .innerJoinAndSelect(EventApply, "apply", "player.id = apply.playerId")
+          .where("apply.eventId = :id", { id: req.params.eventId})
           .getMany()
           
         res.status(200).json(players);   
