@@ -9,7 +9,6 @@ export const findAll = async (req: Request, res: Response) => {
       .createQueryBuilder("availability")
       .leftJoinAndSelect("availability.person", "person")
       .leftJoinAndSelect("availability.day", "day")
-      .leftJoinAndSelect("availability.turn", "turn")
       .getMany()
   
       //console.log(availability);
@@ -27,7 +26,6 @@ export const findAll = async (req: Request, res: Response) => {
       .where("availability.id = :id", { id: req.params.id})
       .leftJoinAndSelect("availability.person", "person")
       .leftJoinAndSelect("availability.day", "day")
-      .leftJoinAndSelect("availability.turn", "turn")
       .getOne()
   
       //console.log(availability);
