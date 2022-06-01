@@ -20,6 +20,6 @@ export class Availability extends BaseEntity{
     person: number;
 
     @ManyToOne(() => Day)
-    @JoinColumn({name: 'personID'})
+    @JoinColumn({name: 'dayId'})
     day: number;
 }
