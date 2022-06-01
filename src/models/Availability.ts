@@ -15,10 +15,11 @@ export class Availability extends BaseEntity{
     @Column('time', {name: 'end_time'})
     end_time: Date;
     
-    @ManyToOne(() => Person, (person) => person.availability)
-    person: Person
+    @ManyToOne(() => Person)
+    @JoinColumn({name: 'personId'})
+    person: number;
 
     @ManyToOne(() => Day)
-    @JoinColumn()
-    day: Day[]
+    @JoinColumn({name: 'dayId'})
+    day: number;
 }
