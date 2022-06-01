@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { createQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
 import { Player } from "../models/Player";
+import { PlayerSuggestion } from "../models/PlayerSuggestion";
 
 export const findAll = async (req: Request, res: Response) => {
     try {
@@ -87,4 +88,29 @@ export const findAll = async (req: Request, res: Response) => {
       res.status(400).json(error);
     }
   };
+
+  export const findAllPlayersSuggestedForEvent=async (req: Request,res:Response)=>{
+    try{  
+        const result = await Player.query(
+          'call get_players_suggested_for_event(?)',[req.params.eventId]);
+  
+          console.log(result) 
+  
+          const players= await getRepository(Player)
+          .createQueryBuilder("player")
+          .innerJoinAndSelect("player.person", "person")
+          .leftJoinAndSelect("player.sport", "sport")
+          .leftJoinAndSelect("player.position", "position")
+          .leftJoinAndSelect("player.level", "level")
+          .leftJoinAndSelect("player.valuation", "valuation")
+          .innerJoinAndSelect(PlayerSuggestion, "sug", "player.id = sug.playerId")
+          .where("sug.eventId = :id", { id: req.params.eventId})
+          .getMany()
+          
+        res.status(200).json(players);   
+         
+    }catch(error){
+      res.status(400).json(error);
+    }
+  }
   

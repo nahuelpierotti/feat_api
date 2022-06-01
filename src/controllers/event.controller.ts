@@ -162,7 +162,7 @@ export const findOne = async (req: Request, res: Response) => {
 export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
   try{  
       const result = await Event.query(
-        'call get_events_suggested_for_user_v2(?)',[req.params.uid]);
+        'call get_events_suggested_for_user(?)',[req.params.uid]);
 
         console.log(result) 
 
