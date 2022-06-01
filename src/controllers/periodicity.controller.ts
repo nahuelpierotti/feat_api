@@ -21,3 +21,23 @@ export const findAll = async (req: Request, res: Response) => {
           res.status(400).json(error);
         }
   };
+
+  export const create = async (req: Request, res: Response) => {
+    try{
+      const periodicity= await
+      createQueryBuilder()
+      .insert()
+      .into(Periodicity)
+      .values({
+        description: req.body.description
+      })
+      .execute()
+  
+      console.log(periodicity)
+      res.status(200).json("Creado Exitosamente!");
+  
+    }catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
+  };
