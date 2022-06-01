@@ -21,6 +21,7 @@ export const findAll = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.state", "state")
     .leftJoinAndSelect("event.periodicity", "periodicity")
     .leftJoinAndSelect("event.organizer", "organizer")
+    .where('DATE(event.date) = CURRENT_DATE')
     .getMany()
 
     //console.log(event);
