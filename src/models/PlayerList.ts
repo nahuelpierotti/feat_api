@@ -1,4 +1,4 @@
-import { BaseEntity, Entity,JoinColumn,ManyToOne,OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity,JoinColumn,ManyToOne,OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Player } from "./Player";
 import { Event } from "./Event";
 import { State } from "./State";
@@ -7,6 +7,9 @@ import { State } from "./State";
 export class PlayerList extends BaseEntity{
     @PrimaryGeneratedColumn()
     id!: number
+
+    @Column({ length: 1 })
+    origin: String
 
     @OneToOne(() => State)
     @JoinColumn()
@@ -18,4 +21,7 @@ export class PlayerList extends BaseEntity{
 
     @ManyToOne(() => Player, (player) => player.playerList)
     player: Player
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
+    date: String
 }

@@ -8,17 +8,18 @@ export class Availability extends BaseEntity{
 
     @PrimaryGeneratedColumn()
     id: number
-
-    @Column()
-    start_time: number
-
-    @Column()
-    end_time: number
     
-    @ManyToOne(() => Person, (person) => person.availability)
-    person: Person
+    @Column('time', {name: 'start_time'})
+    start_time: Date;
+
+    @Column('time', {name: 'end_time'})
+    end_time: Date;
+    
+    @ManyToOne(() => Person)
+    @JoinColumn({name: 'personId'})
+    person: number;
 
     @ManyToOne(() => Day)
-    @JoinColumn()
-    day: Day[]
+    @JoinColumn({name: 'personID'})
+    day: number;
 }

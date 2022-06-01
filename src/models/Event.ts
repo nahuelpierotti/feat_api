@@ -1,7 +1,8 @@
 import { BaseEntity, Column, Entity,JoinColumn,JoinTable,ManyToMany,ManyToOne,OneToMany,OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EventApply } from "./EventApply";
+import { EventSuggestion } from "./EventSuggestion";
 import { Periodicity } from "./Periodicity";
-import { Player } from "./Player";
+import { Person } from "./Person";
 import { PlayerList } from "./PlayerList";
 import { Sport } from "./Sport";
 import { State } from "./State";
@@ -30,36 +31,34 @@ export class Event extends BaseEntity{
     latitude: string
 
     @Column()
-    logitude: string
+    longitude: string
 
-    /*
-    @ManyToMany(() => State, state => state.event)
-    @JoinTable({
-        name: 'event_state',
-        joinColumn:{
-            name: 'eventId',
-        },
-        inverseJoinColumn:{
-            name: 'stateId'
-        },
-    })
-    state: State[];*/
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
+    created: String
 
-    @ManyToOne(() => State)
-    @JoinColumn()
-    state: State[];
+    @ManyToOne(() => State, state=> state.event,{ cascade: ['insert', 'update'] })
+    @JoinColumn({name: 'stateId'})
+    state: number;
     
     @ManyToOne(() => Sport)
-    @JoinColumn()
-    sport: Sport[];
+    @JoinColumn({name: 'sportId'})
+    sport: number;
 
     @ManyToOne(() => Periodicity)
-    @JoinColumn()
-    periodicity: Periodicity[];
+    @JoinColumn({name: 'periodicityId'})
+    periodicity: number;
 
-    @OneToMany(() => EventApply, eventApply=> eventApply.event)
+    @OneToMany(() => EventApply, eventApply=> eventApply.event, { cascade: ['insert', 'update'] })
     eventApply: EventApply;
 
     @OneToOne(() => PlayerList)
     playerList: PlayerList;
+
+    @ManyToOne(() => Person, (person) => person.events)
+    @JoinColumn({name: 'organizerId'})
+    organizer: number;
+
+    @OneToMany(() => EventSuggestion, eventSuggestion=> eventSuggestion.event, { cascade: ['insert', 'update'] })
+    eventSuggestion: EventSuggestion;
+
 }

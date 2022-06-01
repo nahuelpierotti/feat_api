@@ -1,15 +1,12 @@
-import { BaseEntity, Column, Entity,JoinColumn,ManyToOne,OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity,JoinColumn,ManyToOne,PrimaryGeneratedColumn } from "typeorm";
 import { Player } from "./Player";
 import { Event } from "./Event";
 import { State } from "./State";
 
 @Entity()
-export class EventApply extends BaseEntity{
+export class PlayerSuggestion extends BaseEntity{
     @PrimaryGeneratedColumn()
     id!: number
-
-    @Column({ length: 1 })
-    origin: String
 
     @ManyToOne(() => State)
     @JoinColumn()
