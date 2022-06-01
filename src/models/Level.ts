@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Player } from "./Player";
 import { Sport } from "./Sport";
 
@@ -15,7 +15,8 @@ export class Level extends BaseEntity{
     @OneToMany(() => Player, (player) => player.level)
     player: Player[]
 
-    @ManyToOne(() => Sport, (sport) => sport.level)
-    sport: Sport
+    @ManyToOne(() => Sport)
+    @JoinColumn({name: 'sportId'})
+    sport: number;
 
 }

@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Player } from "./Player";
 import { Sport } from "./Sport";
 
@@ -12,8 +12,9 @@ export class Position extends BaseEntity{
     @Column()
     description: string
 
-    @ManyToOne(() => Sport, (sport) => sport.positions)
-    sport: Sport
+    @ManyToOne(() => Sport)
+    @JoinColumn({name: 'sportId'})
+    sport: number;
 
     @OneToMany(() => Player, (player) => player.position)
     player: Player[]

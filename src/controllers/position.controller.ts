@@ -34,4 +34,25 @@ export const findAll = async (req: Request, res: Response) => {
       res.status(400).json(error);
     }
   };
+
+  export const create = async (req: Request, res: Response) => {
+    try{
+      const position= await
+      createQueryBuilder()
+      .insert()
+      .into(Position)
+      .values({
+          description: req.body.description,
+          sport: + req.body.sport
+      })
+      .execute()
+  
+      console.log(position)
+      res.status(200).json("Posición Creada Exitosamente!");
+  
+    }catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
+  };
   
