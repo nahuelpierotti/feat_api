@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity,ManyToMany,ManyToOne,OneToMany,OneToOne,PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity,JoinColumn,ManyToMany,ManyToOne,OneToMany,OneToOne,PrimaryGeneratedColumn } from "typeorm";
 import { EventSuggestion } from "./EventSuggestion";
 import { Level } from "./Level";
 import { Person } from "./Person";
@@ -18,26 +18,30 @@ export class Player extends BaseEntity{
 
     @Column()
     notifications: boolean
-    
-    @ManyToOne(() => Person, (person) => person.player)
-    person: Person
 
-    @ManyToOne(() => Sport, (sport) => sport.player)
-    sport: Sport
+    @ManyToOne(() => Person)
+    @JoinColumn({name: 'personId'})
+    person: number;
 
-    @ManyToOne(() => Position, (position) => position.player)
-    position: Position
+    @ManyToOne(() => Sport)
+    @JoinColumn({name: 'sportId'})
+    sport: number;
 
-    @ManyToOne(() => Level, (level) => level.player)
-    level: Level
+    @ManyToOne(() => Position)
+    @JoinColumn({name: 'positiontId'})
+    position: number;
 
-    @ManyToOne(() => Valuation, (valuation) => valuation.player)
-    valuation: Valuation
+    @ManyToOne(() => Level)
+    @JoinColumn({name: 'levelId'})
+    level: number;
+
+    @ManyToOne(() => Valuation)
+    @JoinColumn({name: 'valuationId'})
+    valuation: number;
     
     @OneToMany(() => PlayerList, (playerList) => playerList.player)
     playerList: PlayerList[]
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
-    created: String
-    
+    created: String;
 }
