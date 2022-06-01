@@ -3,7 +3,8 @@ import {
   findAll,
   findOne,
   create,
-  findAllByPerson
+  findAllByPerson,
+  findAllPlayersSuggestedForEvent
 } from "../controllers/player.controller";
 
 const router = Router();
@@ -16,4 +17,5 @@ router.route("/getAllByPerson/:personId").get(findAllByPerson);
 
 router.route("/create").post(create);
 
+router.route("/getAllPlayersSuggestedForEvent/:eventId").get(findAllPlayersSuggestedForEvent)
 export default router;
