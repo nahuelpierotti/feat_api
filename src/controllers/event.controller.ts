@@ -21,6 +21,7 @@ export const findAll = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.state", "state")
     .leftJoinAndSelect("event.periodicity", "periodicity")
     .leftJoinAndSelect("event.organizer", "organizer")
+    .where('DATE(event.date) = CURRENT_DATE')
     .getMany()
 
     //console.log(event);
@@ -172,9 +173,9 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .innerJoinAndSelect("event.state", "state")
         .innerJoinAndSelect("event.periodicity", "periodicity")
         .innerJoinAndSelect("event.organizer", "organizer")
-        .innerJoin(Person, "person", "person.id = event.organizer")
+        .innerJoinAndSelect(EventSuggestion, "sug", "event.id = sug.eventId")
+        .leftJoin(Person, "person", "sug.personId = person.id")
         .innerJoin(User, "user", "user.uid = person.userUid")
-        .innerJoinAndSelect(EventSuggestion, "sug", "person.id = sug.personid")
         .where('user.uid = :uid', {uid: req.params.uid })
         .andWhere('event.id = sug.eventId')
         .getMany()
