@@ -10,7 +10,7 @@ import {
 
 const router = Router();
 
-router.route("/").get(findAll).post(create);
+router.route("/create").post(create);
 
 router.route("/getAddressesByUser/:id").get(findAddresses)
 

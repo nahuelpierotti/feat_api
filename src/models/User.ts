@@ -19,7 +19,7 @@ export class User extends BaseEntity {
   email: string;
 
   @ManyToOne((_) => UserType, (userType) => userType.users)
-  userType: UserType;
+  userType: number;
 
   @OneToOne(()=>Person)
   person: Person;
