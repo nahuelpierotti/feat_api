@@ -34,7 +34,7 @@ export class Person extends BaseEntity{
 
     @OneToOne(() => User)
     @JoinColumn()
-    user: User;
+    user: String;
 
     @OneToMany(() => Player, (player) => player.person)
     player: Player[]

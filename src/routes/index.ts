@@ -6,5 +6,5 @@ import LevelRoute from "./levels.routes";
 import PositionRoute from "./positions.routes";
 import AvailabilityRoute from "./availabilities.routes";
 import PeridocityRoute from "./periodicity.routes";
-
-export default { UserRoute ,SportRoute, EventRoute, PlayerRoute, LevelRoute, PositionRoute, AvailabilityRoute, PeridocityRoute};
+import PersonRoute from './person.routes';
+export default { UserRoute ,SportRoute, EventRoute, PlayerRoute, LevelRoute, PositionRoute, AvailabilityRoute, PeridocityRoute,PersonRoute};

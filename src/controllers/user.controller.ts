@@ -38,7 +38,7 @@ export const create = async (req: Request, res: Response) => {
     .values({
         uid: req.body.uid,
         email:  req.body.email,
-        userType: req.body.user_type,
+        userType: 2,
     })
     .execute()
 
