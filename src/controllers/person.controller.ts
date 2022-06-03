@@ -9,11 +9,32 @@ export const findOne = async (req: Request, res: Response) => {
       
     const person= await getRepository(Person)
     .createQueryBuilder("person")
-    .innerJoin("person.user", "user")
+    .leftJoinAndSelect("person.user", "user")
     .where('user.uid = :uid', {uid: req.params.uid })
     .getOne()
-
+    
+    if(person==undefined){
+      const js={
+          "id": 0, 
+          "lastname": "No",
+          "names": "No",
+          "birth_date": '0000-00-00T03:00:00.000Z',
+          "sex": "M",
+          "min_age": 0,
+          "max_age": 0,
+          "nickname": "no",
+          "notifications": false,
+          "willing_distance": 0,
+          "user": {
+            "uid": 0,
+            "email": "noexiste@gmail.com"
+          }
+        }
+        res.status(200).json(js);
+      }
       
+    
+    console.log(person)
       res.status(200).json(person);
     } catch (error) {
       console.log(error)

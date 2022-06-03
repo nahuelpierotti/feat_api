@@ -13,7 +13,7 @@ FROM event where id=p_eventId;
 	
     
     INSERT INTO player_suggestion(stateId,eventId,playerId,date)
-    SELECT DISTINCT 12 stateId,p_eventId,pl.id,CURRENT_DATE 
+    SELECT DISTINCT 12 stateId,p_eventId,pl.id,CURRENT_DATE() 
     FROM player pl
 	JOIN person p ON pl.personId=p.id
 	JOIN availability av ON p.id=av.personId
