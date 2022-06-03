@@ -1,14 +1,18 @@
 import { Request, Response } from "express";
 import { createQueryBuilder } from "typeorm";
 import { Person } from "../models/Person";
-import { User } from "../models/User";
+
 
 
 export const findOne = async (req: Request, res: Response) => {
   try {
       const person = await Person.findOne(req.params.id);
+      if(person ==undefined){
+        res.status(200).json("No existe");
+      }
       res.status(200).json(person);
     } catch (error) {
+      console.log(error)
       res.status(400).json(error);
     }
 };
