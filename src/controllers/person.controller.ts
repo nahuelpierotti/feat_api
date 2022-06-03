@@ -1,12 +1,18 @@
 import { Request, Response } from "express";
-import { createQueryBuilder } from "typeorm";
+import { createQueryBuilder, getRepository } from "typeorm";
 import { Person } from "../models/Person";
 
 
 
 export const findOne = async (req: Request, res: Response) => {
   try {
-      const person = await Person.findOne(req.params.id);
+      
+    const person= await getRepository(Person)
+    .createQueryBuilder("person")
+    .innerJoin("person.user", "user")
+    .where('user.uid = :uid', {uid: req.params.uid })
+    .getOne()
+
       if(person ==undefined){
         res.status(200).json("No existe");
       }
@@ -54,7 +60,7 @@ export const update = async (req: Request, res: Response) => {
       notifications:  req.body.notifications,
       willing_distance: + req.body.willing_distance
 
-    }).where("id = :id", { id: req.params.id})
+    }).where("id = :id", { id: req.body.id})
     .execute()
 
     console.log(personUpd)

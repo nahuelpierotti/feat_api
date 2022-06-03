@@ -69,7 +69,7 @@ export const findAll = async (req: Request, res: Response) => {
         start_time: req.body.start_time,
         end_time: req.body.end_time,
         day: + req.body.day
-      }).where("availability.id = :id", { id: req.params.id})
+      }).where("availability.id = :id", { id: req.body.id})
       .execute()
   
       console.log(availability)

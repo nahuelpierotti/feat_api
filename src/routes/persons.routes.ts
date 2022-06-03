@@ -9,8 +9,8 @@ const router = Router();
 
 router.route("/create").post(create);
 
-router.route("/update/:id").post(update);
+router.route("/update/").put(update);
 
-router.route("/getPersonById/:id").get(findOne);
+router.route("/getPersonById/:uid").get(findOne);
 
 export default router;
