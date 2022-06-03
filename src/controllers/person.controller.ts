@@ -9,7 +9,7 @@ export const findOne = async (req: Request, res: Response) => {
       
     const person= await getRepository(Person)
     .createQueryBuilder("person")
-    .leftJoinAndSelect("person.user", "user")
+    .leftJoin("person.user", "user")
     .where('user.uid = :uid', {uid: req.params.uid })
     .getOne()
     
@@ -24,11 +24,7 @@ export const findOne = async (req: Request, res: Response) => {
           "max_age": 0,
           "nickname": "no",
           "notifications": false,
-          "willing_distance": 0,
-          "user": {
-            "uid": 0,
-            "email": "noexiste@gmail.com"
-          }
+          "willing_distance": 0
         }
         res.status(200).json(js);
       }
