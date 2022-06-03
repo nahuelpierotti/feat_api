@@ -12,7 +12,7 @@ export const findOne = async (req: Request, res: Response) => {
     .leftJoin("person.user", "user")
     .where('user.uid = :uid', {uid: req.params.uid })
     .getOne()
-    
+    /*
     if(person==undefined){
       const js={
           "id": 0, 
@@ -29,8 +29,8 @@ export const findOne = async (req: Request, res: Response) => {
         res.status(200).json(js);
       }
       
-    
-    console.log(person)
+    */
+     //console.log(person)
       res.status(200).json(person);
     } catch (error) {
       console.log(error)
