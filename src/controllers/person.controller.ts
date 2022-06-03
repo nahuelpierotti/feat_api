@@ -13,9 +13,7 @@ export const findOne = async (req: Request, res: Response) => {
     .where('user.uid = :uid', {uid: req.params.uid })
     .getOne()
 
-      if(person ==undefined){
-        res.status(200).json("No existe");
-      }
+      
       res.status(200).json(person);
     } catch (error) {
       console.log(error)
