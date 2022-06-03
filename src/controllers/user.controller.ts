@@ -51,15 +51,3 @@ export const create = async (req: Request, res: Response) => {
   }
 };
 
-export const findAddresses=async (req: Request,res:Response)=>{
-  try{  
-      const result = await User.query(
-        'call sp_address_by_user(?)',[req.params.id]);
-      
-        console.log(result) 
-        
-      res.status(200).json(result);    
-  }catch(error){
-    res.status(400).json(error);
-  }
-}

@@ -16,9 +16,6 @@ export class Player extends BaseEntity{
     @Column()
     abilities: string
 
-    @Column()
-    notifications: boolean
-
     @ManyToOne(() => Person)
     @JoinColumn({name: 'personId'})
     person: number;

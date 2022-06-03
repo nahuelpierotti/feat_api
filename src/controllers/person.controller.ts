@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createQueryBuilder, getRepository } from "typeorm";
+import { createQueryBuilder } from "typeorm";
 import { Person } from "../models/Person";
 import { User } from "../models/User";
 
@@ -24,8 +24,6 @@ export const create = async (req: Request, res: Response) => {
         names: req.body.names,
         birth_date: req.body.birth_date,
         sex: req.body.sex,
-        min_age: req.body.min_age,
-        max_age: req.body.max_age,
         nickname: req.body.nickname,
         user: req.body.userUid,
     })
@@ -40,3 +38,26 @@ export const create = async (req: Request, res: Response) => {
   }
 };
 
+
+export const update = async (req: Request, res: Response) => {
+  try{
+    const personUpd= await
+    createQueryBuilder()
+    .update(Person)
+    .set({
+      min_age: + req.body.min_age,
+      max_age: + req.body.max_age,
+      notifications:  req.body.notifications,
+      willing_distance: + req.body.willing_distance
+
+    }).where("id = :id", { id: req.params.id})
+    .execute()
+
+    console.log(personUpd)
+    res.status(200).json("Actualizado Exitosamente!");
+
+  }catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
