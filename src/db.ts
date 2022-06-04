@@ -25,11 +25,11 @@ export const connectDatabase = async () => {
   try {
     await mysql.createConnection({
       type: "mysql",
-      database: process.env.DB_NAME,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
+      database: "feat",
+      username: "doadmin",
+      password: "AVNS_yEniYgRa5Lbaebs",
+      host: "feat-do-user-11714103-0.b.db.ondigitalocean.com",
+      port: Number(25060),
       synchronize: true,
       entities: [User, UserType, Person, Sport,Day,Level,Valuation, 
         Position,Availability,Player,Address,Periodicity,
