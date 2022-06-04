@@ -14,6 +14,6 @@ router.route("/:id").get(findOne);
 
 router.route("/create").post(create);
 
-router.route("/update").post(update);
+router.route("/update").put(update);
 
 export default router;

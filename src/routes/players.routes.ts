@@ -4,7 +4,9 @@ import {
   findOne,
   create,
   findAllByPerson,
-  findAllPlayersSuggestedForEvent
+  findAllPlayersSuggestedForEvent,
+  findAllPlayersConfirmedByEvent,
+  findAllPlayersAppliedByEvent
 } from "../controllers/player.controller";
 
 const router = Router();
@@ -18,4 +20,9 @@ router.route("/getAllByPerson/:personId").get(findAllByPerson);
 router.route("/create").post(create);
 
 router.route("/getAllPlayersSuggestedForEvent/:eventId").get(findAllPlayersSuggestedForEvent)
+
+router.route("/getAllConfirmedByEvent/:eventId").get(findAllPlayersConfirmedByEvent)
+
+router.route("/getAllAppliedByEvent/:eventId").get(findAllPlayersAppliedByEvent)
+
 export default router;

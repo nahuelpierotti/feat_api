@@ -1,4 +1,4 @@
-CREATE PROCEDURE `get_events_suggested_for_user_v2`(IN p_userUid INT)
+CREATE PROCEDURE `get_events_suggested_for_user`(IN p_userUid INT)
 BEGIN
 -- variables 
 DECLARE done INT DEFAULT 0;
@@ -29,10 +29,10 @@ OPEN get_availabilities;
 	END IF;
     
     INSERT INTO event_suggestion(stateId,eventId,personId,date)
-    SELECT 12 stateId, e.id,v_personId,current_date()
+    SELECT 12 stateId, e.id,v_personId,CURRENT_DATE()
 	FROM event e 
 	JOIN sport s ON e.sportId=s.id
-	WHERE e.date >= CURRENT_DATE 
+	WHERE e.date >= CURRENT_DATE() 
     AND (s.capacity-(SELECT count(*) FROM player_list WHERE eventId=e.id AND stateId=9))>0 -- valido que el cupo > 0
 	AND e.date <= DATE_ADD(NOW(), INTERVAL 10 DAY) -- filtro de eventos dentro de los 10 dias
 	AND EXISTS(

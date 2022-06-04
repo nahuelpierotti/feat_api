@@ -30,5 +30,5 @@ export class Address extends BaseEntity{
     logitude: string
 
     @ManyToOne(() => Person, (person) => person.addresses)
-    person: Person
+    person: number
 }

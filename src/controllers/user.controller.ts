@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getRepository } from "typeorm";
+import { createQueryBuilder, getRepository } from "typeorm";
 import { User } from "../models/User";
 import { UserType } from "../models/UserType";
 
@@ -29,19 +29,25 @@ export const deleteUser = (req: Request, res: Response) => {
   res.send("delete user");
 };
 
-export const create = (req: Request, res: Response) => {
-  res.send("create user");
-};
+export const create = async (req: Request, res: Response) => {
+  try{
+    const user= await
+    createQueryBuilder()
+    .insert()
+    .into(User)
+    .values({
+        uid: req.body.uid,
+        email:  req.body.email,
+        userType: 2,
+    })
+    .execute()
 
-export const findAddresses=async (req: Request,res:Response)=>{
-  try{  
-      const result = await User.query(
-        'call sp_address_by_user(?)',[req.params.id]);
-      
-        console.log(result) 
-        
-      res.status(200).json(result);    
-  }catch(error){
+    console.log(user)
+    res.status(200).json("Usuario creado exitosamente!");
+
+  }catch (error) {
+    console.log(error);
     res.status(400).json(error);
   }
-}
+};
+
