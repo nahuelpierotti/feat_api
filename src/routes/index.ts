@@ -6,6 +6,7 @@ import LevelRoute from "./levels.routes";
 import PositionRoute from "./positions.routes";
 import AvailabilityRoute from "./availabilities.routes";
 import PeridocityRoute from "./periodicity.routes";
+import SportGenericRoute from "./periodicity.routes";
 import PersonRoute from './persons.routes';
 import AddressRoute from './addresses.routes';
-export default { UserRoute ,SportRoute, EventRoute, PlayerRoute, LevelRoute, PositionRoute, AvailabilityRoute, PeridocityRoute,PersonRoute,AddressRoute};
+export default { UserRoute ,SportRoute, EventRoute, PlayerRoute, LevelRoute, PositionRoute, AvailabilityRoute, SportGenericRoute,PeridocityRoute,PersonRoute,AddressRoute};
