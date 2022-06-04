@@ -19,10 +19,11 @@ import { EventSuggestion } from "./models/EventSuggestion";
 import { PlayerSuggestion } from "./models/PlayerSuggestion";
 import { SportGeneric } from "./models/SportGeneric";
 
+const mysql = require('mysql2');
 
 export const connectDatabase = async () => {
   try {
-    await createConnection({
+    await mysql.createConnection({
       type: "mysql",
       database: process.env.DB_NAME,
       username: process.env.DB_USERNAME,
