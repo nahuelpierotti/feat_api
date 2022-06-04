@@ -18,7 +18,7 @@ export const instanceApp = () => {
   app.use("/positions", Router.PositionRoute);
   app.use("/availabilities", Router.AvailabilityRoute);
   app.use("/periodicities", Router.PeridocityRoute);
-  app.use("/sportsGenerics", Router.SportGenericRoute)
+  app.use("/sportsGeneric", Router.SportGenericRoute)
   app.use("/persons", Router.PersonRoute);
   app.use("/addresses", Router.AddressRoute);
   return app;
