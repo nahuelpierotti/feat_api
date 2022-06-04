@@ -26,7 +26,7 @@ export const connectDatabase = async () => {
     await createConnection({
       type: "mysql",
       database: "feat",
-      username: "doadmin_sha2",
+      username: "doadmin",
       password: "AVNS_yEniYgRa5Lbaebs",
       host: "feat-do-user-11714103-0.b.db.ondigitalocean.com",
       port: Number(25060),
