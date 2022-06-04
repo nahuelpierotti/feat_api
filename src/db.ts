@@ -19,11 +19,11 @@ import { EventSuggestion } from "./models/EventSuggestion";
 import { PlayerSuggestion } from "./models/PlayerSuggestion";
 import { SportGeneric } from "./models/SportGeneric";
 
-const mysql = require('mysql2');
+//const mysql = require('mysql2');
 
 export const connectDatabase = async () => {
   try {
-    await mysql.createConnection({
+    await createConnection({
       type: "mysql",
       database: "feat",
       username: "doadmin_sha2",
