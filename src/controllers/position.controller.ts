@@ -2,13 +2,14 @@ import { Request, Response } from "express";
 import { createQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
 import { Position } from "../models/Position";
+import { SportGeneric } from "../models/SportGeneric";
 
 
 export const findAll = async (req: Request, res: Response) => {
     try {
       const position= await getRepository(Position)
       .createQueryBuilder("position")
-      .leftJoinAndSelect("position.sport", "sport")
+      .leftJoinAndSelect(SportGeneric,"sportGeneric","position.sport=sportGeneric.id")
       .getMany()
   
       //console.log(position);
@@ -24,7 +25,7 @@ export const findAll = async (req: Request, res: Response) => {
       const position= await getRepository(Position)
       .createQueryBuilder("position")
       .where("position.id = :id", { id: req.params.id})
-      .leftJoinAndSelect("position.sport", "sport")
+      .leftJoinAndSelect(SportGeneric,"sportGeneric","position.sport=sportGeneric.id")
       .getOne()
   
       //console.log(position);

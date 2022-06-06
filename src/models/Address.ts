@@ -8,7 +8,7 @@ export class Address extends BaseEntity{
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({nullable: true})
     alias: string
 
     @Column()
