@@ -5,13 +5,14 @@ import { EventApply } from "../models/EventApply";
 import { Player } from "../models/Player";
 import { PlayerList } from "../models/PlayerList";
 import { PlayerSuggestion } from "../models/PlayerSuggestion";
+import { SportGeneric } from "../models/SportGeneric";
 
 export const findAll = async (req: Request, res: Response) => {
     try {
       const player= await getRepository(Player)
       .createQueryBuilder("player")
       .leftJoinAndSelect("player.person", "person")
-      .leftJoinAndSelect("player.sport", "sport")
+      .leftJoinAndSelect(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
       .leftJoinAndSelect("player.position", "position")
       .leftJoinAndSelect("player.level", "level")
       .leftJoinAndSelect("player.valuation", "valuation")
@@ -30,7 +31,7 @@ export const findAll = async (req: Request, res: Response) => {
       const player= await getRepository(Player)
       .createQueryBuilder("player")
       .leftJoinAndSelect("player.person", "person")
-      .leftJoinAndSelect("player.sport", "sport")
+      .leftJoinAndSelect(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
       .leftJoinAndSelect("player.position", "position")
       .leftJoinAndSelect("player.level", "level")
       .leftJoinAndSelect("player.valuation", "valuation")
@@ -51,7 +52,7 @@ export const findAll = async (req: Request, res: Response) => {
       .createQueryBuilder("player")
       .where("player.id = :id", { id: req.params.id})
       .leftJoinAndSelect("player.person", "person")
-      .leftJoinAndSelect("player.sport", "sport")
+      .leftJoinAndSelect(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
       .leftJoinAndSelect("player.position", "position")
       .leftJoinAndSelect("player.level", "level")
       .leftJoinAndSelect("player.valuation", "valuation")
@@ -100,7 +101,7 @@ export const findAll = async (req: Request, res: Response) => {
           const players= await getRepository(Player)
           .createQueryBuilder("player")
           .innerJoinAndSelect("player.person", "person")
-          .leftJoinAndSelect("player.sport", "sport")
+          .leftJoinAndSelect(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
           .leftJoinAndSelect("player.position", "position")
           .leftJoinAndSelect("player.level", "level")
           .leftJoinAndSelect("player.valuation", "valuation")
@@ -121,7 +122,7 @@ export const findAll = async (req: Request, res: Response) => {
           const players= await getRepository(Player)
           .createQueryBuilder("player")
           .innerJoinAndSelect("player.person", "person")
-          .leftJoinAndSelect("player.sport", "sport")
+          .leftJoinAndSelect(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
           .leftJoinAndSelect("player.position", "position")
           .leftJoinAndSelect("player.level", "level")
           .leftJoinAndSelect("player.valuation", "valuation")
@@ -142,7 +143,7 @@ export const findAll = async (req: Request, res: Response) => {
           const players= await getRepository(Player)
           .createQueryBuilder("player")
           .innerJoinAndSelect("player.person", "person")
-          .leftJoinAndSelect("player.sport", "sport")
+          .leftJoinAndSelect(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
           .leftJoinAndSelect("player.position", "position")
           .leftJoinAndSelect("player.level", "level")
           .leftJoinAndSelect("player.valuation", "valuation")
