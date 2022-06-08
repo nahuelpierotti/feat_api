@@ -1,4 +1,4 @@
-CREATE PROCEDURE `get_players_suggested_for_event`(IN p_eventId INT)
+CREATE  PROCEDURE get_players_suggested_for_event(IN p_eventId INT)
 BEGIN
 -- variables 
 DECLARE done INT DEFAULT 0;
@@ -19,7 +19,9 @@ FROM event where id=p_eventId;
 	JOIN availability av ON p.id=av.personId
 	JOIN day d ON av.dayId=d.id
     JOIN address a ON p.id=a.personId
-	WHERE pl.sportId=v_sportId
+    JOIN sport_generic sg ON pl.sportGenericId =sg.id
+    JOIN sport s on sg.id=s.sportGenericId
+    WHERE s.id=v_sportId
 	AND av.dayId=v_event_day 
     AND av.start_time <=v_start_time 
     AND v_end_time <= av.end_time 
