@@ -1,14 +1,14 @@
-CREATE PROCEDURE `get_players_suggested_for_event`(IN p_eventId INT)
+CREATE PROCEDURE get_players_suggested_for_event(IN p_eventId INT)
 BEGIN
 -- variables 
 DECLARE done INT DEFAULT 0;
-DECLARE v_sportId, v_event_day INT;
+DECLARE v_sportId, v_event_day,v_organizerId INT;
 DECLARE v_event_date DATE;
 DECLARE v_start_time, v_end_time  TIME;
 DECLARE v_latitude,v_longitude VARCHAR(255);
 
-SELECT sportId,date,DAYOFWEEK(DATE(date)) event_date,start_time,end_time,latitude,longitude 
-INTO v_sportId,v_event_date,v_event_day,v_start_time,v_end_time,v_latitude,v_longitude
+SELECT sportId,date,DAYOFWEEK(DATE(date)) event_date,start_time,end_time,latitude,longitude,organizerId 
+INTO v_sportId,v_event_date,v_event_day,v_start_time,v_end_time,v_latitude,v_longitude,v_organizerId
 FROM event where id=p_eventId;
 	
     
@@ -19,7 +19,9 @@ FROM event where id=p_eventId;
 	JOIN availability av ON p.id=av.personId
 	JOIN day d ON av.dayId=d.id
     JOIN address a ON p.id=a.personId
-	WHERE pl.sportId=v_sportId
+    JOIN sport_generic sg ON pl.sportGenericId =sg.id
+    JOIN sport s on sg.id=s.sportGenericId
+    WHERE s.id=v_sportId
 	AND av.dayId=v_event_day 
     AND av.start_time <=v_start_time 
     AND v_end_time <= av.end_time 
@@ -38,6 +40,7 @@ FROM event where id=p_eventId;
         WHERE ap.eventId=p_eventId 
 	    AND ap.playerId=pl.id
 	)
+    AND p.id <> v_organizerId  -- Que no sugiera al mismo organizador
     ;
 
 SELECT * FROM player_suggestion;

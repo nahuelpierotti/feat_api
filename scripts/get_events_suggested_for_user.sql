@@ -1,4 +1,4 @@
-CREATE PROCEDURE `get_events_suggested_for_user`(IN p_userUid INT)
+CREATE PROCEDURE get_events_suggested_for_user(IN p_userUid TEXT)
 BEGIN
 -- variables 
 DECLARE done INT DEFAULT 0;
@@ -41,7 +41,7 @@ OPEN get_availabilities;
 		JOIN player pl ON p.id=pl.personId
         JOIN address a ON p.id=a.personId
 		WHERE u.uid=p_userUid
-		AND pl.sportId=e.sportId
+		AND pl.sportGenericId =s.sportGenericId
         AND fn_calcula_distancia_por_direccion(a.id,e.latitude,e.longitude) <=15 -- valida distancia a direcciones no mayor a 15 KM
 	)
     AND DAYOFWEEK(DATE(e.date))=v_dayId
