@@ -8,7 +8,9 @@ import {
   findAllApplied,
   findAllConfirmed,
   findAllByUser,
-  findAllEventSuggestedForUser
+  findAllEventSuggestedForUser,
+  setConfirmed,
+  setCanceled
 } from "../controllers/event.controller";
 
 const router = Router();
@@ -30,6 +32,11 @@ router.route("/getAllByUser/:uid").get(findAllByUser);
 router.route("/getEventById/:id").get(findOne);
 
 router.route("/create").post(create)
+
+
+router.route("/setConfirmed/:id").post(setConfirmed)
+
+router.route("/setCanceled/:id").post(setCanceled)
 
 export default router;
 
