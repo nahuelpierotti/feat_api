@@ -57,3 +57,18 @@ export const findAll = async (req: Request, res: Response) => {
     }
   };
   
+  export const findAllBySportGeneric = async (req: Request, res: Response) => {
+    try {
+      const position= await getRepository(Position)
+      .createQueryBuilder("position")
+      .addSelect("gen.description", "sport")
+      .innerJoin(SportGeneric, "gen", "position.sportGenericId = gen.id")
+      .where("gen.id = :id", { id: req.params.id})
+      .getMany()
+  
+      res.status(200).json(position);
+    } catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
+  };
