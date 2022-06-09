@@ -36,6 +36,9 @@ export class Event extends BaseEntity{
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
     created: String
 
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
+    updated: String
+
     @ManyToOne(() => State, state=> state.event,{ cascade: ['insert', 'update'] })
     @JoinColumn({name: 'stateId'})
     state: number;
