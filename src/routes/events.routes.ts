@@ -33,10 +33,9 @@ router.route("/getEventById/:id").get(findOne);
 
 router.route("/create").post(create)
 
+router.route("/setConfirmed").put(setConfirmed)
 
-router.route("/setConfirmed/:id").post(setConfirmed)
-
-router.route("/setCanceled/:id").post(setCanceled)
+router.route("/setCanceled").put(setCanceled)
 
 export default router;
 

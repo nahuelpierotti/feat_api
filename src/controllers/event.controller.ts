@@ -231,7 +231,7 @@ export const setConfirmed = async (req: Request, res: Response) => {
     .update(Event)
     .set({
       state: + 3,
-      updated: 'CURRENT_TIMESTAMP'
+      updated: () => 'CURRENT_TIMESTAMP'
     }).where("id = :id", { id: req.body.id})
     .execute()
     
@@ -250,7 +250,7 @@ export const setCanceled = async (req: Request, res: Response) => {
     .update(Event)
     .set({
       state: + 4,
-      updated: 'CURRENT_TIMESTAMP'
+      updated: () => 'CURRENT_TIMESTAMP'
     }).where("id = :id", { id: req.body.id})
     .execute()
     
