@@ -13,6 +13,9 @@ export class State extends BaseEntity{
     @Column()
     description: string;
 
+    @Column()
+    idGenericState: number;
+
     @OneToOne(() => EventApply)
     eventApply: EventApply;
 

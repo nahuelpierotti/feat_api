@@ -1,14 +1,39 @@
 import { Request, Response } from "express";
 import { createQueryBuilder, getRepository } from "typeorm";
 import { Person } from "../models/Person";
-import { User } from "../models/User";
+
 
 
 export const findOne = async (req: Request, res: Response) => {
   try {
-      const person = await Person.findOne(req.params.id);
+      
+    const person= await getRepository(Person)
+    .createQueryBuilder("person")
+    .leftJoin("person.user", "user")
+    .where('user.uid = :uid', {uid: req.params.uid })
+    .getOne()
+    /*
+    if(person==undefined){
+      const js={
+          "id": 0, 
+          "lastname": "No",
+          "names": "No",
+          "birth_date": '0000-00-00T03:00:00.000Z',
+          "sex": "M",
+          "min_age": 0,
+          "max_age": 0,
+          "nickname": "no",
+          "notifications": false,
+          "willing_distance": 0
+        }
+        res.status(200).json(js);
+      }
+      
+    */
+     //console.log(person)
       res.status(200).json(person);
     } catch (error) {
+      console.log(error)
       res.status(400).json(error);
     }
 };
@@ -24,8 +49,6 @@ export const create = async (req: Request, res: Response) => {
         names: req.body.names,
         birth_date: req.body.birth_date,
         sex: req.body.sex,
-        min_age: req.body.min_age,
-        max_age: req.body.max_age,
         nickname: req.body.nickname,
         user: req.body.userUid,
     })
@@ -40,3 +63,26 @@ export const create = async (req: Request, res: Response) => {
   }
 };
 
+
+export const update = async (req: Request, res: Response) => {
+  try{
+    const personUpd= await
+    createQueryBuilder()
+    .update(Person)
+    .set({
+      min_age: + req.body.min_age,
+      max_age: + req.body.max_age,
+      notifications:  req.body.notifications,
+      willing_distance: + req.body.willing_distance
+
+    }).where("id = :id", { id: req.body.id})
+    .execute()
+
+    console.log(personUpd)
+    res.status(200).json("Actualizado Exitosamente!");
+
+  }catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};

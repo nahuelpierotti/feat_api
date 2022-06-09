@@ -23,14 +23,28 @@ export class Person extends BaseEntity{
     @Column()
     sex: string;
 
-    @Column()
+    @Column({
+        nullable: true,
+    })
     min_age: number;
 
-    @Column()
+    @Column({
+        nullable: true,
+    })
     max_age: number;
 
     @Column()
     nickname: string;
+
+    @Column({
+        nullable: true,
+    })
+    notifications: boolean
+
+    @Column({
+        nullable: true,
+    })
+    willing_distance: number
 
     @OneToOne(() => User)
     @JoinColumn()

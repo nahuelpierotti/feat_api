@@ -224,3 +224,40 @@ export const create = async (req: Request, res: Response) => {
   }
 };
 
+export const setConfirmed = async (req: Request, res: Response) => {
+  try{
+    const event= await
+    createQueryBuilder()
+    .update(Event)
+    .set({
+      state: + 3,
+      updated: () => 'CURRENT_TIMESTAMP'
+    }).where("id = :id", { id: req.body.id})
+    .execute()
+    
+    res.status(200).json("Evento Confirmado Exitosamente!");
+
+  }catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
+export const setCanceled = async (req: Request, res: Response) => {
+  try{
+    const event= await
+    createQueryBuilder()
+    .update(Event)
+    .set({
+      state: + 4,
+      updated: () => 'CURRENT_TIMESTAMP'
+    }).where("id = :id", { id: req.body.id})
+    .execute()
+    
+    res.status(200).json("Evento Cancelado Exitosamente!");
+
+  }catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};

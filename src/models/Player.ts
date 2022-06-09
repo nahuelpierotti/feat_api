@@ -5,6 +5,7 @@ import { Person } from "./Person";
 import { PlayerList } from "./PlayerList";
 import { Position } from "./Position";
 import { Sport } from "./Sport";
+import { SportGeneric } from "./SportGeneric";
 import { Valuation } from "./Valuation";
 
 
@@ -16,15 +17,12 @@ export class Player extends BaseEntity{
     @Column()
     abilities: string
 
-    @Column()
-    notifications: boolean
-
     @ManyToOne(() => Person)
     @JoinColumn({name: 'personId'})
     person: number;
 
-    @ManyToOne(() => Sport)
-    @JoinColumn({name: 'sportId'})
+    @ManyToOne(() => SportGeneric)
+    @JoinColumn({name: 'sportGenericId'})
     sport: number;
 
     @ManyToOne(() => Position)

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { getConnection } from "typeorm";
 import { Sport } from "../models/Sport";
 
 export const findAll = async (req: Request, res: Response) => {

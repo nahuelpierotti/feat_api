@@ -8,7 +8,7 @@ export class Address extends BaseEntity{
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({nullable: true})
     alias: string
 
     @Column()
@@ -30,5 +30,5 @@ export class Address extends BaseEntity{
     logitude: string
 
     @ManyToOne(() => Person, (person) => person.addresses)
-    person: Person
+    person: number
 }
