@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  findAll,
+  findAll
 } from "../controllers/sportGeneric.controller";
 
 const router = Router();

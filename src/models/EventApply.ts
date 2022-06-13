@@ -13,15 +13,15 @@ export class EventApply extends BaseEntity{
 
     @ManyToOne(() => State)
     @JoinColumn()
-    state: State[]
+    state: number
     
     @ManyToOne(() => Event)
     @JoinColumn()
-    event: Event[]
+    event: number
 
     @ManyToOne(() => Player)
     @JoinColumn()
-    player: Player[]
+    player: number
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
     date: String

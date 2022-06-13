@@ -22,5 +22,6 @@ export const instanceApp = () => {
   app.use("/persons", Router.PersonRoute);
   app.use("/addresses", Router.AddressRoute);
   app.use("/valuations", Router.ValuationRoute);
+  app.use("/eventApplies", Router.EventAppliesRoute);
   return app;
 };

@@ -38,7 +38,6 @@ export const findAll = async (req: Request, res: Response) => {
       .where("player.person = :personId", { personId: req.params.person})
       .getMany()
   
-      //console.log(player);
       res.status(200).json(player);
     } catch (error) {
       console.log(error);
