@@ -5,7 +5,7 @@ import {
 
 const router = Router();
 
-router.route("/:id").get(findAllByUser);
+router.route("/:uid").get(findAllByUser);
 
 router.route("/create").post(create);
 

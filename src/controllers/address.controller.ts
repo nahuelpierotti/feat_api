@@ -10,8 +10,7 @@ export const findAllByUser=async (req: Request,res:Response)=>{
         const result = await getRepository(Address)
         .createQueryBuilder("address")
         .innerJoin(Person, "person", "person.id = address.personId")
-        .innerJoin(User, "user", "user.uid = person.userUid")
-        .where('user.uid = :uid', {uid: req.params.uid })
+        .where('person.userUid = :uid', {uid: req.params.uid })
         .getMany()
         
         console.log(result) 
