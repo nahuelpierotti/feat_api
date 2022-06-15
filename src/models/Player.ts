@@ -25,15 +25,21 @@ export class Player extends BaseEntity{
     @JoinColumn({name: 'sportGenericId'})
     sport: number;
 
-    @ManyToOne(() => Position)
+    @ManyToOne(() => Position,{
+        nullable: true,
+    })
     @JoinColumn({name: 'positiontId'})
     position: number;
 
-    @ManyToOne(() => Level)
+    @ManyToOne(() => Level,{
+        nullable: true,
+    })
     @JoinColumn({name: 'levelId'})
     level: number;
 
-    @ManyToOne(() => Valuation)
+    @ManyToOne(() => Valuation,{
+        nullable: true,
+    })
     @JoinColumn({name: 'valuationId'})
     valuation: number;
     
