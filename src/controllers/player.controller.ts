@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { createQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
 import { EventApply } from "../models/EventApply";
+import { Person } from "../models/Person";
 import { Player } from "../models/Player";
 import { PlayerList } from "../models/PlayerList";
 import { PlayerSuggestion } from "../models/PlayerSuggestion";
@@ -36,6 +37,25 @@ export const findAll = async (req: Request, res: Response) => {
       .leftJoinAndSelect("player.level", "level")
       .leftJoinAndSelect("player.valuation", "valuation")
       .where("player.person = :personId", { personId: req.params.person})
+      .getMany()
+  
+      res.status(200).json(player);
+    } catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
+  };
+
+  export const findAllByUser = async (req: Request, res: Response) => {
+    try {
+      const player= await getRepository(Player)
+      .createQueryBuilder("player")
+      .leftJoinAndSelect(Person,"person", "person.id = player.personId")
+      .leftJoinAndSelect("player.sport", "sportGeneric")
+      .leftJoinAndSelect("player.position", "position")
+      .leftJoinAndSelect("player.level", "level")
+      .leftJoinAndSelect("player.valuation", "valuation")
+      .where("person.userUid = :userUid", { userUid: req.params.userUid})
       .getMany()
   
       res.status(200).json(player);
