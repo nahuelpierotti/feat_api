@@ -261,3 +261,24 @@ export const setCanceled = async (req: Request, res: Response) => {
     res.status(400).json(error);
   }
 };
+
+export const findAllOfTheWeek = async (req: Request, res: Response) => {
+  try {
+    const event= await getRepository(Event)
+    .createQueryBuilder("event")
+    .leftJoinAndSelect("event.sport", "sport")
+    .leftJoinAndSelect("event.state", "state")
+    .leftJoinAndSelect("event.periodicity", "periodicity")
+    .leftJoinAndSelect("event.organizer", "organizer")
+    .where('DATE(event.date) >= CURRENT_DATE')
+    .andWhere(' DATE(event.date) <= DATE_ADD(NOW(), INTERVAL 7 DAY) ')
+    .orderBy('event.date, event.start_time ', 'ASC')
+    .getMany()
+
+    //console.log(event);
+    res.status(200).json(event);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
