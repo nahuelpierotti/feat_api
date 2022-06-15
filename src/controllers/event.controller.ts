@@ -9,6 +9,7 @@ import { Person } from "../models/Person";
 import { Player } from "../models/Player";
 import { PlayerList } from "../models/PlayerList";
 import { Sport } from "../models/Sport";
+import { SportGeneric } from "../models/SportGeneric";
 import { State } from "../models/State";
 import { User } from "../models/User";
 
@@ -264,14 +265,19 @@ export const setCanceled = async (req: Request, res: Response) => {
 
 export const findAllOfTheWeek = async (req: Request, res: Response) => {
   try {
+    
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .leftJoinAndSelect("event.sport", "sport")
     .leftJoinAndSelect("event.state", "state")
     .leftJoinAndSelect("event.periodicity", "periodicity")
     .leftJoinAndSelect("event.organizer", "organizer")
-    .where('DATE(event.date) >= CURRENT_DATE')
+    .innerJoin(Player,"player","sport.sportGeneric=player.sportGenericId")
+    .innerJoin(Person,"person", "player.personId=person.id")
+    .where('person.userUid = :uid', {uid: req.params.uid })
+    .andWhere('DATE(event.date) >= CURRENT_DATE')
     .andWhere(' DATE(event.date) <= DATE_ADD(NOW(), INTERVAL 7 DAY) ')
+    .andWhere('player.id IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
     .orderBy('event.date, event.start_time ', 'ASC')
     .getMany()
 

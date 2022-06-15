@@ -38,7 +38,7 @@ router.route("/setConfirmed").put(setConfirmed)
 
 router.route("/setCanceled").put(setCanceled)
 
-router.route("/getAllEventsOfTheWeek").get(findAllOfTheWeek);
+router.route("/getAllEventsOfTheWeek/:uid").get(findAllOfTheWeek);
 
 export default router;
 
