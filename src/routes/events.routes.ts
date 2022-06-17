@@ -11,7 +11,8 @@ import {
   findAllEventSuggestedForUser,
   setConfirmed,
   setCanceled,
-  findAllOfTheWeek
+  findAllOfTheWeek,
+  findAllInvitationsForUser
 } from "../controllers/event.controller";
 
 const router = Router();
@@ -39,6 +40,8 @@ router.route("/setConfirmed").put(setConfirmed)
 router.route("/setCanceled").put(setCanceled)
 
 router.route("/getAllEventsOfTheWeek/:uid").get(findAllOfTheWeek);
+
+router.route("/getAllInvitationsForUser/:uid").get(findAllInvitationsForUser);
 
 export default router;
 
