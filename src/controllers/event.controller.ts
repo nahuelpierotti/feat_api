@@ -288,3 +288,28 @@ export const findAllOfTheWeek = async (req: Request, res: Response) => {
     res.status(400).json(error);
   }
 };
+
+export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
+  try{  
+
+        const event= await getRepository(Event)
+        .createQueryBuilder("event")
+        .innerJoinAndSelect("event.sport", "sport")
+        .innerJoinAndSelect("event.state", "state")
+        .innerJoinAndSelect("event.periodicity", "periodicity")
+        .innerJoinAndSelect("event.organizer", "organizer")
+        .innerJoinAndSelect(EventApply, "apply", "event.id = apply.eventId")
+        .innerJoin(Player,"player","apply.playerId=player.id")
+        .innerJoin(Person, "person", "player.personId = person.id")
+        .innerJoin(User, "user", "user.uid = person.userUid")
+        .where('user.uid = :uid', {uid: req.params.uid })
+        .andWhere('apply.stateId = 6')
+        .andWhere("apply.origin = 'O'")
+        .getMany()
+        
+      res.status(200).json(event);   
+       
+  }catch(error){
+    res.status(400).json(error);
+  }
+}
