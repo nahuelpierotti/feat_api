@@ -13,14 +13,14 @@ export class PlayerList extends BaseEntity{
 
     @OneToOne(() => State)
     @JoinColumn()
-    state: State
+    state: number
     
     @OneToOne(() => Event)
     @JoinColumn()
-    Event: Event
+    event: number
 
     @ManyToOne(() => Player, (player) => player.playerList)
-    player: Player
+    player: number
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
     date: String
