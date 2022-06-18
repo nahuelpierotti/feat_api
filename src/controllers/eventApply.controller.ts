@@ -32,7 +32,7 @@ export const create = async (req: Request, res: Response) => {
       .insert()
       .into(EventApply)
       .values({
-          origin: origin,
+          origin: originId,
           state: + 6,
           event: + eventId,
           player: + playerByUser.id,    
@@ -127,10 +127,12 @@ export const create = async (req: Request, res: Response) => {
       createQueryBuilder()
       .update(EventApply)
       .set({
-        state: + 7
+        state: 7
 
-      }).where("event = :eventId", { eventId})
-      .andWhere("player = :playerId",{playerId: event_apply.player})
+      })
+      /*.where("event = :eventId", { eventId})
+      .andWhere("player = :playerId",{playerId: event_apply.player})*/
+      .where("id= :id",{id: event_apply.id})
       .execute()
 
       console.log(applyUpd)
@@ -141,7 +143,7 @@ export const create = async (req: Request, res: Response) => {
       .into(PlayerList)
       .values({
           origin: event_apply.origin,
-          state: + 9,
+          state: 9,
           event: + eventId,
           player: event_apply.player,    
           date: () => 'CURRENT_TIMESTAMP'
@@ -162,6 +164,9 @@ export const create = async (req: Request, res: Response) => {
       const userUid = req.body.userUid
       const eventId = req.body.eventId
       
+      console.log("userUid: ",userUid)
+      console.log("eventId: ",eventId)
+      
       const event_apply=  await
       createQueryBuilder()
       .select("eventApply")
@@ -172,15 +177,19 @@ export const create = async (req: Request, res: Response) => {
       .where("person.userUid = :userUid", {userUid })
       .andWhere("eventApply.eventId= :eventId",{eventId})
       .getOneOrFail()
+      
+      console.log(event_apply)
 
       const applyUpd= await
       createQueryBuilder()
       .update(EventApply)
       .set({
-        state: + 8
+        state: 8
 
-      }).where("event = :eventId", { eventId})
-      .andWhere("player = :playerId",{playerId: event_apply.player})
+      })
+      /*.where("event = :eventId", { eventId})
+      .andWhere("player = :playerId",{playerId: event_apply.player})*/
+      .where("id= :id",{id: event_apply.id})
       .execute()
 
       console.log(applyUpd)
