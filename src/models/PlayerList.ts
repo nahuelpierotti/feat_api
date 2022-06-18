@@ -11,11 +11,11 @@ export class PlayerList extends BaseEntity{
     @Column({ length: 1 })
     origin: String
 
-    @OneToOne(() => State)
+    @ManyToOne(() => State, (state) => state.playerList)
     @JoinColumn()
     state: number
     
-    @OneToOne(() => Event)
+    @ManyToOne(() => Event, (event)=> event.playerList)
     @JoinColumn()
     event: number
 

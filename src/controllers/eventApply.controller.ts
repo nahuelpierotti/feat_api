@@ -13,6 +13,7 @@ export const create = async (req: Request, res: Response) => {
     try{
       const userUid= req.body.userUid
       const eventId= req.body.eventId
+      const originId= req.body.origin
 
       const playerByUser=  await
       createQueryBuilder()
@@ -25,19 +26,13 @@ export const create = async (req: Request, res: Response) => {
       .where("person.userUid = :userUid", {userUid })
       .andWhere("event.id= :eventId",{eventId})
       .getOneOrFail()
-/*
-      console.log(userUid)
-      console.log(eventId)
-
-      console.log(playerByUser)
-      */
 
       const event_apply= await
       createQueryBuilder()
       .insert()
       .into(EventApply)
       .values({
-          origin: 'S',
+          origin: origin,
           state: + 6,
           event: + eventId,
           player: + playerByUser.id,    
@@ -190,7 +185,7 @@ export const create = async (req: Request, res: Response) => {
 
       console.log(applyUpd)
 
-      res.status(200).json("Invitacion Aceptada Exitosamente!");
+      res.status(200).json("Invitacion Rechazada Exitosamente!");
   
     }catch (error) {
       console.log(error);

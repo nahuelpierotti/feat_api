@@ -1,7 +1,8 @@
-import { BaseEntity, Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity,ManyToOne, OneToMany,PrimaryGeneratedColumn } from "typeorm";
 import { EventApply } from "./EventApply";
 import { Event } from "./Event";
 import { EventSuggestion } from "./EventSuggestion";
+import { PlayerList } from "./PlayerList";
 
 @Entity()
 
@@ -14,9 +15,9 @@ export class State extends BaseEntity{
     description: string;
 
     @Column()
-    idGenericState: number;
+    stateGeneric: number
 
-    @OneToOne(() => EventApply)
+    @OneToMany(() => EventApply, eventApply => eventApply.state,{ cascade: ['insert', 'update'] })
     eventApply: EventApply;
 
     @OneToMany(()=> Event, event => event.state,{ cascade: ['insert', 'update'] } )
@@ -24,5 +25,8 @@ export class State extends BaseEntity{
 
     @OneToMany(() => EventSuggestion, eventSuggestion=> eventSuggestion.state, { cascade: ['insert', 'update'] })
     eventSuggestion: EventSuggestion;
+
+    @OneToMany(() => PlayerList, playerList => playerList.state,{ cascade: ['insert','update']})
+    playerList: PlayerList;
 
 }
