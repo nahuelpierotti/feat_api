@@ -185,7 +185,7 @@ export const create = async (req: Request, res: Response) => {
 
       console.log(applyUpd)
 
-      res.status(200).json("Invitacion Rechazada Exitosamente!");
+      res.status(200).json("Invitacion Rechazada Exitosamente!!");
   
     }catch (error) {
       console.log(error);
