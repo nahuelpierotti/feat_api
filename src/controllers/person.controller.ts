@@ -86,3 +86,27 @@ export const update = async (req: Request, res: Response) => {
     res.status(400).json(error);
   }
 };
+
+export const updatePersonalInformation = async (req: Request, res: Response) => {
+  try{
+    const personUpd= await
+    createQueryBuilder()
+    .update(Person)
+    .set({
+      names: req.body.names,
+      lastname: req.body.lastname,
+      nickname:  req.body.nickname,
+      birth_date: req.body.birth_date,
+      sex: req.body.sex,
+
+    }).where("id = :id", { id: req.body.id})
+    .execute()
+
+    console.log(personUpd)
+    res.status(200).json("Actualizado Exitosamente!");
+
+  }catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
