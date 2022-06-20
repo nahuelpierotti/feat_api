@@ -188,6 +188,7 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .andWhere('event.id = sug.eventId')
         .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
+        .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
         .getMany()
         
       res.status(200).json(event);   
@@ -315,6 +316,7 @@ export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
         .andWhere('apply.stateId = 6')
         .andWhere("apply.origin = 'O'")
         .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
+        .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
         .getMany()
         
       res.status(200).json(event);   
@@ -338,7 +340,7 @@ export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Respons
     .where('user.uid = :uid', {uid: req.params.uid })
     .andWhere('player.id IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
     .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
-    .orderBy("concat(date(date),' ',start_time)", "ASC")
+    .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
     .getMany()
     
     res.status(200).json(eventList);
