@@ -54,7 +54,7 @@ export class Event extends BaseEntity{
     @OneToMany(() => EventApply, eventApply=> eventApply.event, { cascade: ['insert', 'update'] })
     eventApply: EventApply;
 
-    @OneToOne(() => PlayerList)
+    @OneToMany(() => PlayerList, playerList => playerList.event,{ cascade: ['insert','update']})
     playerList: PlayerList;
 
     @ManyToOne(() => Person, (person) => person.events)
