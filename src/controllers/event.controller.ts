@@ -42,6 +42,8 @@ export const findAllByOrganizer = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.periodicity", "periodicity")
     .leftJoinAndSelect("event.organizer", "organizer")
     .where('event.organizerId = :organizerId', {organizerId: req.params.organizer })
+    .andWhere('DATE(event.date) >= CURRENT_DATE')
+    .andWhere('event.start_time > TIME(NOW())')
     .getMany()
 
     console.log(event);
@@ -63,6 +65,8 @@ export const findAllCreatedByUser = async (req: Request, res: Response) => {
     .leftJoinAndSelect(Person, "person", "person.id = event.organizer")
     .leftJoinAndSelect(User, "user", "user.uid = person.userUid")
     .where('user.uid = :uid', {uid: req.params.uid })
+    .andWhere('DATE(event.date) >= CURRENT_DATE')
+    .andWhere('event.start_time > TIME(NOW())')
     .getMany()
 
     console.log(event);
@@ -87,6 +91,8 @@ export const findAllApplied = async (req: Request, res: Response) => {
     .innerJoinAndSelect(EventApply, "apply", "apply.playerId = player.id")
     .where('user.uid = :uid', {uid: req.params.uid })
     .andWhere('event.id = apply.eventId')
+    .andWhere('DATE(event.date) >= CURRENT_DATE')
+    .andWhere('event.start_time > TIME(NOW())')
     .getMany()
 
     console.log(event);
@@ -111,6 +117,8 @@ export const findAllConfirmed = async (req: Request, res: Response) => {
     .innerJoinAndSelect(PlayerList, "list", "list.playerId = player.id")
     .where('user.uid = :uid', {uid: req.params.uid })
     .andWhere('event.id = list.eventId')
+    .andWhere('DATE(event.date) >= CURRENT_DATE')
+    .andWhere('event.start_time > TIME(NOW())')
     .getMany()
 
     console.log(event);
@@ -134,6 +142,8 @@ export const findAllByUser = async (req: Request, res: Response) => {
     .innerJoin(Player, "player", "player.personId = person.id")
     .where('user.uid = :uid', {uid: req.params.uid })
     .andWhere('player.id IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
+    .andWhere('DATE(event.date) >= CURRENT_DATE')
+    .andWhere('event.start_time > TIME(NOW())')
     .getMany()
     
     res.status(200).json(eventList);
@@ -151,6 +161,8 @@ export const findOne = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.sport", "sport")
     .leftJoinAndSelect("event.state", "state")
     .leftJoinAndSelect("event.periodicity", "periodicity")
+    .andWhere('DATE(event.date) >= CURRENT_DATE')
+    .andWhere('event.start_time > TIME(NOW())')
     .getOne()
 
     //console.log(event);
@@ -176,9 +188,13 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .innerJoinAndSelect("event.organizer", "organizer")
         .innerJoinAndSelect(EventSuggestion, "sug", "event.id = sug.eventId")
         .leftJoin(Person, "person", "sug.personId = person.id")
+        .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
         .innerJoin(User, "user", "user.uid = person.userUid")
         .where('user.uid = :uid', {uid: req.params.uid })
         .andWhere('event.id = sug.eventId')
+        .andWhere('DATE(event.date) >= CURRENT_DATE')
+        .andWhere('event.start_time > TIME(NOW())')
+        .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
         .getMany()
         
       res.status(200).json(event);   
@@ -305,6 +321,8 @@ export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
         .where('user.uid = :uid', {uid: req.params.uid })
         .andWhere('apply.stateId = 6')
         .andWhere("apply.origin = 'O'")
+        .andWhere('DATE(event.date) >= CURRENT_DATE')
+        .andWhere('event.start_time > TIME(NOW())')
         .getMany()
         
       res.status(200).json(event);   
