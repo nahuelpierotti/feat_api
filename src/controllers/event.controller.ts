@@ -64,6 +64,7 @@ export const findAllCreatedByUser = async (req: Request, res: Response) => {
     .leftJoinAndSelect(Person, "person", "person.id = event.organizer")
     .leftJoinAndSelect(User, "user", "user.uid = person.userUid")
     .where('user.uid = :uid', {uid: req.params.uid })
+    .andWhere("event.state <> 4") //filtro eventos cancelados
     .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
     .getMany()
 
