@@ -177,3 +177,45 @@ export const findAll = async (req: Request, res: Response) => {
     }
   }
   
+  export const setDismissedFromList = async (req: Request, res: Response) => {
+    try{
+      const userUid = req.body.userUid
+      const eventId = req.body.eventId
+      
+      console.log("userUid: ",userUid)
+      console.log("eventId: ",eventId)
+      
+      const player_list=  await
+      createQueryBuilder()
+      .select("list")
+      .addSelect("player.id")
+      .from(PlayerList, "list")
+      .innerJoin("list.player","player")
+      .innerJoin("player.person", "person")
+      .where("person.userUid = :userUid", {userUid })
+      .andWhere("list.eventId= :eventId",{eventId})
+      .getOneOrFail()
+      
+      console.log(player_list)
+
+      const listUpd= await
+      createQueryBuilder()
+      .update(PlayerList)
+      .set({
+        state: 11
+
+      })
+      /*.where("event = :eventId", { eventId})
+      .andWhere("player = :playerId",{playerId: event_apply.player})*/
+      .where("id= :id",{id: player_list.id})
+      .execute()
+
+      console.log(listUpd)
+
+      res.status(200).json("Jugador Excluido Exitosamente!!");
+  
+    }catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
+  };
