@@ -43,7 +43,7 @@ export const findAllByOrganizer = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.periodicity", "periodicity")
     .leftJoinAndSelect("event.organizer", "organizer")
     .where('event.organizerId = :organizerId', {organizerId: req.params.organizer })
-    .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
+    .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
     .andWhere("event.state <> 4") //filtro eventos cancelados
     .getMany()
 
@@ -67,7 +67,7 @@ export const findAllCreatedByUser = async (req: Request, res: Response) => {
     .leftJoinAndSelect(User, "user", "user.uid = person.userUid")
     .where('user.uid = :uid', {uid: req.params.uid })
     .andWhere("event.state <> 4") //filtro eventos cancelados
-    .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
+    .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
     .getMany()
 
     console.log(event);
@@ -92,7 +92,7 @@ export const findAllApplied = async (req: Request, res: Response) => {
     .innerJoinAndSelect(EventApply, "apply", "apply.playerId = player.id")
     .where('user.uid = :uid', {uid: req.params.uid })
     .andWhere('event.id = apply.eventId')
-    .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
+    .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
     .andWhere("event.state <> 4") //filtro eventos cancelados
     .getMany()
 
@@ -118,7 +118,7 @@ export const findAllConfirmed = async (req: Request, res: Response) => {
     .innerJoinAndSelect(PlayerList, "list", "list.playerId = player.id")
     .where('user.uid = :uid', {uid: req.params.uid })
     .andWhere('event.id = list.eventId')
-    .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
+    .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
     .andWhere("event.state <> 4") //filtro eventos cancelados
     .getMany()
 
@@ -143,7 +143,7 @@ export const findAllByUser = async (req: Request, res: Response) => {
     .innerJoin(Player, "player", "player.personId = person.id")
     .where('user.uid = :uid', {uid: req.params.uid })
     .andWhere('player.id IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
-    .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
+    .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
     .andWhere("event.state <> 4") //filtro eventos cancelados
     .getMany()
     
@@ -162,7 +162,7 @@ export const findOne = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.sport", "sport")
     .leftJoinAndSelect("event.state", "state")
     .leftJoinAndSelect("event.periodicity", "periodicity")
-    .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
+    .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
     .getOne()
 
     //console.log(event);
@@ -193,7 +193,7 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .where('user.uid = :uid', {uid: req.params.uid })
         .andWhere('event.id = sug.eventId')
         .andWhere("event.state <> 4") //filtro eventos cancelados
-        .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
+        .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
         .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
         .getMany()
@@ -323,7 +323,7 @@ export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
         .where('user.uid = :uid', {uid: req.params.uid })
         .andWhere('apply.stateId = 6')
         .andWhere("apply.origin = 'O'")
-        .andWhere("concat(date(date),' ',start_time)>=CURRENT_TIMESTAMP")
+        .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere("event.state <> 4") //filtro eventos cancelados
         .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
         .getMany()
