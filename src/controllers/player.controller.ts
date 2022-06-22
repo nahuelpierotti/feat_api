@@ -126,6 +126,7 @@ export const findAll = async (req: Request, res: Response) => {
           .leftJoinAndSelect("player.valuation", "valuation")
           .innerJoinAndSelect(PlayerSuggestion, "sug", "player.id = sug.playerId")
           .where("sug.eventId = :id", { id: req.params.eventId})
+          .andWhere('player.id NOT IN(select playerId from player_list  where eventId=sug.eventId  and stateId not in(11,15) union  select playerId from event_apply  where eventId=sug.eventId  and stateId <> 8) ')
           .getMany()
           
         res.status(200).json(players);   
@@ -147,6 +148,7 @@ export const findAll = async (req: Request, res: Response) => {
           .leftJoinAndSelect("player.valuation", "valuation")
           .innerJoinAndSelect(PlayerList, "playerlist", "player.id = playerlist.playerId")
           .where("playerlist.eventId = :id", { id: req.params.eventId})
+          .andWhere('playerList.stateId not in(11,15) ')
           .getMany()
           
         res.status(200).json(players);   
@@ -168,6 +170,8 @@ export const findAll = async (req: Request, res: Response) => {
           .leftJoinAndSelect("player.valuation", "valuation")
           .innerJoinAndSelect(EventApply, "apply", "player.id = apply.playerId")
           .where("apply.eventId = :id", { id: req.params.eventId})
+          .andWhere('player.id NOT IN(select playerId from player_list  where eventId=apply.eventId  and stateId not in(11,15)) ')
+          .andWhere("apply.stateId <> 8")
           .getMany()
           
         res.status(200).json(players);   
@@ -203,6 +207,49 @@ export const findAll = async (req: Request, res: Response) => {
       .update(PlayerList)
       .set({
         state: 11
+
+      })
+      /*.where("event = :eventId", { eventId})
+      .andWhere("player = :playerId",{playerId: event_apply.player})*/
+      .where("id= :id",{id: player_list.id})
+      .execute()
+
+      console.log(listUpd)
+
+      res.status(200).json("Jugador Excluido Exitosamente!!");
+  
+    }catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
+  };
+
+  export const setAbandonedFromList = async (req: Request, res: Response) => {
+    try{
+      const playerId = req.body.playerId
+      const eventId = req.body.eventId
+      
+      console.log("playerId: ",playerId)
+      console.log("eventId: ",eventId)
+      
+      const player_list=  await
+      createQueryBuilder()
+      .select("list")
+      //.addSelect("player.id")
+      .from(PlayerList, "list")
+      /*.innerJoin("list.player","player")
+      .innerJoin("player.person", "person")*/
+      .where("list.playerId = :playerId", {playerId })
+      .andWhere("list.eventId= :eventId",{eventId})
+      .getOneOrFail()
+      
+      console.log(player_list)
+
+      const listUpd= await
+      createQueryBuilder()
+      .update(PlayerList)
+      .set({
+        state: 15
 
       })
       /*.where("event = :eventId", { eventId})
