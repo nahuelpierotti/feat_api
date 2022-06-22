@@ -125,10 +125,13 @@ export const findAll = async (req: Request, res: Response) => {
           .leftJoinAndSelect("player.level", "level")
           .leftJoinAndSelect("player.valuation", "valuation")
           .innerJoinAndSelect(PlayerSuggestion, "sug", "player.id = sug.playerId")
+          .innerJoin(Event,"event"," sug.eventId=event.id and pl.sportId=event.sportId")
           .where("sug.eventId = :id", { id: req.params.eventId})
           .andWhere('player.id NOT IN(select playerId from player_list  where eventId=sug.eventId  and stateId not in(11,15) union  select playerId from event_apply  where eventId=sug.eventId  and stateId <> 8) ')
-          .getMany()
+          .getSql()
           
+          console.log(players)
+
         res.status(200).json(players);   
          
     }catch(error){
@@ -215,6 +218,30 @@ export const findAll = async (req: Request, res: Response) => {
       .execute()
 
       console.log(listUpd)
+
+      const event_apply=  await
+      createQueryBuilder()
+      .select("eventApply")
+      //.addSelect("player.id")
+      .from(EventApply, "eventApply")
+      /*.innerJoin("eventApply.player","player")
+      .innerJoin("player.person", "person")*/
+      .where("eventApply.playerId = :playerId", {playerId })
+      .andWhere("eventApply.eventId= :eventId",{eventId})
+      .getOneOrFail()
+
+      const applyUpd= await
+      createQueryBuilder()
+      .update(EventApply)
+      .set({
+        state: 8
+
+      })
+      /*.where("event = :eventId", { eventId})
+      .andWhere("player = :playerId",{playerId: event_apply.player})*/
+      .where("id= :id",{id: event_apply.id})
+      .execute()
+      
 
       res.status(200).json("Jugador Excluido Exitosamente!!");
   
