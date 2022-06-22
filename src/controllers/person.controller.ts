@@ -9,8 +9,8 @@ export const findOne = async (req: Request, res: Response) => {
       
     const person= await getRepository(Person)
     .createQueryBuilder("person")
-    .innerJoinAndSelect("person.availability","availability")
-    .innerJoinAndSelect("availability.day","day")
+    .leftJoinAndSelect("person.availability","availability")
+    .leftJoinAndSelect("availability.day","day")
     .leftJoin("person.user", "user")
     .where('user.uid = :uid', {uid: req.params.uid })
     .getOne()
