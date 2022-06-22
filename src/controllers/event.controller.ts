@@ -160,6 +160,7 @@ export const findOne = async (req: Request, res: Response) => {
     .createQueryBuilder("event")
     .where("event.id = :id", { id: req.params.id})
     .leftJoinAndSelect("event.sport", "sport")
+    .leftJoinAndSelect("sport.sportGeneric","sportGeneric")
     .leftJoinAndSelect("event.state", "state")
     .leftJoinAndSelect("event.periodicity", "periodicity")
     .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
@@ -191,6 +192,7 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
         .innerJoin(User, "user", "user.uid = person.userUid")
         .where('user.uid = :uid', {uid: req.params.uid })
+        .andWhere("event.organizer <> person.id")
         .andWhere('event.id = sug.eventId')
         .andWhere("event.state <> 4") //filtro eventos cancelados
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
@@ -350,7 +352,7 @@ export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Respons
     .innerJoin(User, "user", "user.uid = person.userUid")
     //.innerJoinAndSelect(EventApply,"apply", "event.id=apply.eventId and player.id=apply.playerId ")
     .where('user.uid = :uid', {uid: req.params.uid })
-    .andWhere('player.id IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
+    .andWhere("player.id IN(select playerId from player_list  where eventId=event.id and stateId in(9,10)  union  select playerId from event_apply  where eventId=event.id and concat(stateId,origin) NOT IN('6O','8O') ) ")
     .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
     .andWhere("event.state <> 4") //filtro eventos cancelados
     .andWhere("eventApply.stateId <> 8") // filtro de solicitudes rechazadas
