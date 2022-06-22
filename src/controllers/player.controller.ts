@@ -148,7 +148,7 @@ export const findAll = async (req: Request, res: Response) => {
           .leftJoinAndSelect("player.valuation", "valuation")
           .innerJoinAndSelect(PlayerList, "playerlist", "player.id = playerlist.playerId")
           .where("playerlist.eventId = :id", { id: req.params.eventId})
-          .andWhere('playerList.stateId not in(11,15) ')
+          .andWhere('playerlist.stateId not in(11,15) ')
           .getMany()
           
         res.status(200).json(players);   
