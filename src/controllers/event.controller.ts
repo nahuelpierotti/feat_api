@@ -346,7 +346,7 @@ export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Respons
     .leftJoin("event.state", "state")
     .leftJoin("event.periodicity", "periodicity")
     .leftJoin("event.eventApply","eventApply")
-    .leftJoin(SportGeneric, "generic", "event.sportId = generic.id")
+    .leftJoin(SportGeneric, "generic", "sport.sportGeneric = generic.id")
     .leftJoin(Player, "player", "generic.id = player.sportGenericId and eventApply.playerId=player.id")
     .leftJoin(Person, "person", "player.personId = person.id")
     .leftJoin(User, "user", "user.uid = person.userUid")
