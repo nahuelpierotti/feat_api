@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import { Entity,createQueryBuilder, getRepository } from "typeorm";
+import { createQueryBuilder } from "typeorm";
 import { EventApply } from "../models/EventApply";
-import { Person } from "../models/Person";
 import { Player } from "../models/Player";
 import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
@@ -11,11 +10,11 @@ import { PlayerList } from "../models/PlayerList";
 
 export const create = async (req: Request, res: Response) => {
     try{
-      const userUid= req.body.userUid
+      const playerId= req.body.playerId
       const eventId= req.body.eventId
       const originId= req.body.origin
 
-      const playerByUser=  await
+      /*const playerByUser=  await
       createQueryBuilder()
       .select("player.id")
       .from(Player, "player")
@@ -23,10 +22,10 @@ export const create = async (req: Request, res: Response) => {
       .innerJoin(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
       .innerJoin(Sport,"sport", "sportGeneric.id=sport.sportGenericId")
       .innerJoin(Event,"event","sport.id=event.sportId")
-      .where("person.userUid = :userUid", {userUid })
+      .where("player.id = :playerId", {playerId })
       .andWhere("event.id= :eventId",{eventId})
       .getOneOrFail()
-
+*/
       const event_apply= await
       createQueryBuilder()
       .insert()
@@ -35,7 +34,7 @@ export const create = async (req: Request, res: Response) => {
           origin: originId,
           state: + 6,
           event: + eventId,
-          player: + playerByUser.id,    
+          player: + playerId,    
           date: () => 'CURRENT_TIMESTAMP'
         }).execute()
       
@@ -109,17 +108,17 @@ export const create = async (req: Request, res: Response) => {
 
   export const setAcceptedApply = async (req: Request, res: Response) => {
     try{
-      const userUid = req.body.userUid
+      const playerId = req.body.playerId
       const eventId = req.body.eventId
       
       const event_apply=  await
       createQueryBuilder()
       .select("eventApply")
-      .addSelect("player.id")
+      //.addSelect("player.id")
       .from(EventApply, "eventApply")
-      .innerJoin("eventApply.player","player")
-      .innerJoin("player.person", "person")
-      .where("person.userUid = :userUid", {userUid })
+      /*.innerJoin("eventApply.player","player")
+      .innerJoin("player.person", "person")*/
+      .where("eventApply.playerId = :playerId", {playerId })
       .andWhere("eventApply.eventId= :eventId",{eventId})
       .getOneOrFail()
 
@@ -145,7 +144,7 @@ export const create = async (req: Request, res: Response) => {
           origin: event_apply.origin,
           state: 9,
           event: + eventId,
-          player: event_apply.player,    
+          player: playerId,    
           date: () => 'CURRENT_TIMESTAMP'
         }).execute()
       
@@ -161,20 +160,20 @@ export const create = async (req: Request, res: Response) => {
 
   export const setDeniedApply = async (req: Request, res: Response) => {
     try{
-      const userUid = req.body.userUid
+      const playerId = req.body.playerId
       const eventId = req.body.eventId
       
-      console.log("userUid: ",userUid)
+      console.log("playerId: ",playerId)
       console.log("eventId: ",eventId)
       
       const event_apply=  await
       createQueryBuilder()
       .select("eventApply")
-      .addSelect("player.id")
+      //.addSelect("player.id")
       .from(EventApply, "eventApply")
-      .innerJoin("eventApply.player","player")
-      .innerJoin("player.person", "person")
-      .where("person.userUid = :userUid", {userUid })
+      /*.innerJoin("eventApply.player","player")
+      .innerJoin("player.person", "person")*/
+      .where("eventApply.playerId = :playerId", {playerId })
       .andWhere("eventApply.eventId= :eventId",{eventId})
       .getOneOrFail()
       

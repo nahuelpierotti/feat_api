@@ -46,6 +46,5 @@ router.route("/getAllInvitationsForUser/:uid").get(findAllInvitationsForUser);
 
 router.route("/getAllConfirmedOrAppliedByUser/:uid").get(findAllConfirmedOrAppliedByUser);
 
-
 export default router;
 

@@ -179,20 +179,20 @@ export const findAll = async (req: Request, res: Response) => {
   
   export const setDismissedFromList = async (req: Request, res: Response) => {
     try{
-      const userUid = req.body.userUid
+      const playerId = req.body.playerId
       const eventId = req.body.eventId
       
-      console.log("userUid: ",userUid)
+      console.log("playerId: ",playerId)
       console.log("eventId: ",eventId)
       
       const player_list=  await
       createQueryBuilder()
       .select("list")
-      .addSelect("player.id")
+      //.addSelect("player.id")
       .from(PlayerList, "list")
-      .innerJoin("list.player","player")
-      .innerJoin("player.person", "person")
-      .where("person.userUid = :userUid", {userUid })
+      /*.innerJoin("list.player","player")
+      .innerJoin("player.person", "person")*/
+      .where("list.playerId = :playerId", {playerId })
       .andWhere("list.eventId= :eventId",{eventId})
       .getOneOrFail()
       
