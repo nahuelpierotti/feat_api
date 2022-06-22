@@ -352,7 +352,7 @@ export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Respons
     .leftJoin(User, "user", "user.uid = person.userUid")
     //.innerJoinAndSelect(EventApply,"apply", "event.id=apply.eventId and player.id=apply.playerId ")
     .where('user.uid = :uid', {uid: req.params.uid })
-    .andWhere("player.id IN(select playerId from player_list  where eventId=event.id and stateId in(9,10))")
+    //.andWhere("player.id IN(select playerId from player_list  where eventId=event.id and stateId in(9,10))")
     .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
     .andWhere("event.state <> 4") //filtro eventos cancelados
     .andWhere("concat(eventApply.stateId,eventApply.origin) NOT IN('6O','8O')") // filtro de solicitudes rechazadas
