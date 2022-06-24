@@ -14,7 +14,7 @@ export class SportGeneric extends BaseEntity {
     description: string
 
     @OneToMany(() => Sport, (sport) => sport.sportGeneric)
-    sports: Sport[]
+    sports: number
 
     @OneToMany(() => Level, (level) => level.sport)
     level: Level[]

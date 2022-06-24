@@ -10,4 +10,6 @@ import SportGenericRoute from "./sportsGeneric.routes";
 import PersonRoute from './persons.routes';
 import AddressRoute from './addresses.routes';
 import ValuationRoute from './valuations.routes';
-export default { UserRoute ,SportRoute, EventRoute, PlayerRoute, LevelRoute, PositionRoute, AvailabilityRoute, SportGenericRoute,PeridocityRoute,PersonRoute,AddressRoute,ValuationRoute};
+import EventAppliesRoute from './eventApplies.routes';
+export default { UserRoute ,SportRoute, EventRoute, PlayerRoute, LevelRoute, PositionRoute, AvailabilityRoute, SportGenericRoute,PeridocityRoute,PersonRoute,AddressRoute,ValuationRoute,
+    EventAppliesRoute};

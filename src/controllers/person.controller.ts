@@ -9,6 +9,8 @@ export const findOne = async (req: Request, res: Response) => {
       
     const person= await getRepository(Person)
     .createQueryBuilder("person")
+    .leftJoinAndSelect("person.availability","availability")
+    .leftJoinAndSelect("availability.day","day")
     .leftJoin("person.user", "user")
     .where('user.uid = :uid', {uid: req.params.uid })
     .getOne()
@@ -74,6 +76,30 @@ export const update = async (req: Request, res: Response) => {
       max_age: + req.body.max_age,
       notifications:  req.body.notifications,
       willing_distance: + req.body.willing_distance
+
+    }).where("id = :id", { id: req.body.id})
+    .execute()
+
+    console.log(personUpd)
+    res.status(200).json("Actualizado Exitosamente!");
+
+  }catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
+export const updatePersonalInformation = async (req: Request, res: Response) => {
+  try{
+    const personUpd= await
+    createQueryBuilder()
+    .update(Person)
+    .set({
+      names: req.body.names,
+      lastname: req.body.lastname,
+      nickname:  req.body.nickname,
+      birth_date: req.body.birth_date,
+      sex: req.body.sex,
 
     }).where("id = :id", { id: req.body.id})
     .execute()

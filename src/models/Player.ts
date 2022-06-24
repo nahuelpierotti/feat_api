@@ -1,4 +1,5 @@
 import { BaseEntity, Column, Entity,JoinColumn,ManyToMany,ManyToOne,OneToMany,OneToOne,PrimaryGeneratedColumn } from "typeorm";
+import { EventApply } from "./EventApply";
 import { EventSuggestion } from "./EventSuggestion";
 import { Level } from "./Level";
 import { Person } from "./Person";
@@ -25,20 +26,29 @@ export class Player extends BaseEntity{
     @JoinColumn({name: 'sportGenericId'})
     sport: number;
 
-    @ManyToOne(() => Position)
+    @ManyToOne(() => Position,{
+        nullable: true,
+    })
     @JoinColumn({name: 'positiontId'})
     position: number;
 
-    @ManyToOne(() => Level)
+    @ManyToOne(() => Level,{
+        nullable: true,
+    })
     @JoinColumn({name: 'levelId'})
     level: number;
 
-    @ManyToOne(() => Valuation)
+    @ManyToOne(() => Valuation,{
+        nullable: true,
+    })
     @JoinColumn({name: 'valuationId'})
     valuation: number;
     
     @OneToMany(() => PlayerList, (playerList) => playerList.player)
     playerList: PlayerList[]
+
+    @OneToMany(() => EventApply, (eventApply) => eventApply.player)
+    eventApply: EventApply[]
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
     created: String;

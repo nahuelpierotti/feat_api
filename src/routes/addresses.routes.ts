@@ -1,12 +1,14 @@
 import { Router } from "express";
 import {
-  create, findAllByUser,
+  create, findAllByUser,update
 } from "../controllers/address.controller";
 
 const router = Router();
 
-router.route("/:id").get(findAllByUser);
+router.route("/:userUid").get(findAllByUser);
 
 router.route("/create").post(create);
+
+router.route("/update").put(update);
 
 export default router;

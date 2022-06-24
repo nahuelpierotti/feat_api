@@ -10,8 +10,7 @@ export const findAllByUser=async (req: Request,res:Response)=>{
         const result = await getRepository(Address)
         .createQueryBuilder("address")
         .innerJoin(Person, "person", "person.id = address.personId")
-        .innerJoin(User, "user", "user.uid = person.userUid")
-        .where('user.uid = :uid', {uid: req.params.uid })
+        .where('person.userUid = :userUid', {userUid: req.params.userUid })
         .getMany()
         
         console.log(result) 
@@ -48,4 +47,31 @@ export const create = async (req: Request, res: Response) => {
     res.status(400).json(error);
   }
 };
+
+export const update = async (req: Request, res: Response) => {
+  try{
+    const address= await
+    createQueryBuilder()
+    .update(Address)
+    .set({
+        alias: req.body.alias,
+        street: req.body.street,
+        number: req.body.number,
+        town: req.body.town,
+        zip_code: req.body.zip_code,
+        latitude: req.body.latitude,
+        logitude: req.body.logitude,
+    }).where("address.id = :id", { id: req.body.id})
+    .execute()
+
+    console.log(address)
+    res.status(200).json("Creado Exitosamente!");
+
+  }catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
+
 

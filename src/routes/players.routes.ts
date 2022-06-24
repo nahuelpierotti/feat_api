@@ -6,7 +6,9 @@ import {
   findAllByPerson,
   findAllPlayersSuggestedForEvent,
   findAllPlayersConfirmedByEvent,
-  findAllPlayersAppliedByEvent
+  findAllPlayersAppliedByEvent,
+  findAllByUser,
+  setDismissedFromList
 } from "../controllers/player.controller";
 
 const router = Router();
@@ -17,6 +19,8 @@ router.route("/:id").get(findOne);
 
 router.route("/getAllByPerson/:personId").get(findAllByPerson);
 
+router.route("/getAllByUser/:userUid").get(findAllByUser);
+
 router.route("/create").post(create);
 
 router.route("/getAllPlayersSuggestedForEvent/:eventId").get(findAllPlayersSuggestedForEvent)
@@ -24,5 +28,7 @@ router.route("/getAllPlayersSuggestedForEvent/:eventId").get(findAllPlayersSugge
 router.route("/getAllConfirmedByEvent/:eventId").get(findAllPlayersConfirmedByEvent)
 
 router.route("/getAllAppliedByEvent/:eventId").get(findAllPlayersAppliedByEvent)
+
+router.route("/setDismissedFromList").post(setDismissedFromList);
 
 export default router;
