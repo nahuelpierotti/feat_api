@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { createQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
 import { EventApply } from "../models/EventApply";
+import { Level } from "../models/Level";
 import { Person } from "../models/Person";
 import { Player } from "../models/Player";
 import { PlayerList } from "../models/PlayerList";
@@ -164,6 +165,7 @@ export const findAll = async (req: Request, res: Response) => {
   export const findAllPlayersAppliedByEvent=async (req: Request,res:Response)=>{
     try{  
   
+      /*
           const players= await getRepository(Player)
           .createQueryBuilder("player")
           .innerJoinAndSelect("player.person", "person")
@@ -175,8 +177,43 @@ export const findAll = async (req: Request, res: Response) => {
           .where("apply.eventId = :id", { id: req.params.eventId})
           .andWhere('player.id NOT IN(select playerId from player_list  where eventId=apply.eventId  and stateId not in(11,15)) ')
           .andWhere("apply.stateId <> 8")
-          .getMany()
-          
+          .getMany()*/
+          const players= await getRepository(Player)
+          .createQueryBuilder("player")
+          /*.select("player.id,"+
+          " player.abilities,"+
+            "apply.date,"+
+            "person.id,"+
+            "person.lastname,"+
+            "person.names,"+
+            "person.birth_date,"+
+            "person.sex,"+
+            "person.min_age,"+
+            "person.max_age,"+
+            "person.nickname,"+
+            "person.notifications,"+
+            "person.willing_distance,"+         
+            "sportGeneric.id,"+  
+            "sportGeneric.description,"+
+            "position.id,"+
+            "position.description,"+
+            "level.id,"+
+            "level.description,"+
+            "valuation.id,"+
+            "valuation.description,"+
+            " CASE WHEN apply.origin ='O' THEN 'Invitado' ELSE 'Postulado' END as origin "  
+            )*/
+          .innerJoinAndSelect("player.person", "person")
+          .leftJoinAndSelect(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
+          .leftJoinAndSelect("player.position", "position")
+          .leftJoinAndSelect("player.level", "level")
+          .leftJoinAndSelect("player.valuation", "valuation")
+          .innerJoinAndSelect(EventApply, "apply", "player.id = apply.playerId")
+          .where("apply.eventId = :id", { id: req.params.eventId})
+          .andWhere('player.id NOT IN(select playerId from player_list  where eventId=apply.eventId  and stateId not in(11,15)) ')
+          .andWhere("apply.stateId <> 8")
+          .getRawMany()
+
         res.status(200).json(players);   
          
     }catch(error){

@@ -163,10 +163,11 @@ export const findOne = async (req: Request, res: Response) => {
     .leftJoinAndSelect("sport.sportGeneric","sportGeneric")
     .leftJoinAndSelect("event.state", "state")
     .leftJoinAndSelect("event.periodicity", "periodicity")
-    .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
+    .leftJoinAndSelect("event.organizer","person")
+    //.andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
     .getOne()
 
-    //console.log(event);
+    console.log(event);
     res.status(200).json(event);
   } catch (error) {
     console.log(error);
