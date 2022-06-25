@@ -203,12 +203,20 @@ export const findAll = async (req: Request, res: Response) => {
             "valuation.description,"+
             " CASE WHEN apply.origin ='O' THEN 'Invitado' ELSE 'Postulado' END as origin "  
             )*/
-          .innerJoinAndSelect("player.person", "person")
-          .leftJoinAndSelect(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
-          .leftJoinAndSelect("player.position", "position")
-          .leftJoinAndSelect("player.level", "level")
-          .leftJoinAndSelect("player.valuation", "valuation")
-          .innerJoinAndSelect(EventApply, "apply", "player.id = apply.playerId")
+          .addSelect("person.lastname,"+
+          "person.names,"+
+          "person.sex,"+
+          "TIMESTAMPDIFF(YEAR,person.birth_date,CURDATE()) AS age,"+
+          "person.nickname,"+
+          "position.description as position_desc,"+
+          "level.description as level_desc,"+
+          " CASE WHEN apply.origin ='O' THEN 'Invitado' ELSE 'Postulado' END as origin ")
+          .innerJoin("player.person", "person")
+          .leftJoin(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
+          .leftJoin("player.position", "position")
+          .leftJoin("player.level", "level")
+          .leftJoin("player.valuation", "valuation")
+          .innerJoin(EventApply, "apply", "player.id = apply.playerId")
           .where("apply.eventId = :id", { id: req.params.eventId})
           .andWhere('player.id NOT IN(select playerId from player_list  where eventId=apply.eventId  and stateId not in(11,15)) ')
           .andWhere("apply.stateId <> 8")
