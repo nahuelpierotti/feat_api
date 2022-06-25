@@ -3,9 +3,9 @@ import { EventApply } from "./EventApply";
 import { EventSuggestion } from "./EventSuggestion";
 import { Level } from "./Level";
 import { Person } from "./Person";
+import { PlayerEventCalification } from "./PlayerEventCalification";
 import { PlayerList } from "./PlayerList";
 import { Position } from "./Position";
-import { Sport } from "./Sport";
 import { SportGeneric } from "./SportGeneric";
 import { Valuation } from "./Valuation";
 
@@ -52,4 +52,9 @@ export class Player extends BaseEntity{
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
     created: String;
+
+    @Column({
+        nullable: true,
+    })
+    calification: number
 }
