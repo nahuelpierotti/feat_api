@@ -1,12 +1,14 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import { createQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
 import { EventApply } from "../models/EventApply";
+import { Event } from "../models/Event";
 import { Level } from "../models/Level";
 import { Person } from "../models/Person";
 import { Player } from "../models/Player";
 import { PlayerList } from "../models/PlayerList";
 import { PlayerSuggestion } from "../models/PlayerSuggestion";
+import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
 
 export const findAll = async (req: Request, res: Response) => {
@@ -121,21 +123,20 @@ export const findAll = async (req: Request, res: Response) => {
           const players= await getRepository(Player)
           .createQueryBuilder("player")
           .innerJoinAndSelect("player.person", "person")
-          .leftJoinAndSelect(SportGeneric,"sportGeneric","player.sport=sportGeneric.id")
           .leftJoinAndSelect("player.position", "position")
           .leftJoinAndSelect("player.level", "level")
           .leftJoinAndSelect("player.valuation", "valuation")
           .innerJoinAndSelect(PlayerSuggestion, "sug", "player.id = sug.playerId")
-          .innerJoin(Event,"event"," sug.eventId=event.id and pl.sportId=event.sportId")
           .where("sug.eventId = :id", { id: req.params.eventId})
           .andWhere('player.id NOT IN(select playerId from player_list  where eventId=sug.eventId  and stateId not in(11,15) union  select playerId from event_apply  where eventId=sug.eventId  and stateId <> 8) ')
-          .getSql()
+          .getMany()
           
           console.log(players)
 
         res.status(200).json(players);   
          
     }catch(error){
+      console.log(error)
       res.status(400).json(error);
     }
   }
