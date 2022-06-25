@@ -128,7 +128,7 @@ export const findAll = async (req: Request, res: Response) => {
           .leftJoinAndSelect("player.valuation", "valuation")
           .innerJoinAndSelect(PlayerSuggestion, "sug", "player.id = sug.playerId")
           .where("sug.eventId = :id", { id: req.params.eventId})
-          .andWhere('player.id NOT IN(select playerId from player_list  where eventId=sug.eventId  and stateId not in(11,15) union  select playerId from event_apply  where eventId=sug.eventId  and stateId <> 8) ')
+          .andWhere("player.id NOT IN(select playerId from player_list  where eventId=sug.eventId  and stateId not in(11,15) union  select playerId from event_apply  where eventId=sug.eventId  and concat(origin,stateId) in('P6','P8','O8') ) ")
           .getMany()
           
           console.log(players)
