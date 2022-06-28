@@ -22,6 +22,8 @@ export const create = async (req: Request, res: Response) => {
       .andWhere("eventApply.eventId= :eventId",{eventId})
       .getOne()
 
+      console.log(existe)
+
       if(existe!=undefined){
 
         const event_apply= await
