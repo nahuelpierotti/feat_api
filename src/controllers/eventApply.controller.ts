@@ -24,8 +24,9 @@ export const create = async (req: Request, res: Response) => {
 
       console.log(existe)
 
-      if(existe!=undefined){
-
+      if(existe){
+        res.status(200).json("La Solicitud ya habia sido enviada Exitosamente!");
+      }else{
         const event_apply= await
         createQueryBuilder()
         .insert()
@@ -38,11 +39,9 @@ export const create = async (req: Request, res: Response) => {
             date: () => 'CURRENT_TIMESTAMP'
           }).execute()
         
-        //  console.log(event_apply)
+          console.log(event_apply)
 
         res.status(200).json("Solicitud Enviada Exitosamente!");
-      }else{
-        res.status(200).json("La Solicitud ya habia sido enviada Exitosamente!");
       }
   
     }catch (error) {
