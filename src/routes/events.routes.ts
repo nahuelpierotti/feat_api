@@ -13,7 +13,8 @@ import {
   setCanceled,
   findAllOfTheWeek,
   findAllInvitationsForUser,
-  findAllConfirmedOrAppliedByUser
+  findAllConfirmedOrAppliedByUser,
+  filterEventSuggestedForUser
 } from "../controllers/event.controller";
 
 const router = Router();
@@ -45,6 +46,8 @@ router.route("/getAllEventsOfTheWeek/:uid").get(findAllOfTheWeek);
 router.route("/getAllInvitationsForUser/:uid").get(findAllInvitationsForUser);
 
 router.route("/getAllConfirmedOrAppliedByUser/:uid").get(findAllConfirmedOrAppliedByUser);
+
+router.route("/getfilterEventSuggestedForUser/:uid").post(filterEventSuggestedForUser);
 
 export default router;
 
