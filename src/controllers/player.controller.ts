@@ -10,6 +10,8 @@ import { PlayerList } from "../models/PlayerList";
 import { PlayerSuggestion } from "../models/PlayerSuggestion";
 import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
+import { Availability } from "../models/Availability";
+import { Address } from "../models/Address";
 
 export const findAll = async (req: Request, res: Response) => {
     try {
@@ -134,6 +136,71 @@ export const findAll = async (req: Request, res: Response) => {
           console.log(players)
 
         res.status(200).json(players);   
+         
+    }catch(error){
+      console.log(error)
+      res.status(400).json(error);
+    }
+  }
+
+  export const filterAllPlayersSuggestedForEvent=async (req: Request,res:Response)=>{
+    try{  
+
+          const event= await Event.findOne(req.params.eventId);
+
+          const organizer = await getRepository(Person)
+          .createQueryBuilder("person")
+          .leftJoinAndSelect(Event, "event", "event.organizerId = person.id")
+          .where("event.id = :eventId", { eventId: req.params.eventId})
+          .getOne();
+
+
+          const sport= await getRepository(Sport)
+          .createQueryBuilder("sport")
+          .leftJoinAndSelect(Event,"event", "event.sportId = sport.id")
+          .where("event.id = :eventId", { eventId: req.params.eventId})
+          //.leftJoinAndSelect(SportGeneric,"sportGeneric","sport.sportGenericId=sportGeneric.id")
+          .getOne();
+
+          const sportGeneric = await getRepository(SportGeneric)
+          .createQueryBuilder("sportGeneric")
+          .leftJoinAndSelect(Sport,"sport", "sportGeneric.id = sport.sportGenericId")
+          .where("sport.id = :sportId",{sportId: sport?.id})
+          .getOne();
+
+
+          const players= await getRepository(Player)
+          .createQueryBuilder("player")
+          .innerJoinAndSelect("player.person", "person")
+          .leftJoinAndSelect("player.position", "position")
+          .leftJoinAndSelect(Availability, "availability", "person.id = availability.personId")
+          .leftJoinAndSelect(Address, "address", "person.id = address.personId")
+          .leftJoinAndSelect(SportGeneric, "sportGeneric", "player.sportGenericId = sportGeneric.id")
+          .leftJoinAndSelect("player.level", "level")
+          .leftJoinAndSelect("player.valuation", "valuation")
+          .where("player.sportGenericId = :eventSport",{eventSport: sportGeneric?.id})
+          .andWhere("availability.dayId = DAYOFWEEK(DATE(:eventDay))",{eventDay: event?.date})
+          .andWhere("availability.start_time <= :eventStartTime", {eventStartTime: event?.start_time})
+          .andWhere("availability.end_time >= :eventEndTime", {eventEndTime: event?.end_time})
+          .andWhere("player.id NOT IN(select playerId from player_list  where eventId= :eventId  and stateId not in(11,15) union  select playerId from event_apply  where eventId= :eventId  and concat(origin,stateId) in('P6','P8','O8','O6') ) "
+          ,{eventId: req.params.eventId})
+          .andWhere("person.id <> :organizer",{organizer: organizer?.id})
+
+          if(req.body.distance !== null){
+            players.andWhere("(fn_calcula_distancia_por_direccion(address.id,:eventLatitude,:eventLongitude) <= :distance)",
+            {distance: req.body.distance, eventLatitude: Number(event?.latitude), eventLongitude: Number(event?.longitude)});
+          }
+
+          if(req.body.min_age !== null && req.body.max_age){
+            players.andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) >= :minAge", {minAge: req.body.min_age})
+            .andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) <= :maxAge", {maxAge: req.body.max_age})
+          }
+
+          const result = await players.getMany();
+
+
+        res.status(200).json(result);
+
          
     }catch(error){
       console.log(error)
