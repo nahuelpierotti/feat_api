@@ -257,7 +257,7 @@ export const setConfirmed = async (req: Request, res: Response) => {
     .execute()
     
     res.status(200).json("Evento Confirmado Exitosamente!");
-
+    
   }catch (error) {
     console.log(error);
     res.status(400).json(error);

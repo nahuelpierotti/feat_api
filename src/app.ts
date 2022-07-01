@@ -8,7 +8,6 @@ export const instanceApp = () => {
   //middleware
   app.use(express.json());
   app.use(cors());
-
   // Routes
   app.use("/users", Router.UserRoute);
   app.use("/sports", Router.SportRoute);
