@@ -23,4 +23,10 @@ export class User extends BaseEntity {
 
   @OneToOne(()=>Person)
   person: Person;
+
+  @Column({
+    nullable: true,
+  })
+  mobileToken: string
+
 }

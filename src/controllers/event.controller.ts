@@ -286,24 +286,32 @@ export const setCanceled = async (req: Request, res: Response) => {
 
 export const findAllOfTheWeek = async (req: Request, res: Response) => {
   try {
-    
+    const uid=req.params.uid
+
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .leftJoinAndSelect("event.sport", "sport")
     .leftJoinAndSelect("event.state", "state")
     .leftJoinAndSelect("event.periodicity", "periodicity")
-    /*.leftJoinAndSelect("event.organizer", "organizer")
-    .innerJoin(Player,"player","sport.sportGeneric=player.sportGenericId")
-    .innerJoin(Person,"person", "player.personId=person.id")
-    .where('person.userUid = :uid', {uid: req.params.uid })*/
     .where('DATE(event.date) >= CURRENT_DATE')
     .andWhere(' DATE(event.date) <= DATE_ADD(NOW(), INTERVAL 7 DAY) ')
     .andWhere("event.state <> 4") //filtro eventos cancelados
-    //.andWhere('player.id IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
+    .andWhere("event.id NOT IN("+
+      " select eventId from player_list l "+
+      " join player pl on l.playerId=pl.id "+
+      " join person p on pl.personId=p.id "+
+      " where p.userUid='"+uid+"'"+
+      " and stateId not in(11,15) "+
+      " union "+
+      " select eventId from event_apply a "+
+      " join player pl on a.playerId=pl.id "+
+      " join person p on pl.personId=p.id "+
+      " where p.userUid='"+uid+"'"+
+      " and stateId not in(6,7,9) "+
+      ")")
     .orderBy('event.date, event.start_time ', 'ASC')
     .getMany()
 
-    //console.log(event);
     res.status(200).json(event);
   } catch (error) {
     console.log(error);
