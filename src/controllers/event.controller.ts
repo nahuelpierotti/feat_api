@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { stat } from "fs";
 import { createQueryBuilder, getManager } from "typeorm";
 import {getRepository} from "typeorm";
+import { Address } from "../models/Address";
 import { Event } from "../models/Event";
 import { EventApply } from "../models/EventApply";
 import { EventSuggestion } from "../models/EventSuggestion";
@@ -374,3 +375,81 @@ export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Respons
     res.status(400).json(error);
   }
 };
+
+export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
+  try{  
+
+        const addresses = await getRepository(Address)
+        .createQueryBuilder("address")
+        .innerJoin(Person, "person", "person.id = address.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        let filterEvents: Event[] = [];
+
+        let event= await getRepository(Event)
+        .createQueryBuilder("event")
+        .innerJoinAndSelect("event.sport", "sport")
+        .innerJoinAndSelect("event.state", "state")
+        .innerJoinAndSelect("event.periodicity", "periodicity")
+        .innerJoinAndSelect("event.organizer", "organizer")
+        .leftJoin(Person, "person", "event.organizerId = person.id")
+        .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
+        .where("person.userUid <> :uid", {uid: req.params.uid })
+        .andWhere("event.state <> 4") //filtro eventos cancelados
+        .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
+        .andWhere("event.date <= DATE_ADD(NOW(), INTERVAL :interval DAY", {interval: req.body.interval})
+        .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
+        .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0");
+        
+        if(req.body.sportId === null && req.body.sportGenericId !== null){
+          event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: req.body.sportGenericId});
+        }
+
+        if(req.body.sportId !== null){
+          event.andWhere("sport.id = :sportId", {sportId: req.body.sportId});
+        }
+
+        if(req.body.dayId !== null){
+          event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: req.body.dayId});
+        }
+
+        if(req.body.startTime !== null && req.body.endTime !== null){
+          event.andWhere("event.start_time >= :startTime", {startTime: req.body.startTime})
+          .andWhere("event.end_time <= :endTime", {endTime: req.body.endTime});
+        }
+
+        if(req.body.distance !== null){
+          let eventAux = null;
+          let resultAux = null;
+          for (let address of addresses){
+            eventAux = event;
+              eventAux.andWhere("(fn_calcula_distancia_por_direccion(:addressId,event.latitude,event.longitude) <= :distance)",
+              {distance: req.body.distance, addressId: address.id});
+              eventAux.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
+
+              resultAux = await eventAux.getMany();
+
+              //ACA FILTRAMOS LA LISTA CON LOS RESULTADOS ELIMINANDO LOS EVENTOS QUE TENGAN EL MISMO ID QUE EL EVENTO QUE VAMOS A PUSHEAR EN LA LISTA PARA EVITAR DUPLICAODS
+              if(resultAux.length > 0){
+                let filterAux = filterEvents;
+                for(let result of resultAux){
+                    filterEvents = filterAux.filter(element =>{
+                      element.id !== result.id;
+                    })
+                    filterEvents.push(result);
+                }
+              }
+
+          }
+          res.status(200).json(filterEvents);
+      }else{
+        event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
+        filterEvents = await event.getMany();
+        res.status(200).json(filterEvents);
+      }       
+  }catch(error){
+    console.log(error)
+    res.status(400).json(error);
+  }
+}
