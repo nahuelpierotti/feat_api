@@ -7,6 +7,7 @@ const main = async () => {
   try {
     await connectDatabase();
     const app = instanceApp();
+    
     app.listen(process.env.PORT, () => {
       console.log(`Server started on port ${process.env.PORT}`);
     });
