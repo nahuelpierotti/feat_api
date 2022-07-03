@@ -6,6 +6,9 @@ import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
 import { Event } from "../models/Event";
 import { PlayerList } from "../models/PlayerList";
+import { User } from "../models/User";
+import { Person } from "../models/Person";
+import { initFirebase, subscribeTopic } from "../notifications";
 
 
 export const create = async (req: Request, res: Response) => {
@@ -162,6 +165,14 @@ export const create = async (req: Request, res: Response) => {
         
           console.log(accept_apply)
 
+          initFirebase();
+          //const evento=getEvent(eventId)
+          const event=await Event.findOne(eventId);
+          const tema=event.id+event.name.replace(/\s/g, "");
+          const userToken=getUserTokenByPlayer(playerId)
+
+          console.log(subscribeTopic(tema,userToken.toString()))
+
         res.status(200).json("Invitacion Aceptada Exitosamente!");
       }else{
         res.status(200).json("La Invitacion ya habia sido aceptada anteriormente!");
@@ -255,3 +266,27 @@ export const create = async (req: Request, res: Response) => {
       res.status(400).json(error);
     }
   };
+
+export const getEvent= async (id:string) => {
+  try{
+  const event=await Event.findOne(id);
+  console.log(event)
+
+  return event;
+  
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getUserTokenByPlayer= async (playerId:string) => {
+    const tokenList = await getRepository(User)
+    .createQueryBuilder("user")
+    .select("user.mobileToken")
+    .leftJoin(Person,"person","user.uid=person.userUid")
+    .leftJoin(Player, "player", "person.id = player.personId")
+    .where('player.id = :playerId', { playerId: playerId })
+    .getRawOne();
+
+    return tokenList;
+}

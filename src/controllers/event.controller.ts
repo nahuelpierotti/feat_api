@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { stat } from "fs";
-import { createQueryBuilder, getManager } from "typeorm";
+import { createQueryBuilder, getManager, SelectQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
+import { Address } from "../models/Address";
 import { Event } from "../models/Event";
 import { EventApply } from "../models/EventApply";
 import { EventSuggestion } from "../models/EventSuggestion";
@@ -12,6 +13,7 @@ import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
 import { State } from "../models/State";
 import { User } from "../models/User";
+import { initFirebase, sendPushToOneUser, subscribeTopic } from "../notifications";
 
 
 export const findAll = async (req: Request, res: Response) => {
@@ -237,7 +239,55 @@ export const create = async (req: Request, res: Response) => {
     })
     .execute()
     
-    res.status(200).json("Evento Creado Exitosamente!");
+    const idEvento=event.raw.insertId;
+    const organizador=await getRepository(Player)
+    .createQueryBuilder("player")
+    .select("player")
+    .leftJoin(Person,"person","player.personId=person.id")
+    .leftJoin(User,"user","person.userUid=user.uid")
+    .leftJoin(Event,"event","person.id=event.organizer")
+    .leftJoin(Sport,"sport","event.sportId=sport.id and player.sportGenericId=sport.sportGenericId")
+    .where("event.id",{id: idEvento})
+    .getOne()
+
+    const event_apply= await
+        createQueryBuilder()
+        .insert()
+        .into(EventApply)
+        .values({
+            origin: "O",
+            state: + 7,
+            event: + event.raw.insertId,
+            player:   organizador?.id,    
+            date: () => 'CURRENT_TIMESTAMP'
+          }).execute()
+
+
+    console.log(event.raw.insertId)
+    const nombre=req.body.name.replace(/\s/g, "");
+    const tema=event.raw.insertId+"-"+nombre
+
+    console.log("Tema: "+tema)
+
+    const tokenList = await getRepository(User)
+    .createQueryBuilder("user")
+    .select("user.mobileToken")
+    .leftJoin(Person,"person","user.uid=person.userUid")
+    .leftJoin(Player, "player", "person.id = player.personId")
+    .leftJoin(EventApply, "apply", "player.id=apply.playerId ")
+    .where('apply.eventId = :eventId', { eventId: event.raw.insertId })
+    .getMany();
+
+    console.log(tokenList)
+
+    initFirebase();
+    tokenList.forEach((user) =>{ 
+      console.log(subscribeTopic(tema,user.mobileToken.toString()))
+      console.log(sendPushToOneUser(user.mobileToken.toString(), "Creaste un nuevo evento", "Ya podes invitar a jugadores"))
+    })
+    
+
+    res.status(200).json("Evento Creado Exitosamente!"+tokenList);
 
   }catch (error) {
     console.log(error);
@@ -257,7 +307,7 @@ export const setConfirmed = async (req: Request, res: Response) => {
     .execute()
     
     res.status(200).json("Evento Confirmado Exitosamente!");
-
+    
   }catch (error) {
     console.log(error);
     res.status(400).json(error);
@@ -374,3 +424,113 @@ export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Respons
     res.status(400).json(error);
   }
 };
+
+export async function findRegistrationTokensByEvent(eventId: string) {
+  try {
+
+    const tokenList = await getRepository(User)
+      .createQueryBuilder("user")
+      .select("user.mobileToken")
+      .leftJoin("user.uid", "person")
+      .leftJoin(Player, "player", "person.id = player.personId")
+      .innerJoinAndSelect(EventApply, "apply", "player.id=apply.playerId ")
+      .where('apply.eventId', { eventId: eventId })
+      .getRawMany();
+
+    return tokenList;
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function getPlayerOrganizerByEvent (eventId:string){
+  const organizador=await getRepository(Player)
+    .createQueryBuilder("player")
+    .select("player")
+    .leftJoin(Person,"person","player.personId=person.id")
+    .leftJoin(User,"user","person.userUid=user.uid")
+    .leftJoin(Event,"event","person.id=event.organizer")
+    .leftJoin(Sport,"sport","event.sportId=sport.id and player.sportGenericId=sport.sportGenericId")
+    .where("event.id",{id: eventId})
+    .getOne()
+
+    return organizador?.id;
+}
+
+export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
+  try{  
+
+        const addresses = await getRepository(Address)
+        .createQueryBuilder("address")
+        .innerJoin(Person, "person", "person.id = address.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        let filterEvents: Event[] = [];
+
+        let event= await getRepository(Event)
+        .createQueryBuilder("event")
+        .innerJoinAndSelect("event.sport", "sport")
+        .innerJoinAndSelect("event.state", "state")
+        .innerJoinAndSelect("event.periodicity", "periodicity")
+        .innerJoinAndSelect("event.organizer", "organizer")
+        .leftJoin(Person, "person", "event.organizerId = person.id")
+        .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
+        .where("person.userUid <> :uid", {uid: req.params.uid })
+        .andWhere("event.state <> 4") //filtro eventos cancelados
+        .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
+        .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
+        .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0");
+
+        if(req.body.sportId === null && req.body.sportGenericId !== null){
+          event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: req.body.sportGenericId});
+        }
+
+        if(req.body.sportId !== null){
+          event.andWhere("sport.id = :sportId", {sportId: req.body.sportId});
+        }
+
+        if(req.body.dayId !== null){
+          event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: req.body.dayId});
+        }
+
+        if(req.body.startTime !== null && req.body.endTime !== null){
+          event.andWhere("event.start_time >= :startTime", {startTime: req.body.startTime})
+          .andWhere("event.end_time <= :endTime", {endTime: req.body.endTime});
+        }
+
+        if(req.body.distance !== null){
+          let eventAux = null;
+          let resultAux = null;
+          for (let address of addresses){
+            eventAux = event;
+              eventAux.andWhere("(fn_calcula_distancia_por_direccion(:addressId,event.latitude,event.longitude) <= :distance)",
+              {distance: req.body.distance, addressId: address.id});
+              eventAux.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
+
+              resultAux = await eventAux.getMany();
+
+              //ACA FILTRAMOS LA LISTA CON LOS RESULTADOS ELIMINANDO LOS EVENTOS QUE TENGAN EL MISMO ID QUE EL EVENTO QUE VAMOS A PUSHEAR EN LA LISTA PARA EVITAR DUPLICAODS
+              if(resultAux.length > 0){
+                let filterAux = filterEvents;
+                for(let result of resultAux){
+                    filterEvents = filterAux.filter(element =>{
+                      element.id !== result.id;
+                    })
+                    filterEvents.push(result);
+                }
+              }
+
+          }
+          res.status(200).json(filterEvents);
+      }else{
+        event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
+        filterEvents = await event.getMany();
+        res.status(200).json(filterEvents);
+      }       
+  }catch(error){
+    console.log(error)
+    res.status(400).json(error);
+  }
+}
