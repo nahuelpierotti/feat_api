@@ -8,7 +8,7 @@ import { Event } from "../models/Event";
 import { PlayerList } from "../models/PlayerList";
 import { User } from "../models/User";
 import { Person } from "../models/Person";
-import { initFirebase, subscribeTopic } from "../notifications";
+import { initFirebase, sendPushToOneUser, subscribeTopic } from "../notifications";
 
 
 export const create = async (req: Request, res: Response) => {
@@ -168,10 +168,23 @@ export const create = async (req: Request, res: Response) => {
           initFirebase();
           //const evento=getEvent(eventId)
           const event=await Event.findOne(eventId);
+          console.log("event: "+event)
           const tema=event.id+event.name.replace(/\s/g, "");
-          const userToken=getUserTokenByPlayer(playerId)
+          console.log("Topic: "+tema)
+          //const userToken=getUserTokenByPlayer(playerId)
+          const userToken = await getRepository(User)
+          .createQueryBuilder("user")
+          .select("user.mobileToken")
+          .leftJoin(Person,"person","user.uid=person.userUid")
+          .leftJoin(Player, "player", "person.id = player.personId")
+          .where('player.id = :playerId', { playerId: playerId })
+          .getMany();
 
-          console.log(subscribeTopic(tema,userToken.toString()))
+          
+          userToken.forEach((user) =>{ 
+            console.log(subscribeTopic(tema,user.mobileToken.toString()))
+            console.log(sendPushToOneUser(user.mobileToken.toString(), "Te confirmaron en un partido", "El evento "+event.name+" te confirmo en su lista de jugadores"))
+          })
 
         res.status(200).json("Invitacion Aceptada Exitosamente!");
       }else{
