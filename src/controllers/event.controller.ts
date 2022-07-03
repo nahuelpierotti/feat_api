@@ -456,7 +456,8 @@ async function getPlayerOrganizerByEvent (eventId:string){
     .getOne()
 
     return organizador?.id;
-=======
+}
+
 export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
   try{  
 
@@ -479,10 +480,9 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .where("person.userUid <> :uid", {uid: req.params.uid })
         .andWhere("event.state <> 4") //filtro eventos cancelados
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
-        .andWhere("event.date <= DATE_ADD(NOW(), INTERVAL :interval DAY", {interval: req.body.interval})
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
         .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0");
-        
+
         if(req.body.sportId === null && req.body.sportGenericId !== null){
           event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: req.body.sportGenericId});
         }
