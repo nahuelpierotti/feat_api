@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   create,
+  exists,
   getEventApply,
   getPlayerByPersonUidAndEvent,
   setAcceptedApply,
@@ -19,7 +20,7 @@ router.route("/setDeniedApply").post(setDeniedApply)
 
 router.route("/getEventApply").post(getEventApply);
 
-
+router.route("/exists/:playerId/:eventId").get(exists);
 
 
 

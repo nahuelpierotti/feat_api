@@ -18,6 +18,8 @@ import { PlayerList } from "./models/PlayerList";
 import { EventSuggestion } from "./models/EventSuggestion";
 import { PlayerSuggestion } from "./models/PlayerSuggestion";
 import { SportGeneric } from "./models/SportGeneric";
+import { PlayerEventCalification } from "./models/PlayerEventCalification";
+import { Calification } from "./models/Calification";
 
 
 export const connectDatabase = async () => {
@@ -32,7 +34,8 @@ export const connectDatabase = async () => {
       synchronize: true,
       entities: [User, UserType, Person, Sport,Day,Level,Valuation, 
         Position,Availability,Player,Address,Periodicity,
-        State,EventApply,PlayerList,Event,EventSuggestion,PlayerSuggestion, SportGeneric],
+        State,EventApply,PlayerList,Event,EventSuggestion,PlayerSuggestion, 
+        SportGeneric,PlayerEventCalification,Calification],
       ssl: false,
     });
     console.log("Database connected");

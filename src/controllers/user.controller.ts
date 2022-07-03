@@ -39,6 +39,7 @@ export const create = async (req: Request, res: Response) => {
         uid: req.body.uid,
         email:  req.body.email,
         userType: 2,
+        mobileToken: req.body.mobile_token,
     })
     .execute()
 
