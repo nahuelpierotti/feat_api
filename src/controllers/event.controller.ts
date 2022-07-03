@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { stat } from "fs";
-import { createQueryBuilder, getManager } from "typeorm";
+import { createQueryBuilder, getManager, SelectQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
 import { Event } from "../models/Event";
 import { EventApply } from "../models/EventApply";
@@ -12,6 +12,7 @@ import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
 import { State } from "../models/State";
 import { User } from "../models/User";
+import { initFirebase, sendPushToOneUser, subscribeTopic } from "../notifications";
 
 
 export const findAll = async (req: Request, res: Response) => {
@@ -237,7 +238,55 @@ export const create = async (req: Request, res: Response) => {
     })
     .execute()
     
-    res.status(200).json("Evento Creado Exitosamente!");
+    const idEvento=event.raw.insertId;
+    const organizador=await getRepository(Player)
+    .createQueryBuilder("player")
+    .select("player")
+    .leftJoin(Person,"person","player.personId=person.id")
+    .leftJoin(User,"user","person.userUid=user.uid")
+    .leftJoin(Event,"event","person.id=event.organizer")
+    .leftJoin(Sport,"sport","event.sportId=sport.id and player.sportGenericId=sport.sportGenericId")
+    .where("event.id",{id: idEvento})
+    .getOne()
+
+    const event_apply= await
+        createQueryBuilder()
+        .insert()
+        .into(EventApply)
+        .values({
+            origin: "O",
+            state: + 7,
+            event: + event.raw.insertId,
+            player:   organizador?.id,    
+            date: () => 'CURRENT_TIMESTAMP'
+          }).execute()
+
+
+    console.log(event.raw.insertId)
+    const nombre=req.body.name.replace(/\s/g, "");
+    const tema=event.raw.insertId+"-"+nombre
+
+    console.log("Tema: "+tema)
+
+    const tokenList = await getRepository(User)
+    .createQueryBuilder("user")
+    .select("user.mobileToken")
+    .leftJoin(Person,"person","user.uid=person.userUid")
+    .leftJoin(Player, "player", "person.id = player.personId")
+    .leftJoin(EventApply, "apply", "player.id=apply.playerId ")
+    .where('apply.eventId = :eventId', { eventId: event.raw.insertId })
+    .getMany();
+
+    console.log(tokenList)
+
+    initFirebase();
+    tokenList.forEach((user) =>{ 
+      console.log(subscribeTopic(tema,user.mobileToken.toString()))
+      console.log(sendPushToOneUser(user.mobileToken.toString(), "Creaste un nuevo evento", "Ya podes invitar a jugadores"))
+    })
+    
+
+    res.status(200).json("Evento Creado Exitosamente!"+tokenList);
 
   }catch (error) {
     console.log(error);
@@ -374,3 +423,36 @@ export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Respons
     res.status(400).json(error);
   }
 };
+
+export async function findRegistrationTokensByEvent(eventId: string) {
+  try {
+
+    const tokenList = await getRepository(User)
+      .createQueryBuilder("user")
+      .select("user.mobileToken")
+      .leftJoin("user.uid", "person")
+      .leftJoin(Player, "player", "person.id = player.personId")
+      .innerJoinAndSelect(EventApply, "apply", "player.id=apply.playerId ")
+      .where('apply.eventId', { eventId: eventId })
+      .getRawMany();
+
+    return tokenList;
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function getPlayerOrganizerByEvent (eventId:string){
+  const organizador=await getRepository(Player)
+    .createQueryBuilder("player")
+    .select("player")
+    .leftJoin(Person,"person","player.personId=person.id")
+    .leftJoin(User,"user","person.userUid=user.uid")
+    .leftJoin(Event,"event","person.id=event.organizer")
+    .leftJoin(Sport,"sport","event.sportId=sport.id and player.sportGenericId=sport.sportGenericId")
+    .where("event.id",{id: eventId})
+    .getOne()
+
+    return organizador?.id;
+}
