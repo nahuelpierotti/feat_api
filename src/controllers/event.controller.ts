@@ -13,7 +13,7 @@ import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
 import { State } from "../models/State";
 import { User } from "../models/User";
-import { initFirebase, sendPushToOneUser, subscribeTopic } from "../notifications";
+import { sendPushToOneUser, subscribeTopic } from "../notifications";
 
 
 export const findAll = async (req: Request, res: Response) => {

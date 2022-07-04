@@ -8,7 +8,7 @@ import { Event } from "../models/Event";
 import { PlayerList } from "../models/PlayerList";
 import { User } from "../models/User";
 import { Person } from "../models/Person";
-import { initFirebase, sendPushToOneUser, subscribeTopic } from "../notifications";
+import { sendPushToOneUser, subscribeTopic } from "../notifications";
 
 
 export const create = async (req: Request, res: Response) => {
@@ -165,7 +165,7 @@ export const create = async (req: Request, res: Response) => {
         
           console.log(accept_apply)
 
-          initFirebase();
+          //initFirebase();
           //const evento=getEvent(eventId)
           const event=await Event.findOne(eventId);
           console.log("event: "+event)
