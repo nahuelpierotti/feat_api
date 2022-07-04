@@ -1,14 +1,15 @@
 //const admin = require("firebase-admin");
 import admin  from "firebase-admin";
-const serviceAccount = require('./keys/feat-6ca32-firebase-adminsdk-wd6c9-fc52d4c8a4.json');
+//import * as serviceAccount from './keys/feat-6ca32-firebase-adminsdk-wd6c9-fc52d4c8a4.json';
 const FCM= require('fcm-node');
 const serverKey = 'AAAAikENcUo:APA91bGLbGzdssDn1uzfq5qFTMbOBhx6Sr3kgoDc8OQ_azW95Q-cqw_uotuvODQ1Xa9C5gCz4Xoq5W-HNa9aHDVmCxLa0J2vi_pA5SmGpV5sYwTdU0vUSsgdsKkvOibXsG0T3QqVLJVU';
 const fcm = new FCM(serverKey);
 
 
+
 export const initFirebase =async() =>{
     await admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
+        credential: admin.credential.cert("./keys/feat-6ca32-firebase-adminsdk-wd6c9-fc52d4c8a4.json"),
     });
 }
 
