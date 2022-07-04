@@ -280,7 +280,7 @@ export const create = async (req: Request, res: Response) => {
 
     console.log(tokenList)
 
-    initFirebase();
+    //initFirebase();
     tokenList.forEach((user) =>{ 
       console.log(subscribeTopic(tema,user.mobileToken.toString()))
       console.log(sendPushToOneUser(user.mobileToken.toString(), "Creaste un nuevo evento", "Ya podes invitar a jugadores"))
