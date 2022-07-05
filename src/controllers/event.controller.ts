@@ -13,7 +13,7 @@ import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
 import { State } from "../models/State";
 import { User } from "../models/User";
-import { initFirebase, sendPushToOneUser, subscribeTopic } from "../notifications";
+import { sendPushToOneUser, subscribeTopic } from "../notifications";
 
 
 export const findAll = async (req: Request, res: Response) => {
@@ -280,7 +280,6 @@ export const create = async (req: Request, res: Response) => {
 
     console.log(tokenList)
 
-    initFirebase();
     tokenList.forEach((user) =>{ 
       console.log(subscribeTopic(tema,user.mobileToken.toString()))
       console.log(sendPushToOneUser(user.mobileToken.toString(), "Creaste un nuevo evento", "Ya podes invitar a jugadores"))
