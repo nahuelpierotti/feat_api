@@ -11,16 +11,16 @@ export class Address extends BaseEntity{
     @Column({nullable: true})
     alias: string
 
-    @Column()
+    @Column({nullable: true})
     street: string
 
-    @Column()
+    @Column({nullable: true})
     number: string
 
-    @Column()
+    @Column({nullable: true})
     town: string
 
-    @Column()
+    @Column({nullable: true})
     zip_code: string
 
     @Column()
