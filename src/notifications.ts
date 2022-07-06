@@ -1,4 +1,3 @@
-//const admin = require("firebase-admin");
 import admin  from "firebase-admin";
 import * as firebaseServiceAccountJson from './keys/feat-6ca32-firebase-adminsdk-wd6c9-fc52d4c8a4.json';
 const FCM= require('fcm-node');
@@ -11,6 +10,7 @@ export const initFirebase =async() =>{
         credential: admin.credential.cert(firebaseServiceAccount),
     });
 }
+
 
 export const subscribeTopic=async ( event: string,registrationTokens:string) =>{
   admin.messaging().subscribeToTopic(registrationTokens, event)

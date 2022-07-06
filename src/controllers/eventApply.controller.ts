@@ -165,7 +165,6 @@ export const create = async (req: Request, res: Response) => {
         
           console.log(accept_apply)
 
-          //initFirebase();
           //const evento=getEvent(eventId)
           const event=await Event.findOne(eventId);
           console.log("event: "+event)
