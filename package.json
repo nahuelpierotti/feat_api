@@ -24,6 +24,7 @@
     "firebase-tools": "^11.1.0",
     "graphql": "^15.8.0",
     "mysql": "^2.18.1",
+    "mysql2": "^2.3.3",
     "reflect-metadata": "^0.1.13",
     "ts-node-dev": "^2.0.0-0",
     "typeorm": "^0.2.45"
