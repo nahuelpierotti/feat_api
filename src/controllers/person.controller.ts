@@ -133,9 +133,11 @@ export const createPerson = async (req: Request, res: Response) => {
     .execute()
 
     console.log(person)
-    const idPersona=person.raw.insertId
-
-    res.status(200).json(" Persona creada exitosamente!");
+    const persona=createPersonTransaction(req,res, person.raw.insertId)
+    
+    console.log(persona)
+    
+    res.status(200).json(persona);
 
   }catch (error) {
     console.log(error);
@@ -143,35 +145,14 @@ export const createPerson = async (req: Request, res: Response) => {
   }
 };
 
-export const createPersonTransaction = async (req: Request, res: Response)=> {
+export const createPersonTransaction = async (req: Request, res: Response, idPersona:number)=> {
   const connection = getConnection();
   const queryRunner = connection.createQueryRunner();
 
 await queryRunner.connect();
 await queryRunner.startTransaction();
   try {
-    const person= await
-    createQueryBuilder()
-    .insert()
-    .into(Person)
-    .values({
-        lastname: req.body.lastName,
-        names: req.body.name,
-        birth_date: req.body.dateOfBirth,
-        sex: req.body.sex,
-        nickname: req.body.nickname,
-        user: req.body.userUid,
-        min_age: + req.body.minAge,
-        max_age: + req.body.maxAge,
-        notifications:  req.body.notifications,
-        willing_distance: + req.body.willingDistance
-
-    })
-    .execute()
-
-    console.log(person)
-    const idPersona=person.raw.insertId
-
+    
     const address= await
     createQueryBuilder()
     .insert()
