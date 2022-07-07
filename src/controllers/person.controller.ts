@@ -133,11 +133,8 @@ export const createPerson = async (req: Request, res: Response) => {
     .execute()
 
     console.log(person)
-    const persona=createPersonTransaction(req,res, person.raw.insertId)
     
-    console.log(persona)
-    
-    res.status(200).json(persona);
+    res.status(200).json(person);
 
   }catch (error) {
     console.log(error);
@@ -145,7 +142,25 @@ export const createPerson = async (req: Request, res: Response) => {
   }
 };
 
-export const createPersonTransaction = async (req: Request, res: Response, idPersona:number)=> {
+export const createPersonTransaction = async (req: Request, res: Response)=> {
+
+  const person= await
+    createQueryBuilder()
+    .insert()
+    .into(Person)
+    .values({
+        lastname: req.body.lastName,
+        names: req.body.name,
+        birth_date: req.body.dateOfBirth,
+        sex: req.body.sex,
+        nickname: req.body.nickname,
+        user: req.body.userUid,
+    })
+    .execute()
+
+    console.log(person)
+  const idPersona=person.raw.insertId
+
   const connection = getConnection();
   const queryRunner = connection.createQueryRunner();
 
