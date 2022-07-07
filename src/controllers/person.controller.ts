@@ -144,6 +144,13 @@ export const createPerson = async (req: Request, res: Response) => {
 
 export const createPersonTransaction = async (req: Request, res: Response)=> {
 
+  const connection = getConnection();
+  const queryRunner = connection.createQueryRunner();
+try{
+
+  await queryRunner.connect();
+  await queryRunner.startTransaction();
+
   const person= await
     createQueryBuilder()
     .insert()
@@ -155,18 +162,17 @@ export const createPersonTransaction = async (req: Request, res: Response)=> {
         sex: req.body.sex,
         nickname: req.body.nickname,
         user: req.body.userUid,
+        min_age: req.body.minAge,
+        max_age: req.body.maxAge,
+        notifications: req.body.notifications,
+        willing_distance: req.body.willingDistance,
     })
     .execute()
 
     console.log(person)
-  const idPersona=person.raw.insertId
+    const idPersona=person.raw.insertId
+    console.log("nuevo id person: "+idPersona)
 
-  const connection = getConnection();
-  const queryRunner = connection.createQueryRunner();
-
-await queryRunner.connect();
-await queryRunner.startTransaction();
-  try {
     
     const address= await
     createQueryBuilder()
@@ -179,7 +185,7 @@ await queryRunner.startTransaction();
         town: "1",
         zip_code: "1",
         latitude: req.body.latitude,
-        logitude: req.body.logitude,
+        longitude: req.body.longitude,
         person: +idPersona,
     })
     .execute()
@@ -371,7 +377,8 @@ await queryRunner.startTransaction();
           sport: +req.body.idPadel,
           position: + req.body.positionIdPadel,
           level: + req.body.levelIdPadel,
-          valuation: + req.body.valuationIdPadel   
+          valuation: + req.body.valuationIdPadel,
+          calification: 5   
       })
       .execute()
     }
@@ -409,10 +416,11 @@ await queryRunner.startTransaction();
     }
 
     await queryRunner.commitTransaction();
-
+    
   } catch (err) {
     await queryRunner.rollbackTransaction();
+    console.log(err)
   } finally {
-      await queryRunner.release();
+    await queryRunner.release();
   }
 };
