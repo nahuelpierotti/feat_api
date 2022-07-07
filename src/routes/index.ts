@@ -11,5 +11,8 @@ import PersonRoute from './persons.routes';
 import AddressRoute from './addresses.routes';
 import ValuationRoute from './valuations.routes';
 import EventAppliesRoute from './eventApplies.routes';
-export default { UserRoute ,SportRoute, EventRoute, PlayerRoute, LevelRoute, PositionRoute, AvailabilityRoute, SportGenericRoute,PeridocityRoute,PersonRoute,AddressRoute,ValuationRoute,
-    EventAppliesRoute};
+import CalificationsRoute from './califications.routes';
+
+export default { UserRoute ,SportRoute, EventRoute, PlayerRoute, LevelRoute, PositionRoute, 
+    AvailabilityRoute, SportGenericRoute,PeridocityRoute,PersonRoute,AddressRoute,
+    ValuationRoute,EventAppliesRoute, CalificationsRoute};
