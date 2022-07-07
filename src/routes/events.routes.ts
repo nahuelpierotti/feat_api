@@ -47,7 +47,7 @@ router.route("/getAllInvitationsForUser/:uid").get(findAllInvitationsForUser);
 
 router.route("/getAllConfirmedOrAppliedByUser/:uid").get(findAllConfirmedOrAppliedByUser);
 
-router.route("/getfilterEventForUser/:uid").post(filterEventSuggestedForUser);
+router.route("/getfilterEventForUser").post(filterEventSuggestedForUser);
 
 export default router;
 
