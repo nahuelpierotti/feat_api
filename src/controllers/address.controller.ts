@@ -60,7 +60,7 @@ export const update = async (req: Request, res: Response) => {
         town: req.body.town,
         zip_code: req.body.zip_code,
         latitude: req.body.latitude,
-        logitude: req.body.logitude,
+        longitude: req.body.longitude,
     }).where("address.id = :id", { id: req.body.id})
     .execute()
 
