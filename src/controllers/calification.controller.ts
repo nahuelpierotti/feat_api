@@ -7,11 +7,12 @@ import { Player } from "../models/Player";
 
 export const qualifyPlayers = async (req: Request, res: Response) => {
     try{
-      const players= req.body.players
-      const eventId= req.body.eventId
+      const arrayPlayers= req.body.players
+      const eventId= + req.body.eventId
+
+        for (const player_calification of arrayPlayers) {
       
-      players.forEach((player_calification:Calification) =>{ 
-        const calification= 
+        const calification= await
         createQueryBuilder()
         .insert()
         .into(Calification)
@@ -23,7 +24,7 @@ export const qualifyPlayers = async (req: Request, res: Response) => {
           }).execute()
         
           console.log(calification)
-        })
+        }
         res.status(200).json("Calificaciones Enviadas Exitosamente!");
 
   
