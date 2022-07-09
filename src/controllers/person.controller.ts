@@ -416,6 +416,7 @@ try{
     }
 
     await queryRunner.commitTransaction();
+    res.status(200).json("Persona creada exitosamente!");
     
   } catch (err) {
     await queryRunner.rollbackTransaction();
