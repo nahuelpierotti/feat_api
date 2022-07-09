@@ -187,13 +187,13 @@ export const findAll = async (req: Request, res: Response) => {
           .andWhere("person.id <> :organizer",{organizer: organizer?.id})
 
           if(req.body.distance !== null){
-            players.andWhere("(fn_calcula_distancia_por_direccion(address.id,:eventLatitude,:eventLongitude) <= :distance)",
-            {distance: req.body.distance, eventLatitude: Number(event?.latitude), eventLongitude: Number(event?.longitude)});
+            players.andWhere("person.id IN (select personId from address a where (fn_calcula_distancia_por_direccion(a.id,:eventLatitude,:eventLongitude) <= :distance))",
+            {distance: req.body.distance, eventLatitude: event?.latitude, eventLongitude: event?.longitude});
           }
 
           if(req.body.min_age !== null && req.body.max_age){
             players.andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) >= :minAge", {minAge: req.body.min_age})
-            .andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) <= :maxAge", {maxAge: req.body.max_age})
+            .andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) <= :maxAge", {maxAge: req.body.max_age});
           }
 
           const result = await players.getMany();
