@@ -146,19 +146,19 @@ export const findAll = async (req: Request, res: Response) => {
   export const filterAllPlayersSuggestedForEvent=async (req: Request,res:Response)=>{
     try{  
 
-          const event= await Event.findOne(req.params.eventId);
+          const event= await Event.findOne(req.body.eventId);
 
           const organizer = await getRepository(Person)
           .createQueryBuilder("person")
           .leftJoinAndSelect(Event, "event", "event.organizerId = person.id")
-          .where("event.id = :eventId", { eventId: req.params.eventId})
+          .where("event.id = :eventId", { eventId: req.body.eventId})
           .getOne();
 
 
           const sport= await getRepository(Sport)
           .createQueryBuilder("sport")
           .leftJoinAndSelect(Event,"event", "event.sportId = sport.id")
-          .where("event.id = :eventId", { eventId: req.params.eventId})
+          .where("event.id = :eventId", { eventId: req.body.eventId})
           //.leftJoinAndSelect(SportGeneric,"sportGeneric","sport.sportGenericId=sportGeneric.id")
           .getOne();
 
@@ -183,7 +183,7 @@ export const findAll = async (req: Request, res: Response) => {
           .andWhere("availability.start_time <= :eventStartTime", {eventStartTime: event?.start_time})
           .andWhere("availability.end_time >= :eventEndTime", {eventEndTime: event?.end_time})
           .andWhere("player.id NOT IN(select playerId from player_list  where eventId= :eventId  and stateId not in(11,15) union  select playerId from event_apply  where eventId= :eventId  and concat(origin,stateId) in('P6','P8','O8','O6') ) "
-          ,{eventId: req.params.eventId})
+          ,{eventId: req.body.eventId})
           .andWhere("person.id <> :organizer",{organizer: organizer?.id})
 
           if(req.body.distance !== null){

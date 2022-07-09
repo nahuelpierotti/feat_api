@@ -468,6 +468,26 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
 
         let filterEvents: Event[] = [];
 
+        const player= await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoinAndSelect(Person,"person", "person.id = player.personId")
+        .leftJoinAndSelect("player.sport", "sportGeneric")
+        .leftJoinAndSelect("player.position", "position")
+        .leftJoinAndSelect("player.level", "level")
+        .leftJoinAndSelect("player.valuation", "valuation")
+        .where("person.userUid = :uid", { uid: req.params.uid})
+        .getMany()
+
+        let sportsGenericAux: string = ""
+
+        for (let sportGeneric of player){
+          sportsGenericAux += sportGeneric.id.toString()
+          sportsGenericAux += ","
+        }
+
+        let sportGenericFilter = sportsGenericAux.slice(0, -1)
+
+
         let event= await getRepository(Event)
         .createQueryBuilder("event")
         .innerJoinAndSelect("event.sport", "sport")
@@ -476,11 +496,12 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .innerJoinAndSelect("event.organizer", "organizer")
         .leftJoin(Person, "person", "event.organizerId = person.id")
         .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
-        .where("person.userUid <> :uid", {uid: req.params.uid })
+        .where("person.userUid <> :uid", {uid: req.body.uid })
         .andWhere("event.state <> 4") //filtro eventos cancelados
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
-        .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0");
+        .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0")
+        .andWhere("sport.sportGeneric IN ("+sportGenericFilter+")");
 
         if(req.body.sportId === null && req.body.sportGenericId !== null){
           event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: req.body.sportGenericId});
@@ -511,7 +532,7 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
               resultAux = await eventAux.getMany();
 
               //ACA FILTRAMOS LA LISTA CON LOS RESULTADOS ELIMINANDO LOS EVENTOS QUE TENGAN EL MISMO ID QUE EL EVENTO QUE VAMOS A PUSHEAR EN LA LISTA PARA EVITAR DUPLICAODS
-              if(resultAux.length > 0){
+             if(resultAux.length > 0){
                 let filterAux = filterEvents;
                 for(let result of resultAux){
                     filterEvents = filterAux.filter(element =>{
@@ -522,7 +543,7 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
               }
 
           }
-          res.status(200).json(filterEvents);
+          res.status(200).json(resultAux);
       }else{
         event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
         filterEvents = await event.getMany();
