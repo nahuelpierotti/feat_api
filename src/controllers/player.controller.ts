@@ -34,6 +34,20 @@ export const findAll = async (req: Request, res: Response) => {
 
   export const findAllByPerson = async (req: Request, res: Response) => {
     try {
+
+      const pl=await getRepository(Player)
+      .createQueryBuilder("player")
+      .where("player.person = :personId", { personId: req.params.person})
+      .getMany()
+
+      console.log("Sugeridos usuario: "+pl)
+      pl.forEach((jug) =>{ 
+        const upd_qualif =  Player.query(
+          'call set_player_calification(?)',[jug.id]);
+          console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+      })
+
+
       const player= await getRepository(Player)
       .createQueryBuilder("player")
       .leftJoinAndSelect("player.person", "person")
@@ -53,6 +67,20 @@ export const findAll = async (req: Request, res: Response) => {
 
   export const findAllByUser = async (req: Request, res: Response) => {
     try {
+
+      const pl=await getRepository(Player)
+      .createQueryBuilder("player")
+      .leftJoin(Person, "person","person.id=player.personId")
+      .where('person.userUid = :uid', {uid: req.params.uid })
+      .getMany()
+
+      console.log("Sugeridos usuario: "+pl)
+      pl.forEach((jug) =>{ 
+        const upd_qualif =  Player.query(
+          'call set_player_calification(?)',[jug.id]);
+          console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+      })
+
       const player= await getRepository(Player)
       .createQueryBuilder("player")
       .leftJoinAndSelect(Person,"person", "person.id = player.personId")
@@ -72,6 +100,12 @@ export const findAll = async (req: Request, res: Response) => {
   
   export const findOne = async (req: Request, res: Response) => {
     try {
+
+        const upd_qualif =  Player.query(
+          'call set_player_calification(?)',[req.params.id]);
+          console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+      
+
       const player= await getRepository(Player)
       .createQueryBuilder("player")
       .where("player.id = :id", { id: req.params.id})
@@ -117,11 +151,24 @@ export const findAll = async (req: Request, res: Response) => {
 
   export const findAllPlayersSuggestedForEvent=async (req: Request,res:Response)=>{
     try{  
-        const result = await Player.query(
+          const result = await Player.query(
           'call get_players_suggested_for_event(?)',[req.params.eventId]);
-  
           console.log(result) 
-  
+
+          const pl=await getRepository(Player)
+          .createQueryBuilder("player")
+          .leftJoin(PlayerSuggestion, "sug","player.id = sug.playerId")
+          .where("sug.eventId = :id", { id: req.params.eventId})
+          .getMany()
+
+          console.log("Sugeridos usuario: "+pl)
+          pl.forEach((jug) =>{ 
+            const upd_qualif =  Player.query(
+              'call set_player_calification(?)',[jug.id]);
+              console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+          })
+
+
           const players= await getRepository(Player)
           .createQueryBuilder("player")
           .innerJoinAndSelect("player.person", "person")

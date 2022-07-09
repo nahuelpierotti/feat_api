@@ -82,6 +82,21 @@ export const findAllCreatedByUser = async (req: Request, res: Response) => {
 
 export const findAllApplied = async (req: Request, res: Response) => {
   try {
+
+    const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
+
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .innerJoinAndSelect("event.sport", "sport")
@@ -108,6 +123,19 @@ export const findAllApplied = async (req: Request, res: Response) => {
 
 export const findAllConfirmed = async (req: Request, res: Response) => {
   try {
+    const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .innerJoinAndSelect("event.sport", "sport")
@@ -179,11 +207,23 @@ export const findOne = async (req: Request, res: Response) => {
 
 export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
   try{  
-      const result = await Event.query(
+        const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
+        const result = await Event.query(
         'call get_events_suggested_for_user(?)',[req.params.uid]);
-
         console.log(result) 
-
+        
         const event= await getRepository(Event)
         .createQueryBuilder("event")
         .innerJoinAndSelect("event.sport", "sport")
@@ -262,6 +302,18 @@ export const create = async (req: Request, res: Response) => {
             date: () => 'CURRENT_TIMESTAMP'
           }).execute()
 
+    const player_list= await
+    createQueryBuilder()
+    .insert()
+    .into(PlayerList)
+    .values({
+        origin: "O",
+        state: + 9,
+        event: + event.raw.insertId,
+        player:   organizador?.id,    
+        date: () => 'CURRENT_TIMESTAMP'
+      }).execute()
+        
 
     console.log(event.raw.insertId)
     const nombre=req.body.name.replace(/\s/g, "");
@@ -397,6 +449,20 @@ export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
 
 export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Response) => {
   try {
+
+    const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
     const eventList= await getRepository(Event)
     .createQueryBuilder("event")
     .select("event.id,event.name,event.date,event.start_time,event.end_time,event.latitude,event.longitude,state.description as state_desc,sport.description sport_desc,case when eventApply.stateId=6 then 'Aplicado' else 'Confirmado' end as origen ")
