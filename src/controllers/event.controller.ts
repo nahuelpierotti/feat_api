@@ -82,6 +82,21 @@ export const findAllCreatedByUser = async (req: Request, res: Response) => {
 
 export const findAllApplied = async (req: Request, res: Response) => {
   try {
+
+    const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
+
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .innerJoinAndSelect("event.sport", "sport")
@@ -108,6 +123,19 @@ export const findAllApplied = async (req: Request, res: Response) => {
 
 export const findAllConfirmed = async (req: Request, res: Response) => {
   try {
+    const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .innerJoinAndSelect("event.sport", "sport")
@@ -179,11 +207,23 @@ export const findOne = async (req: Request, res: Response) => {
 
 export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
   try{  
-      const result = await Event.query(
+        const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
+        const result = await Event.query(
         'call get_events_suggested_for_user(?)',[req.params.uid]);
-
         console.log(result) 
-
+        
         const event= await getRepository(Event)
         .createQueryBuilder("event")
         .innerJoinAndSelect("event.sport", "sport")
@@ -262,6 +302,18 @@ export const create = async (req: Request, res: Response) => {
             date: () => 'CURRENT_TIMESTAMP'
           }).execute()
 
+    const player_list= await
+    createQueryBuilder()
+    .insert()
+    .into(PlayerList)
+    .values({
+        origin: "O",
+        state: + 9,
+        event: + event.raw.insertId,
+        player:   organizador?.id,    
+        date: () => 'CURRENT_TIMESTAMP'
+      }).execute()
+        
 
     console.log(event.raw.insertId)
     const nombre=req.body.name.replace(/\s/g, "");
@@ -397,6 +449,20 @@ export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
 
 export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Response) => {
   try {
+
+    const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
     const eventList= await getRepository(Event)
     .createQueryBuilder("event")
     .select("event.id,event.name,event.date,event.start_time,event.end_time,event.latitude,event.longitude,state.description as state_desc,sport.description sport_desc,case when eventApply.stateId=6 then 'Aplicado' else 'Confirmado' end as origen ")
@@ -463,30 +529,18 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         const addresses = await getRepository(Address)
         .createQueryBuilder("address")
         .innerJoin(Person, "person", "person.id = address.personId")
-        .where('person.userUid = :uid', {uid: req.params.uid })
+        .where('person.userUid = :uid', {uid: req.body.uid })
         .getMany()
 
         let filterEvents: Event[] = [];
 
-        const player= await getRepository(Player)
-        .createQueryBuilder("player")
-        .leftJoinAndSelect(Person,"person", "person.id = player.personId")
-        .leftJoinAndSelect("player.sport", "sportGeneric")
-        .leftJoinAndSelect("player.position", "position")
-        .leftJoinAndSelect("player.level", "level")
-        .leftJoinAndSelect("player.valuation", "valuation")
-        .where("person.userUid = :uid", { uid: req.params.uid})
-        .getMany()
-
-        let sportsGenericAux: string = ""
-
-        for (let sportGeneric of player){
-          sportsGenericAux += sportGeneric.id.toString()
-          sportsGenericAux += ","
-        }
-
-        let sportGenericFilter = sportsGenericAux.slice(0, -1)
-
+        const person= await getRepository(Person)
+        .createQueryBuilder("person")
+        .leftJoinAndSelect("person.availability","availability")
+        .leftJoinAndSelect("availability.day","day")
+        .leftJoin("person.user", "user")
+        .where('user.uid = :uid', {uid: req.params.uid })
+        .getOne()
 
         let event= await getRepository(Event)
         .createQueryBuilder("event")
@@ -501,17 +555,13 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
         .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0")
-        .andWhere("sport.sportGeneric IN ("+sportGenericFilter+")");
+        .andWhere("sport.sportGeneric IN (select sportGenericId from player where personId = :personId)", {personId: person?.id});
 
-        if(req.body.sportId === null && req.body.sportGenericId !== null){
+        if(req.body.sportGenericId !== null && req.body.sportGenericId !== 0){
           event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: req.body.sportGenericId});
         }
 
-        if(req.body.sportId !== null){
-          event.andWhere("sport.id = :sportId", {sportId: req.body.sportId});
-        }
-
-        if(req.body.dayId !== null){
+        if(req.body.dayId !== null && req.body.dayId !== 0){
           event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: req.body.dayId});
         }
 
