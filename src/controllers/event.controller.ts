@@ -491,12 +491,8 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0")
         .andWhere("sport.sportGeneric IN (select sportGenericId from player where personId = :personId)", {personId: person?.id});
 
-        if(req.body.sportId === null && req.body.sportGenericId !== null){
+        if(req.body.sportGenericId !== null){
           event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: req.body.sportGenericId});
-        }
-
-        if(req.body.sportId !== null){
-          event.andWhere("sport.id = :sportId", {sportId: req.body.sportId});
         }
 
         if(req.body.dayId !== null){
