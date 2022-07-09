@@ -491,11 +491,11 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0")
         .andWhere("sport.sportGeneric IN (select sportGenericId from player where personId = :personId)", {personId: person?.id});
 
-        if(req.body.sportGenericId !== null){
+        if(req.body.sportGenericId !== null && req.body.sportGenericId !== 0){
           event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: req.body.sportGenericId});
         }
 
-        if(req.body.dayId !== null){
+        if(req.body.dayId !== null && req.body.dayId !== 0){
           event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: req.body.dayId});
         }
 
