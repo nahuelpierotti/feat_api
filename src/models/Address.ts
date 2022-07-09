@@ -27,7 +27,7 @@ export class Address extends BaseEntity{
     latitude: string
 
     @Column()
-    logitude: string
+    longitude: string
 
     @ManyToOne(() => Person, (person) => person.addresses)
     person: number

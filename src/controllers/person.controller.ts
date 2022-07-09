@@ -133,9 +133,8 @@ export const createPerson = async (req: Request, res: Response) => {
     .execute()
 
     console.log(person)
-    const idPersona=person.raw.insertId
-
-    res.status(200).json(" Persona creada exitosamente!");
+    
+    res.status(200).json(person);
 
   }catch (error) {
     console.log(error);
@@ -144,13 +143,15 @@ export const createPerson = async (req: Request, res: Response) => {
 };
 
 export const createPersonTransaction = async (req: Request, res: Response)=> {
+
   const connection = getConnection();
   const queryRunner = connection.createQueryRunner();
+try{
 
-await queryRunner.connect();
-await queryRunner.startTransaction();
-  try {
-    const person= await
+  await queryRunner.connect();
+  await queryRunner.startTransaction();
+
+  const person= await
     createQueryBuilder()
     .insert()
     .into(Person)
@@ -161,17 +162,18 @@ await queryRunner.startTransaction();
         sex: req.body.sex,
         nickname: req.body.nickname,
         user: req.body.userUid,
-        min_age: + req.body.minAge,
-        max_age: + req.body.maxAge,
-        notifications:  req.body.notifications,
-        willing_distance: + req.body.willingDistance
-
+        min_age: req.body.minAge,
+        max_age: req.body.maxAge,
+        notifications: req.body.notifications,
+        willing_distance: req.body.willingDistance,
     })
     .execute()
 
     console.log(person)
     const idPersona=person.raw.insertId
+    console.log("nuevo id person: "+idPersona)
 
+    
     const address= await
     createQueryBuilder()
     .insert()
@@ -183,7 +185,7 @@ await queryRunner.startTransaction();
         town: "1",
         zip_code: "1",
         latitude: req.body.latitude,
-        logitude: req.body.logitude,
+        longitude: req.body.longitude,
         person: +idPersona,
     })
     .execute()
@@ -375,7 +377,8 @@ await queryRunner.startTransaction();
           sport: +req.body.idPadel,
           position: + req.body.positionIdPadel,
           level: + req.body.levelIdPadel,
-          valuation: + req.body.valuationIdPadel   
+          valuation: + req.body.valuationIdPadel,
+          calification: 5   
       })
       .execute()
     }
@@ -413,10 +416,11 @@ await queryRunner.startTransaction();
     }
 
     await queryRunner.commitTransaction();
-
+    
   } catch (err) {
     await queryRunner.rollbackTransaction();
+    console.log(err)
   } finally {
-      await queryRunner.release();
+    await queryRunner.release();
   }
 };
