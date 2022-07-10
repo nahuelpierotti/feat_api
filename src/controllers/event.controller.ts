@@ -465,7 +465,8 @@ export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Respons
 
     const eventList= await getRepository(Event)
     .createQueryBuilder("event")
-    .select("event.id,event.name,event.date,event.start_time,event.end_time,event.latitude,event.longitude,state.description as state_desc,sport.description sport_desc,case when eventApply.stateId=6 then 'Aplicado' else 'Confirmado' end as origen ")
+    .select("event.id,event.name,event.date,event.start_time,event.end_time,event.latitude,event.longitude,state.description as state_desc,sport.description sport_desc,case when eventApply.stateId=6 then 'Aplicado' else 'Confirmado' end as origen,"
+     + " CASE WHEN event.organizer=person.id THEN true else false end as is_organizer ")
     .leftJoin("event.sport", "sport")
     .leftJoin("event.state", "state")
     .leftJoin("event.periodicity", "periodicity")
