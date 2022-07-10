@@ -207,6 +207,7 @@ export const findOne = async (req: Request, res: Response) => {
 
 export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
   try{  
+    /*
         const pl=await getRepository(Player)
         .createQueryBuilder("player")
         .leftJoin(Person, "person","person.id=player.personId")
@@ -218,7 +219,7 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
           const upd_qualif =  Player.query(
             'call set_player_calification(?)',[jug.id]);
             console.log("Ejecuto actualizacion calif: "+upd_qualif) 
-        })
+        })*/
 
         const result = await Event.query(
         'call get_events_suggested_for_user(?)',[req.params.uid]);
@@ -229,7 +230,6 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .innerJoinAndSelect("event.sport", "sport")
         .innerJoinAndSelect("event.state", "state")
         .innerJoinAndSelect("event.periodicity", "periodicity")
-        .innerJoinAndSelect("event.organizer", "organizer")
         .innerJoinAndSelect(EventSuggestion, "sug", "event.id = sug.eventId")
         .leftJoin(Person, "person", "sug.personId = person.id")
         .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
@@ -280,16 +280,21 @@ export const create = async (req: Request, res: Response) => {
     .execute()
     
     const idEvento=event.raw.insertId;
+
     const organizador=await getRepository(Player)
     .createQueryBuilder("player")
     .select("player")
     .leftJoin(Person,"person","player.personId=person.id")
-    .leftJoin(User,"user","person.userUid=user.uid")
     .leftJoin(Event,"event","person.id=event.organizer")
     .leftJoin(Sport,"sport","event.sportId=sport.id and player.sportGenericId=sport.sportGenericId")
-    .where("event.id",{id: idEvento})
+    .where("person.id= :id",{id : +req.body.organizer})
+    .andWhere("event.id= :eventId",{eventId: idEvento})
     .getOne()
-
+    
+    console.log("Jugador del Organizador: "+organizador?.id)
+     
+    if(organizador?.id ==undefined){
+    
     const event_apply= await
         createQueryBuilder()
         .insert()
@@ -314,7 +319,8 @@ export const create = async (req: Request, res: Response) => {
         date: () => 'CURRENT_TIMESTAMP'
       }).execute()
         
-
+    }
+    
     console.log(event.raw.insertId)
     const nombre=req.body.name.replace(/\s/g, "");
     const tema=event.raw.insertId+"-"+nombre
