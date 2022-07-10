@@ -146,6 +146,10 @@ export const findAll = async (req: Request, res: Response) => {
   export const filterAllPlayersSuggestedForEvent=async (req: Request,res:Response)=>{
     try{  
 
+        const distance= req.body.distance;
+        const min_age= req.body.min_age;
+        const max_age= req.body.max_age;
+
           const event= await Event.findOne(req.body.eventId);
 
           const organizer = await getRepository(Person)
@@ -186,14 +190,14 @@ export const findAll = async (req: Request, res: Response) => {
           ,{eventId: req.body.eventId})
           .andWhere("person.id <> :organizer",{organizer: organizer?.id})
 
-          if(req.body.distance !== null){
+          if(distance != null){
             players.andWhere("person.id IN (select personId from address a where (fn_calcula_distancia_por_direccion(a.id,:eventLatitude,:eventLongitude) <= :distance))",
-            {distance: req.body.distance, eventLatitude: event?.latitude, eventLongitude: event?.longitude});
+            {distance: distance, eventLatitude: event?.latitude, eventLongitude: event?.longitude});
           }
 
-          if(req.body.min_age !== null && req.body.max_age){
-            players.andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) >= :minAge", {minAge: req.body.min_age})
-            .andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) <= :maxAge", {maxAge: req.body.max_age});
+          if(min_age != null && max_age!= null){
+            players.andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) >= :minAge", {minAge: min_age})
+            .andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) <= :maxAge", {maxAge: max_age});
           }
 
           const result = await players.getMany();
