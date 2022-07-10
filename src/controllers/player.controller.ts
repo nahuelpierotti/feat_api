@@ -66,9 +66,8 @@ export const findAll = async (req: Request, res: Response) => {
   };
 
   export const findAllByUser = async (req: Request, res: Response) => {
-    if(req.params.uid!=null){
     try {
-
+/*
       const pl=await getRepository(Player)
       .createQueryBuilder("player")
       .leftJoin(Person, "person","person.id=player.personId")
@@ -81,7 +80,7 @@ export const findAll = async (req: Request, res: Response) => {
           'call set_player_calification(?)',[jug.id]);
           console.log("Ejecuto actualizacion calif: "+upd_qualif) 
       })
-
+*/
       const player= await getRepository(Player)
       .createQueryBuilder("player")
       .leftJoinAndSelect(Person,"person", "person.id = player.personId")
@@ -97,16 +96,16 @@ export const findAll = async (req: Request, res: Response) => {
       console.log(error);
       res.status(400).json(error);
     }
-  }
+  
   };
   
   export const findOne = async (req: Request, res: Response) => {
     try {
-
+/*
         const upd_qualif =  Player.query(
           'call set_player_calification(?)',[req.params.id]);
           console.log("Ejecuto actualizacion calif: "+upd_qualif) 
-      
+      */
 
       const player= await getRepository(Player)
       .createQueryBuilder("player")
