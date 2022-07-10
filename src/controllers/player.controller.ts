@@ -137,7 +137,8 @@ export const findAll = async (req: Request, res: Response) => {
           sport: + req.body.sport,
           position: + req.body.position,
           level: + req.body.level,
-          valuation: + req.body.valuation   
+          valuation: + req.body.valuation,
+          calification: 50   
       })
       .execute()
   

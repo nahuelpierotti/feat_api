@@ -116,6 +116,12 @@ export const create = async (req: Request, res: Response) => {
       const playerId = req.body.playerId
       const eventId = req.body.eventId
       
+      const event_complete=await Event.findOne(eventId);
+      console.log("Detalle evento: "+event_complete);
+      if(event_complete.status==2){
+        res.status(200).json("El evento se completo antes de poder aceptar la solicitud");
+      }else{
+
       const existe=  await
       createQueryBuilder()
       .select("eventApply.id")
@@ -165,6 +171,7 @@ export const create = async (req: Request, res: Response) => {
         
           console.log(accept_apply)
 
+
           //const evento=getEvent(eventId)
           const event=await Event.findOne(eventId);
           console.log("event: "+event)
@@ -186,10 +193,11 @@ export const create = async (req: Request, res: Response) => {
           })
 
         res.status(200).json("Invitacion Aceptada Exitosamente!");
+      
       }else{
         res.status(200).json("La Invitacion ya habia sido aceptada anteriormente!");
       }
-  
+    }
     }catch (error) {
       console.log(error);
       res.status(400).json(error);
