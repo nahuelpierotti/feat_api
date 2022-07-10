@@ -237,7 +237,7 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .where('user.uid = :uid', {uid: req.params.uid })
         .andWhere("event.organizer <> person.id")
         .andWhere('event.id = sug.eventId')
-        .andWhere("event.state <> 4") //filtro eventos cancelados
+        .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
         .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
@@ -401,7 +401,7 @@ export const findAllOfTheWeek = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.periodicity", "periodicity")
     .where('DATE(event.date) >= CURRENT_DATE')
     .andWhere(' DATE(event.date) <= DATE_ADD(NOW(), INTERVAL 7 DAY) ')
-    .andWhere("event.state <> 4") //filtro eventos cancelados
+    .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
     .andWhere("event.id NOT IN("+
       " select eventId from player_list l "+
       " join player pl on l.playerId=pl.id "+
@@ -443,7 +443,7 @@ export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
         .andWhere('apply.stateId = 6')
         .andWhere("apply.origin = 'O'")
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
-        .andWhere("event.state <> 4") //filtro eventos cancelados
+        .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
         .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
         .getMany()
         
