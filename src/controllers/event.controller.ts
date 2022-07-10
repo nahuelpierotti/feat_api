@@ -82,6 +82,21 @@ export const findAllCreatedByUser = async (req: Request, res: Response) => {
 
 export const findAllApplied = async (req: Request, res: Response) => {
   try {
+
+    const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
+
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .innerJoinAndSelect("event.sport", "sport")
@@ -108,6 +123,19 @@ export const findAllApplied = async (req: Request, res: Response) => {
 
 export const findAllConfirmed = async (req: Request, res: Response) => {
   try {
+    const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .innerJoinAndSelect("event.sport", "sport")
@@ -179,17 +207,29 @@ export const findOne = async (req: Request, res: Response) => {
 
 export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
   try{  
-      const result = await Event.query(
+    /*
+        const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })*/
+
+        const result = await Event.query(
         'call get_events_suggested_for_user(?)',[req.params.uid]);
-
         console.log(result) 
-
+        
         const event= await getRepository(Event)
         .createQueryBuilder("event")
         .innerJoinAndSelect("event.sport", "sport")
         .innerJoinAndSelect("event.state", "state")
         .innerJoinAndSelect("event.periodicity", "periodicity")
-        .innerJoinAndSelect("event.organizer", "organizer")
         .innerJoinAndSelect(EventSuggestion, "sug", "event.id = sug.eventId")
         .leftJoin(Person, "person", "sug.personId = person.id")
         .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
@@ -197,7 +237,7 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .where('user.uid = :uid', {uid: req.params.uid })
         .andWhere("event.organizer <> person.id")
         .andWhere('event.id = sug.eventId')
-        .andWhere("event.state <> 4") //filtro eventos cancelados
+        .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
         .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
@@ -240,16 +280,21 @@ export const create = async (req: Request, res: Response) => {
     .execute()
     
     const idEvento=event.raw.insertId;
+
     const organizador=await getRepository(Player)
     .createQueryBuilder("player")
     .select("player")
     .leftJoin(Person,"person","player.personId=person.id")
-    .leftJoin(User,"user","person.userUid=user.uid")
     .leftJoin(Event,"event","person.id=event.organizer")
     .leftJoin(Sport,"sport","event.sportId=sport.id and player.sportGenericId=sport.sportGenericId")
-    .where("event.id",{id: idEvento})
+    .where("person.id= :id",{id : +req.body.organizer})
+    .andWhere("event.id= :eventId",{eventId: idEvento})
     .getOne()
-
+    
+    console.log("Jugador del Organizador: "+organizador?.id)
+     
+    if(organizador?.id ==undefined){
+    
     const event_apply= await
         createQueryBuilder()
         .insert()
@@ -262,7 +307,20 @@ export const create = async (req: Request, res: Response) => {
             date: () => 'CURRENT_TIMESTAMP'
           }).execute()
 
-
+    const player_list= await
+    createQueryBuilder()
+    .insert()
+    .into(PlayerList)
+    .values({
+        origin: "O",
+        state: + 9,
+        event: + event.raw.insertId,
+        player:   organizador?.id,    
+        date: () => 'CURRENT_TIMESTAMP'
+      }).execute()
+        
+    }
+    
     console.log(event.raw.insertId)
     const nombre=req.body.name.replace(/\s/g, "");
     const tema=event.raw.insertId+"-"+nombre
@@ -343,20 +401,21 @@ export const findAllOfTheWeek = async (req: Request, res: Response) => {
     .leftJoinAndSelect("event.periodicity", "periodicity")
     .where('DATE(event.date) >= CURRENT_DATE')
     .andWhere(' DATE(event.date) <= DATE_ADD(NOW(), INTERVAL 7 DAY) ')
-    .andWhere("event.state <> 4") //filtro eventos cancelados
+    .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
     .andWhere("event.id NOT IN("+
       " select eventId from player_list l "+
       " join player pl on l.playerId=pl.id "+
       " join person p on pl.personId=p.id "+
       " where p.userUid='"+uid+"'"+
-      " and stateId not in(11,15) "+
+      " and stateId not in(9,10) "+
       " union "+
       " select eventId from event_apply a "+
       " join player pl on a.playerId=pl.id "+
       " join person p on pl.personId=p.id "+
       " where p.userUid='"+uid+"'"+
-      " and stateId not in(6,7,9) "+
-      ")")
+      " and stateId not in(6,7) "+
+      ") "+
+      "AND event.organizer <> (select distinct id from person where userUid='"+uid+"')")
     .orderBy('event.date, event.start_time ', 'ASC')
     .getMany()
 
@@ -384,7 +443,7 @@ export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
         .andWhere('apply.stateId = 6')
         .andWhere("apply.origin = 'O'")
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
-        .andWhere("event.state <> 4") //filtro eventos cancelados
+        .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
         .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
         .getMany()
         
@@ -397,9 +456,24 @@ export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
 
 export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Response) => {
   try {
+
+    const pl=await getRepository(Player)
+        .createQueryBuilder("player")
+        .leftJoin(Person, "person","person.id=player.personId")
+        .where('person.userUid = :uid', {uid: req.params.uid })
+        .getMany()
+
+        console.log("Sugeridos usuario: "+pl)
+        pl.forEach((jug) =>{ 
+          const upd_qualif =  Player.query(
+            'call set_player_calification(?)',[jug.id]);
+            console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+        })
+
     const eventList= await getRepository(Event)
     .createQueryBuilder("event")
-    .select("event.id,event.name,event.date,event.start_time,event.end_time,event.latitude,event.longitude,state.description as state_desc,sport.description sport_desc,case when eventApply.stateId=6 then 'Aplicado' else 'Confirmado' end as origen ")
+    .select("event.id,event.name,event.date,event.start_time,event.end_time,event.latitude,event.longitude,state.description as state_desc,sport.description sport_desc,case when eventApply.stateId=6 then 'Aplicado' else 'Confirmado' end as origen,"
+     + " CASE WHEN event.organizer=person.id THEN true else false end as is_organizer ")
     .leftJoin("event.sport", "sport")
     .leftJoin("event.state", "state")
     .leftJoin("event.periodicity", "periodicity")
