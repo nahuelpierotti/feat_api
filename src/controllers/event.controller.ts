@@ -540,7 +540,7 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .leftJoinAndSelect("person.availability","availability")
         .leftJoinAndSelect("availability.day","day")
         .leftJoin("person.user", "user")
-        .where('user.uid = :uid', {uid: req.params.uid })
+        .where('user.uid = :uid', {uid: req.body.uid })
         .getOne()
 
         let event= await getRepository(Event)
