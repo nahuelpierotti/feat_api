@@ -405,15 +405,15 @@ export const findAllOfTheWeek = async (req: Request, res: Response) => {
       " join player pl on l.playerId=pl.id "+
       " join person p on pl.personId=p.id "+
       " where p.userUid='"+uid+"'"+
-      " and stateId not in(9,10) "+
+      " and stateId in(9,10) "+
       " union "+
       " select eventId from event_apply a "+
       " join player pl on a.playerId=pl.id "+
       " join person p on pl.personId=p.id "+
       " where p.userUid='"+uid+"'"+
-      " and stateId not in(6,7) "+
-      ") "+
-      "AND event.organizer <> (select distinct id from person where userUid='"+uid+"')")
+      " and stateId in(6,7) "+
+      ") ")
+    .andWhere("event.organizer <> (select distinct id from person where userUid='"+uid+"')")
     .orderBy('event.date, event.start_time ', 'ASC')
     .getMany()
 
