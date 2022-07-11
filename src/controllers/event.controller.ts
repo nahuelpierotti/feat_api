@@ -532,6 +532,12 @@ async function getPlayerOrganizerByEvent (eventId:string){
 export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
   try{  
 
+      const sportGenericId= req.body.sportGenericId;
+      const dayId= req.body.dayId;
+      const startTime= req.body.startTime;
+      const endTime= req.body.endTime;
+      const distance= req.body.distance;
+
         const addresses = await getRepository(Address)
         .createQueryBuilder("address")
         .innerJoin(Person, "person", "person.id = address.personId")
@@ -563,26 +569,26 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0")
         .andWhere("sport.sportGeneric IN (select sportGenericId from player where personId = :personId)", {personId: person?.id});
 
-        if(req.body.sportGenericId !== null && req.body.sportGenericId !== 0){
-          event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: req.body.sportGenericId});
+        if(sportGenericId != null){
+          event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: sportGenericId});
         }
 
-        if(req.body.dayId !== null && req.body.dayId !== 0){
-          event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: req.body.dayId});
+        if(dayId != null){
+          event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: dayId});
         }
 
-        if(req.body.startTime !== null && req.body.endTime !== null){
-          event.andWhere("event.start_time >= :startTime", {startTime: req.body.startTime})
-          .andWhere("event.end_time <= :endTime", {endTime: req.body.endTime});
+        if(startTime != null && endTime != null){
+          event.andWhere("event.start_time >= :startTime", {startTime: startTime})
+          .andWhere("event.end_time <= :endTime", {endTime: endTime});
         }
 
-        if(req.body.distance !== null){
+        if(distance != null){
           let eventAux = null;
           let resultAux = null;
           for (let address of addresses){
             eventAux = event;
               eventAux.andWhere("(fn_calcula_distancia_por_direccion(:addressId,event.latitude,event.longitude) <= :distance)",
-              {distance: req.body.distance, addressId: address.id});
+              {distance: distance, addressId: address.id});
               eventAux.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
 
               resultAux = await eventAux.getMany();
