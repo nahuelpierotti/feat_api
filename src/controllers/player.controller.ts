@@ -34,7 +34,7 @@ export const findAll = async (req: Request, res: Response) => {
 
   export const findAllByPerson = async (req: Request, res: Response) => {
     try {
-
+/*
       const pl=await getRepository(Player)
       .createQueryBuilder("player")
       .where("player.person = :personId", { personId: req.params.person})
@@ -46,7 +46,7 @@ export const findAll = async (req: Request, res: Response) => {
           'call set_player_calification(?)',[jug.id]);
           console.log("Ejecuto actualizacion calif: "+upd_qualif) 
       })
-
+*/
 
       const player= await getRepository(Player)
       .createQueryBuilder("player")
@@ -138,7 +138,7 @@ export const findAll = async (req: Request, res: Response) => {
           position: + req.body.position,
           level: + req.body.level,
           valuation: + req.body.valuation,
-          calification: 50   
+          calification: 50   // calificacion por default
       })
       .execute()
   
@@ -195,6 +195,10 @@ export const findAll = async (req: Request, res: Response) => {
   export const filterAllPlayersSuggestedForEvent=async (req: Request,res:Response)=>{
     try{  
 
+        const distance= req.body.distance;
+        const min_age= req.body.min_age;
+        const max_age= req.body.max_age;
+
           const event= await Event.findOne(req.body.eventId);
 
           const organizer = await getRepository(Person)
@@ -235,14 +239,14 @@ export const findAll = async (req: Request, res: Response) => {
           ,{eventId: req.body.eventId})
           .andWhere("person.id <> :organizer",{organizer: organizer?.id})
 
-          if(req.body.distance !== null){
+          if(distance != null){
             players.andWhere("person.id IN (select personId from address a where (fn_calcula_distancia_por_direccion(a.id,:eventLatitude,:eventLongitude) <= :distance))",
-            {distance: req.body.distance, eventLatitude: event?.latitude, eventLongitude: event?.longitude});
+            {distance: distance, eventLatitude: event?.latitude, eventLongitude: event?.longitude});
           }
 
-          if(req.body.min_age !== null && req.body.max_age){
-            players.andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) >= :minAge", {minAge: req.body.min_age})
-            .andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) <= :maxAge", {maxAge: req.body.max_age});
+          if(min_age != null && max_age!= null){
+            players.andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) >= :minAge", {minAge: min_age})
+            .andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) <= :maxAge", {maxAge: max_age});
           }
 
           const result = await players.getMany();
