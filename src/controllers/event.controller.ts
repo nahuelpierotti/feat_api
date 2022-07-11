@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { stat } from "fs";
 import { createQueryBuilder, getManager, SelectQueryBuilder } from "typeorm";
 import {getRepository} from "typeorm";
 import { Address } from "../models/Address";
@@ -11,7 +10,6 @@ import { Player } from "../models/Player";
 import { PlayerList } from "../models/PlayerList";
 import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
-import { State } from "../models/State";
 import { User } from "../models/User";
 import { sendPushToOneUser, subscribeTopic } from "../notifications";
 
@@ -28,7 +26,6 @@ export const findAll = async (req: Request, res: Response) => {
     .andWhere("event.state <> 4") //filtro eventos cancelados
     .getMany()
 
-    //console.log(event);
     res.status(200).json(event);
   } catch (error) {
     console.log(error);
@@ -123,6 +120,7 @@ export const findAllApplied = async (req: Request, res: Response) => {
 
 export const findAllConfirmed = async (req: Request, res: Response) => {
   try {
+    /*
     const pl=await getRepository(Player)
         .createQueryBuilder("player")
         .leftJoin(Person, "person","person.id=player.personId")
@@ -135,7 +133,7 @@ export const findAllConfirmed = async (req: Request, res: Response) => {
             'call set_player_calification(?)',[jug.id]);
             console.log("Ejecuto actualizacion calif: "+upd_qualif) 
         })
-
+*/
     const event= await getRepository(Event)
     .createQueryBuilder("event")
     .innerJoinAndSelect("event.sport", "sport")
@@ -456,7 +454,7 @@ export const findAllInvitationsForUser=async (req: Request,res:Response)=>{
 
 export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Response) => {
   try {
-
+/*
     const pl=await getRepository(Player)
         .createQueryBuilder("player")
         .leftJoin(Person, "person","person.id=player.personId")
@@ -469,7 +467,7 @@ export const findAllConfirmedOrAppliedByUser = async (req: Request, res: Respons
             'call set_player_calification(?)',[jug.id]);
             console.log("Ejecuto actualizacion calif: "+upd_qualif) 
         })
-
+*/
     const eventList= await getRepository(Event)
     .createQueryBuilder("event")
     .select("event.id,event.name,event.date,event.start_time,event.end_time,event.latitude,event.longitude,state.description as state_desc,sport.description sport_desc,case when eventApply.stateId=6 then 'Aplicado' else 'Confirmado' end as origen,"

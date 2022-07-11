@@ -34,7 +34,7 @@ export const findAll = async (req: Request, res: Response) => {
 
   export const findAllByPerson = async (req: Request, res: Response) => {
     try {
-
+/*
       const pl=await getRepository(Player)
       .createQueryBuilder("player")
       .where("player.person = :personId", { personId: req.params.person})
@@ -46,7 +46,7 @@ export const findAll = async (req: Request, res: Response) => {
           'call set_player_calification(?)',[jug.id]);
           console.log("Ejecuto actualizacion calif: "+upd_qualif) 
       })
-
+*/
 
       const player= await getRepository(Player)
       .createQueryBuilder("player")
@@ -138,7 +138,7 @@ export const findAll = async (req: Request, res: Response) => {
           position: + req.body.position,
           level: + req.body.level,
           valuation: + req.body.valuation,
-          calification: 50   
+          calification: 50   // calificacion por default
       })
       .execute()
   
