@@ -279,46 +279,6 @@ export const create = async (req: Request, res: Response) => {
     
     const idEvento=event.raw.insertId;
 
-    const organizador=await getRepository(Player)
-    .createQueryBuilder("player")
-    .select("player")
-    .leftJoin(Person,"person","player.personId=person.id")
-    .leftJoin(Event,"event","person.id=event.organizer")
-    .leftJoin(Sport,"sport","event.sportId=sport.id and player.sportGenericId=sport.sportGenericId")
-    .where("person.id= :id",{id : +req.body.organizer})
-    .andWhere("event.id= :eventId",{eventId: idEvento})
-    .getOne()
-    
-    console.log("Jugador del Organizador: "+organizador?.id)
-     
-    if(organizador?.id ==undefined){
-    
-    const event_apply= await
-        createQueryBuilder()
-        .insert()
-        .into(EventApply)
-        .values({
-            origin: "O",
-            state: + 7,
-            event: + event.raw.insertId,
-            player:   organizador?.id,    
-            date: () => 'CURRENT_TIMESTAMP'
-          }).execute()
-
-    const player_list= await
-    createQueryBuilder()
-    .insert()
-    .into(PlayerList)
-    .values({
-        origin: "O",
-        state: + 9,
-        event: + event.raw.insertId,
-        player:   organizador?.id,    
-        date: () => 'CURRENT_TIMESTAMP'
-      }).execute()
-        
-    }
-    
     console.log(event.raw.insertId)
     const nombre=req.body.name.replace(/\s/g, "");
     const tema=event.raw.insertId+"-"+nombre
@@ -340,8 +300,47 @@ export const create = async (req: Request, res: Response) => {
       console.log(subscribeTopic(tema,user.mobileToken.toString()))
       console.log(sendPushToOneUser(user.mobileToken.toString(), "Creaste un nuevo evento", "Ya podes invitar a jugadores"))
     })
-    
 
+    const organizador=await getRepository(Player)
+    .createQueryBuilder("player")
+    .select("player")
+    .leftJoin(Person,"person","player.personId=person.id")
+    .leftJoin(Event,"event","person.id=event.organizer")
+    .leftJoin(Sport,"sport","event.sportId=sport.id and player.sportGenericId=sport.sportGenericId")
+    .where("person.id= :id",{id : +req.body.organizer})
+    .andWhere("event.id= :eventId",{eventId: idEvento})
+    .getOne()
+    
+    console.log("Jugador del Organizador: "+organizador?.id)
+     
+    if(organizador?.id ==undefined){
+    
+      const event_apply= await
+        createQueryBuilder()
+        .insert()
+        .into(EventApply)
+        .values({
+            origin: "O",
+            state: + 7,
+            event: + event.raw.insertId,
+            player:   organizador?.id,    
+            date: () => 'CURRENT_TIMESTAMP'
+          }).execute()
+
+      const player_list= await
+      createQueryBuilder()
+      .insert()
+      .into(PlayerList)
+      .values({
+          origin: "O",
+          state: + 9,
+          event: + event.raw.insertId,
+          player:   organizador?.id,    
+          date: () => 'CURRENT_TIMESTAMP'
+        }).execute()
+          
+    }
+    
     res.status(200).json("Evento Creado Exitosamente!"+tokenList);
 
   }catch (error) {
@@ -405,15 +404,15 @@ export const findAllOfTheWeek = async (req: Request, res: Response) => {
       " join player pl on l.playerId=pl.id "+
       " join person p on pl.personId=p.id "+
       " where p.userUid='"+uid+"'"+
-      " and stateId not in(9,10) "+
+      " and stateId in(9,10) "+
       " union "+
       " select eventId from event_apply a "+
       " join player pl on a.playerId=pl.id "+
       " join person p on pl.personId=p.id "+
       " where p.userUid='"+uid+"'"+
-      " and stateId not in(6,7) "+
-      ") "+
-      "AND event.organizer <> (select distinct id from person where userUid='"+uid+"')")
+      " and stateId in(6,7) "+
+      ") ")
+    .andWhere("event.organizer <> (select distinct id from person where userUid='"+uid+"')")
     .orderBy('event.date, event.start_time ', 'ASC')
     .getMany()
 
