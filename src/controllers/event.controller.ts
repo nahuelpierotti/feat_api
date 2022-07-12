@@ -604,8 +604,8 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
       }       */
       if(distance!=null){
           const result = await Event.query(
-            'call get_events_suggested_for_user_filter(?,?)',[req.params.uid,req.body.distance]);
-          console.log(result) 
+            'call get_events_suggested_for_user_filter(?,?)',[req.body.uid,req.body.distance]);
+          //console.log(result) 
       }
         
         let event= await getRepository(Event)
@@ -617,7 +617,7 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .leftJoin(Person, "person", "sug.personId = person.id")
         .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
         .innerJoin(User, "user", "user.uid = person.userUid")
-        .where('user.uid = :uid', {uid: req.params.uid })
+        .where('user.uid = :uid', {uid: req.body.uid })
         .andWhere("event.organizer <> person.id")
         .andWhere('event.id = sug.eventId')
         .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
@@ -639,15 +639,16 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
           }
 
           event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
-          event.getMany()
+          //event.getMany()
 
         }else{
           event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
-          event.getMany()
+          //event.getMany()
       }
-
-      //console.log("Event: "+ json(event.getMany()))
+      
+      console.log("Event: "+ event.getMany())
       const eventsFiltered=await event.getMany()
+      console.log("Eventos Filtrados: "+eventsFiltered)
 
       res.status(200).json(eventsFiltered);   
   }catch(error){
