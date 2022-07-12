@@ -528,7 +528,7 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
       const startTime= req.body.startTime;
       const endTime= req.body.endTime;
       const distance= req.body.distance;
-
+/*
         const addresses = await getRepository(Address)
         .createQueryBuilder("address")
         .innerJoin(Person, "person", "person.id = address.personId")
@@ -601,7 +601,55 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
         filterEvents = await event.getMany();
         res.status(200).json(filterEvents);
-      }       
+      }       */
+      if(distance!=null){
+          const result = await Event.query(
+            'call get_events_suggested_for_user_filter(?,?)',[req.params.uid,req.body.distance]);
+          console.log(result) 
+      }
+        
+        let event= await getRepository(Event)
+        .createQueryBuilder("event")
+        .innerJoinAndSelect("event.sport", "sport")
+        .innerJoinAndSelect("event.state", "state")
+        .innerJoinAndSelect("event.periodicity", "periodicity")
+        .innerJoinAndSelect(EventSuggestion, "sug", "event.id = sug.eventId")
+        .leftJoin(Person, "person", "sug.personId = person.id")
+        .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
+        .innerJoin(User, "user", "user.uid = person.userUid")
+        .where('user.uid = :uid', {uid: req.params.uid })
+        .andWhere("event.organizer <> person.id")
+        .andWhere('event.id = sug.eventId')
+        .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
+        .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
+        .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
+
+        if(sportGenericId != null || dayId != null || (startTime != null && endTime != null)){
+          if(sportGenericId != null){
+            event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: sportGenericId});
+          }
+
+          if(dayId != null){
+            event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: dayId});
+          }
+
+          if(startTime != null && endTime != null){
+            event.andWhere("event.start_time >= :startTime", {startTime: startTime})
+            .andWhere("event.end_time <= :endTime", {endTime: endTime});
+          }
+
+          event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
+          event.getMany()
+
+        }else{
+          event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
+          event.getMany()
+      }
+
+      //console.log("Event: "+ json(event.getMany()))
+      const eventsFiltered=await event.getMany()
+
+      res.status(200).json(eventsFiltered);   
   }catch(error){
     console.log(error)
     res.status(400).json(error);
