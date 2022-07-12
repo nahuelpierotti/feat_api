@@ -273,7 +273,8 @@ export const create = async (req: Request, res: Response) => {
         state: 1,
         sport: + req.body.sport,
         periodicity: + req.body.periodicity,    
-        organizer: + req.body.organizer    
+        organizer: + req.body.organizer,
+        capacity: req.body.capacity      
     })
     .execute()
     
