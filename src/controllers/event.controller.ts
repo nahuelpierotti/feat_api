@@ -286,31 +286,22 @@ export const create = async (req: Request, res: Response) => {
 
     console.log("Tema: "+tema)
 
-    const tokenList = await getRepository(User)
-    .createQueryBuilder("user")
-    .select("user.mobileToken")
-    .leftJoin(Person,"person","user.uid=person.userUid")
-    .leftJoin(Player, "player", "person.id = player.personId")
-    .leftJoin(EventApply, "apply", "player.id=apply.playerId ")
-    .where('apply.eventId = :eventId', { eventId: event.raw.insertId })
-    .getMany();
-
-    console.log(tokenList)
-
-    tokenList.forEach((user) =>{ 
-      console.log(subscribeTopic(tema,user.mobileToken.toString()))
-      console.log(sendPushToOneUser(user.mobileToken.toString(), "Creaste un nuevo evento", "Ya podes invitar a jugadores"))
-    })
-
     const organizador=await getRepository(Player)
     .createQueryBuilder("player")
-    .select("player")
+    .select("player.id,user.mobileToken")
     .leftJoin(Person,"person","player.personId=person.id")
+    .leftJoin(User, "user","person.userUid=user.uid")
     .leftJoin(Event,"event","person.id=event.organizer")
     .leftJoin(Sport,"sport","event.sportId=sport.id and player.sportGenericId=sport.sportGenericId")
     .where("person.id= :id",{id : +req.body.organizer})
     .andWhere("event.id= :eventId",{eventId: idEvento})
-    .getOne()
+    .getRawOne()
+
+    console.log("Token List: ",organizador.mobileToken)
+
+      console.log(subscribeTopic(tema,organizador.mobileToken.toString()))
+      console.log(sendPushToOneUser(organizador.mobileToken.toString(), "Creaste un nuevo evento", "Ya podes invitar a jugadores"))
+    
     
     console.log("Jugador del Organizador: "+organizador?.id)
      
@@ -342,7 +333,7 @@ export const create = async (req: Request, res: Response) => {
           
     }
     
-    res.status(200).json("Evento Creado Exitosamente!"+tokenList);
+    res.status(200).json("Evento Creado Exitosamente!");
 
   }catch (error) {
     console.log(error);
