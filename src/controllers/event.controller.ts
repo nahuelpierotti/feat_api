@@ -13,6 +13,7 @@ import { SportGeneric } from "../models/SportGeneric";
 import { User } from "../models/User";
 import { sendPushToOneUser, subscribeTopic } from "../notifications";
 
+var nodemailer = require('nodemailer');
 
 export const findAll = async (req: Request, res: Response) => {
   try {
@@ -352,6 +353,7 @@ export const create = async (req: Request, res: Response) => {
 
 export const setConfirmed = async (req: Request, res: Response) => {
   try{
+
     const event= await
     createQueryBuilder()
     .update(Event)
@@ -359,9 +361,62 @@ export const setConfirmed = async (req: Request, res: Response) => {
       state: + 3,
       updated: () => 'CURRENT_TIMESTAMP'
     }).where("id = :id", { id: req.body.id})
-    .execute()
-    
+    .execute();
+
+    const eventConfirmed= await getRepository(Event)
+    .createQueryBuilder("event")
+    .where("event.id = :id", { id: req.body.id})
+    .leftJoinAndSelect("event.sport", "sport")
+    .leftJoinAndSelect("sport.sportGeneric","sportGeneric")
+    .leftJoinAndSelect("event.state", "state")
+    .leftJoinAndSelect("event.periodicity", "periodicity")
+    .leftJoinAndSelect("event.organizer","person")
+    .getOne();
+
+    const users = await getRepository(User)
+    .createQueryBuilder("user")
+    .select("user")
+    .leftJoin(Person,"person","user.uid=person.userUid")
+    .leftJoin(Player, "player", "person.id = player.personId")
+    .leftJoin(PlayerList, "playerList", "player.id=playerList.playerId")
+    .where("playerList.event = :eventId", {eventId: req.body.id})
+    .getMany();
+
     res.status(200).json("Evento Confirmado Exitosamente!");
+
+    
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD
+      }
+    });
+
+    for (let user of users){
+
+      var mensaje = `
+      <h2>!El evento ${eventConfirmed?.name} ha sido confirmado!</h2>
+      <p>No te olvides que en caso de no poder asistir te comuniques con el organizador a traves del chat del evento</p>
+    `;
+
+    var mailOptions = {
+      from: process.env.EMAIL,
+      to: user.email,
+      subject: 'Confirmación del evento',
+      html: mensaje
+    };
+
+  
+    transporter.sendMail(mailOptions, function(error: any, info: any){
+      if (error) {
+        console.log("ERROR MAIL",error);
+      } else {
+        console.log('Email enviado: ' + info.response);
+      }
+    });
+
+    }
     
   }catch (error) {
     console.log(error);
@@ -379,8 +434,60 @@ export const setCanceled = async (req: Request, res: Response) => {
       updated: () => 'CURRENT_TIMESTAMP'
     }).where("id = :id", { id: req.body.id})
     .execute()
+
+    const eventConfirmed= await getRepository(Event)
+    .createQueryBuilder("event")
+    .where("event.id = :id", { id: req.body.id})
+    .leftJoinAndSelect("event.sport", "sport")
+    .leftJoinAndSelect("sport.sportGeneric","sportGeneric")
+    .leftJoinAndSelect("event.state", "state")
+    .leftJoinAndSelect("event.periodicity", "periodicity")
+    .leftJoinAndSelect("event.organizer","person")
+    .getOne();
+
+    const users = await getRepository(User)
+    .createQueryBuilder("user")
+    .select("user")
+    .leftJoin(Person,"person","user.uid=person.userUid")
+    .leftJoin(Player, "player", "person.id = player.personId")
+    .leftJoin(PlayerList, "playerList", "player.id=playerList.playerId")
+    .where("playerList.event = :eventId", {eventId: req.body.id})
+    .getMany();
     
     res.status(200).json("Evento Cancelado Exitosamente!");
+
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD
+      }
+    });
+
+    for (let user of users){
+
+      var mensaje = `
+      <h2>El evento ${eventConfirmed?.name} ha sido cancelado</h2>
+      <p>El organizador ha cancelado el evento para el cual estabas confirmado</p>
+    `;
+
+    var mailOptions = {
+      from: process.env.EMAIL,
+      to: user.email,
+      subject: 'Confirmación del evento',
+      html: mensaje
+    };
+
+  
+    transporter.sendMail(mailOptions, function(error: any, info: any){
+      if (error) {
+        console.log("ERROR MAIL",error);
+      } else {
+        console.log('Email enviado: ' + info.response);
+      }
+    });
+
+    }
 
   }catch (error) {
     console.log(error);
