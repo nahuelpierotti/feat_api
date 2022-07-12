@@ -313,7 +313,7 @@ export const create = async (req: Request, res: Response) => {
     
     console.log("Jugador del Organizador: "+organizador?.id)
      
-    if(organizador?.id ==undefined){
+    if(organizador?.id !=undefined){
     
       const event_apply= await
         createQueryBuilder()
