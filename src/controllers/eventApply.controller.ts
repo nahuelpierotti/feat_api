@@ -171,27 +171,49 @@ export const create = async (req: Request, res: Response) => {
         
           console.log(accept_apply)
 
-
-          //const evento=getEvent(eventId)
           const event=await Event.findOne(eventId);
           console.log("event: "+event)
-          const tema=event.id+event.name.replace(/\s/g, "");
+          const tema=event.id+"-"+event.name.replace(/\s/g, "");
           console.log("Topic: "+tema)
-          //const userToken=getUserTokenByPlayer(playerId)
-          const userToken = await getRepository(User)
-          .createQueryBuilder("user")
-          .select("user.mobileToken")
-          .leftJoin(Person,"person","user.uid=person.userUid")
-          .leftJoin(Player, "player", "person.id = player.personId")
-          .where('player.id = :playerId', { playerId: playerId })
-          .getMany();
 
+          if(event_apply.origin=='P'){  //significa que el jugador solicito unirse
+            const userToken = await getRepository(User)
+            .createQueryBuilder("user")
+            .select("user.mobileToken")
+            .leftJoin(Person,"person","user.uid=person.userUid")
+            .leftJoin(Player, "player", "person.id = player.personId")
+            .where('player.id = :playerId', { playerId: playerId })
+            .getMany();
+
+            
+            userToken.forEach((user) =>{ 
+              console.log(subscribeTopic(tema,user.mobileToken.toString()))
+              console.log(sendPushToOneUser(user.mobileToken.toString(), "Te confirmaron en un partido", "El evento "+event.name+" te confirmo en su lista de jugadores"))
+            })
+        }else{
+
+            const userToken = await getRepository(User)
+            .createQueryBuilder("user")
+            .select("user.mobileToken")
+            .leftJoin(Event,"event","user.uid=event.organizerId")
+            .where('event.id = :eventId', { eventId: eventId })
+            .getMany();
+
+            const player = await getRepository(Person)
+            .createQueryBuilder("person")
+            .select("person")
+            .leftJoin(Player, "player", "person.id = player.personId")
+            .where('player.id = :playerId', { playerId: playerId })
+            .getOne();
+
+            const nombre=player?.lastname+" "+player?.names
+            console.log("Nombre jugador: "+nombre)
           
           userToken.forEach((user) =>{ 
             console.log(subscribeTopic(tema,user.mobileToken.toString()))
-            console.log(sendPushToOneUser(user.mobileToken.toString(), "Te confirmaron en un partido", "El evento "+event.name+" te confirmo en su lista de jugadores"))
+            console.log(sendPushToOneUser(user.mobileToken.toString(), "Aceptaron tu invitacion", "El jugador "+nombre+" acepto tu solicitud al partido "+event.name))
           })
-
+        }
         res.status(200).json("Invitacion Aceptada Exitosamente!");
       
       }else{
