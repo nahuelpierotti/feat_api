@@ -192,12 +192,17 @@ export const create = async (req: Request, res: Response) => {
             })
         }else{
 
-            const userToken = await getRepository(User)
+            
+            const organizador=await getRepository(User)
             .createQueryBuilder("user")
-            .select("user.mobileToken")
-            .leftJoin(Event,"event","user.uid=event.organizerId")
-            .where('event.id = :eventId', { eventId: eventId })
-            .getMany();
+            .select("user.mobileToken as mobileToken")
+            .leftJoin(Person,"person","user.uid=person.userUid")
+            .leftJoin(Player, "player","player.personId=person.id")
+            .leftJoin(Event,"event","person.id=event.organizerId")
+            .where("event.id= :eventId",{eventId: eventId})
+            .getRawOne()
+
+            console.log("token: "+organizador.mobileToken)
 
             const player = await getRepository(Person)
             .createQueryBuilder("person")
@@ -209,10 +214,9 @@ export const create = async (req: Request, res: Response) => {
             const nombre=player?.lastname+" "+player?.names
             console.log("Nombre jugador: "+nombre)
           
-          userToken.forEach((user) =>{ 
-            console.log(subscribeTopic(tema,user.mobileToken.toString()))
-            console.log(sendPushToOneUser(user.mobileToken.toString(), "Aceptaron tu invitacion", "El jugador "+nombre+" acepto tu solicitud al partido "+event.name))
-          })
+          
+            console.log(sendPushToOneUser(organizador.mobileToken, "Aceptaron tu invitacion", "El jugador "+nombre+" acepto tu solicitud al partido "+event.name))
+
         }
         res.status(200).json("Invitacion Aceptada Exitosamente!");
       
