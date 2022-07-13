@@ -238,6 +238,12 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
+        .andWhere(""+
+             "EXISTS( "+
+                " SELECT 1 FROM address a "+
+                " WHERE  a.personId=person.id "+
+                "AND fn_calcula_distancia_por_direccion(a.id,event.latitude,event.longitude) <= person.willing_distance "+
+              " ) ")
         .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
         .getMany()
         
@@ -624,7 +630,8 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
 
-        if(sportGenericId != null || dayId != null || (startTime != null && endTime != null)){
+        if(sportGenericId != null || dayId != null || (startTime != null && endTime != null)
+        || distance!=null){
           if(sportGenericId != null){
             event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: sportGenericId});
           }
@@ -638,12 +645,18 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
             .andWhere("event.end_time <= :endTime", {endTime: endTime});
           }
 
-          event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
-          //event.getMany()
+          if(distance != null){
+            event.andWhere(""+
+             "EXISTS( "+
+                " SELECT 1 FROM address a "+
+                " WHERE  a.personId=person.id "+
+                "AND fn_calcula_distancia_por_direccion(a.id,event.latitude,event.longitude) <= "+distance+ 
+              " ) ");
+          }
 
+          event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
         }else{
           event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
-          //event.getMany()
       }
       
       console.log("Event: "+ event.getMany())
