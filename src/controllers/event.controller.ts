@@ -534,84 +534,11 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
       const startTime= req.body.startTime;
       const endTime= req.body.endTime;
       const distance= req.body.distance;
-/*
-        const addresses = await getRepository(Address)
-        .createQueryBuilder("address")
-        .innerJoin(Person, "person", "person.id = address.personId")
-        .where('person.userUid = :uid', {uid: req.body.uid })
-        .getMany()
 
-        let filterEvents: Event[] = [];
-
-        const person= await getRepository(Person)
-        .createQueryBuilder("person")
-        .leftJoinAndSelect("person.availability","availability")
-        .leftJoinAndSelect("availability.day","day")
-        .leftJoin("person.user", "user")
-        .where('user.uid = :uid', {uid: req.body.uid })
-        .getOne()
-
-        let event= await getRepository(Event)
-        .createQueryBuilder("event")
-        .innerJoinAndSelect("event.sport", "sport")
-        .innerJoinAndSelect("event.state", "state")
-        .innerJoinAndSelect("event.periodicity", "periodicity")
-        .innerJoinAndSelect("event.organizer", "organizer")
-        .leftJoin(Person, "person", "event.organizerId = person.id")
-        .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
-        .where("person.userUid <> :uid", {uid: req.body.uid })
-        .andWhere("event.state <> 4") //filtro eventos cancelados
-        .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
-        .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
-        .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0")
-        .andWhere("sport.sportGeneric IN (select sportGenericId from player where personId = :personId)", {personId: person?.id});
-
-        if(sportGenericId != null){
-          event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: sportGenericId});
-        }
-
-        if(dayId != null){
-          event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: dayId});
-        }
-
-        if(startTime != null && endTime != null){
-          event.andWhere("event.start_time >= :startTime", {startTime: startTime})
-          .andWhere("event.end_time <= :endTime", {endTime: endTime});
-        }
-
-        if(distance != null){
-          let eventAux = null;
-          let resultAux = null;
-          for (let address of addresses){
-            eventAux = event;
-              eventAux.andWhere("(fn_calcula_distancia_por_direccion(:addressId,event.latitude,event.longitude) <= :distance)",
-              {distance: distance, addressId: address.id});
-              eventAux.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
-
-              resultAux = await eventAux.getMany();
-
-              //ACA FILTRAMOS LA LISTA CON LOS RESULTADOS ELIMINANDO LOS EVENTOS QUE TENGAN EL MISMO ID QUE EL EVENTO QUE VAMOS A PUSHEAR EN LA LISTA PARA EVITAR DUPLICAODS
-             if(resultAux.length > 0){
-                let filterAux = filterEvents;
-                for(let result of resultAux){
-                    filterEvents = filterAux.filter(element =>{
-                      element.id !== result.id;
-                    })
-                    filterEvents.push(result);
-                }
-              }
-
-          }
-          res.status(200).json(resultAux);
-      }else{
-        event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
-        filterEvents = await event.getMany();
-        res.status(200).json(filterEvents);
-      }       */
       if(distance!=null){
           const result = await Event.query(
             'call get_events_suggested_for_user_filter(?,?)',[req.body.uid,req.body.distance]);
-          //console.log(result) 
+            console.log("Filtro distancia: "+distance) 
       }
         
         let event= await getRepository(Event)
@@ -634,15 +561,19 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         || distance!=null){
           if(sportGenericId != null){
             event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: sportGenericId});
+            console.log("Filtro sportGeneric: "+sportGenericId) 
           }
 
           if(dayId != null){
             event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: dayId});
+            console.log("Filtro dayId: "+dayId) 
           }
 
           if(startTime != null && endTime != null){
             event.andWhere("event.start_time >= :startTime", {startTime: startTime})
             .andWhere("event.end_time <= :endTime", {endTime: endTime});
+
+            console.log("Filtro startTime: "+startTime+" endTime: "+endTime) 
           }
 
           if(distance != null){
@@ -659,7 +590,6 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
           event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
       }
       
-      console.log("Event: "+ event.getMany())
       const eventsFiltered=await event.getMany()
       console.log("Eventos Filtrados: "+eventsFiltered)
 
