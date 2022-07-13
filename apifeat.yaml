@@ -1,0 +1,17 @@
+name: apifeat
+region: nyc
+services:
+- build_command: npm run dev
+  environment_slug: node-js
+  github:
+    branch: cloud
+    deploy_on_push: true
+    repo: nahuelpierotti/feat_api
+  http_port: 8080
+  instance_count: 2
+  instance_size_slug: professional-xs
+  name: feat-api
+  routes:
+  - path: /
+  run_command: npm run dev
+  source_dir: /

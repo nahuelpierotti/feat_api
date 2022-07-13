@@ -32,6 +32,6 @@ router.route("/getAllAppliedByEvent/:eventId").get(findAllPlayersAppliedByEvent)
 
 router.route("/setDismissedFromList").post(setDismissedFromList);
 
-router.route("/filterPlayersForEvent/:eventId").post(filterAllPlayersSuggestedForEvent);
+router.route("/filterPlayersForEvent").post(filterAllPlayersSuggestedForEvent);
 
 export default router;

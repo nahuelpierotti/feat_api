@@ -34,6 +34,20 @@ export const findAll = async (req: Request, res: Response) => {
 
   export const findAllByPerson = async (req: Request, res: Response) => {
     try {
+/*
+      const pl=await getRepository(Player)
+      .createQueryBuilder("player")
+      .where("player.person = :personId", { personId: req.params.person})
+      .getMany()
+
+      console.log("Sugeridos usuario: "+pl)
+      pl.forEach((jug) =>{ 
+        const upd_qualif =  Player.query(
+          'call set_player_calification(?)',[jug.id]);
+          console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+      })
+*/
+
       const player= await getRepository(Player)
       .createQueryBuilder("player")
       .leftJoinAndSelect("player.person", "person")
@@ -53,6 +67,20 @@ export const findAll = async (req: Request, res: Response) => {
 
   export const findAllByUser = async (req: Request, res: Response) => {
     try {
+/*
+      const pl=await getRepository(Player)
+      .createQueryBuilder("player")
+      .leftJoin(Person, "person","person.id=player.personId")
+      .where('person.userUid = :uid', {uid: req.params.uid })
+      .getMany()
+
+      console.log("Sugeridos usuario: "+pl)
+      pl.forEach((jug) =>{ 
+        const upd_qualif =  Player.query(
+          'call set_player_calification(?)',[jug.id]);
+          console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+      })
+*/
       const player= await getRepository(Player)
       .createQueryBuilder("player")
       .leftJoinAndSelect(Person,"person", "person.id = player.personId")
@@ -68,10 +96,17 @@ export const findAll = async (req: Request, res: Response) => {
       console.log(error);
       res.status(400).json(error);
     }
+  
   };
   
   export const findOne = async (req: Request, res: Response) => {
     try {
+/*
+        const upd_qualif =  Player.query(
+          'call set_player_calification(?)',[req.params.id]);
+          console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+      */
+
       const player= await getRepository(Player)
       .createQueryBuilder("player")
       .where("player.id = :id", { id: req.params.id})
@@ -102,7 +137,8 @@ export const findAll = async (req: Request, res: Response) => {
           sport: + req.body.sport,
           position: + req.body.position,
           level: + req.body.level,
-          valuation: + req.body.valuation   
+          valuation: + req.body.valuation,
+          calification: 50   // calificacion por default
       })
       .execute()
   
@@ -117,11 +153,24 @@ export const findAll = async (req: Request, res: Response) => {
 
   export const findAllPlayersSuggestedForEvent=async (req: Request,res:Response)=>{
     try{  
-        const result = await Player.query(
+          const result = await Player.query(
           'call get_players_suggested_for_event(?)',[req.params.eventId]);
-  
           console.log(result) 
-  
+
+          const pl=await getRepository(Player)
+          .createQueryBuilder("player")
+          .leftJoin(PlayerSuggestion, "sug","player.id = sug.playerId")
+          .where("sug.eventId = :id", { id: req.params.eventId})
+          .getMany()
+
+          console.log("Sugeridos usuario: "+pl)
+          pl.forEach((jug) =>{ 
+            const upd_qualif =  Player.query(
+              'call set_player_calification(?)',[jug.id]);
+              console.log("Ejecuto actualizacion calif: "+upd_qualif) 
+          })
+
+
           const players= await getRepository(Player)
           .createQueryBuilder("player")
           .innerJoinAndSelect("player.person", "person")
@@ -146,19 +195,23 @@ export const findAll = async (req: Request, res: Response) => {
   export const filterAllPlayersSuggestedForEvent=async (req: Request,res:Response)=>{
     try{  
 
-          const event= await Event.findOne(req.params.eventId);
+        const distance= req.body.distance;
+        const min_age= req.body.min_age;
+        const max_age= req.body.max_age;
+
+          const event= await Event.findOne(req.body.eventId);
 
           const organizer = await getRepository(Person)
           .createQueryBuilder("person")
           .leftJoinAndSelect(Event, "event", "event.organizerId = person.id")
-          .where("event.id = :eventId", { eventId: req.params.eventId})
+          .where("event.id = :eventId", { eventId: req.body.eventId})
           .getOne();
 
 
           const sport= await getRepository(Sport)
           .createQueryBuilder("sport")
           .leftJoinAndSelect(Event,"event", "event.sportId = sport.id")
-          .where("event.id = :eventId", { eventId: req.params.eventId})
+          .where("event.id = :eventId", { eventId: req.body.eventId})
           //.leftJoinAndSelect(SportGeneric,"sportGeneric","sport.sportGenericId=sportGeneric.id")
           .getOne();
 
@@ -183,17 +236,17 @@ export const findAll = async (req: Request, res: Response) => {
           .andWhere("availability.start_time <= :eventStartTime", {eventStartTime: event?.start_time})
           .andWhere("availability.end_time >= :eventEndTime", {eventEndTime: event?.end_time})
           .andWhere("player.id NOT IN(select playerId from player_list  where eventId= :eventId  and stateId not in(11,15) union  select playerId from event_apply  where eventId= :eventId  and concat(origin,stateId) in('P6','P8','O8','O6') ) "
-          ,{eventId: req.params.eventId})
+          ,{eventId: req.body.eventId})
           .andWhere("person.id <> :organizer",{organizer: organizer?.id})
 
-          if(req.body.distance !== null){
-            players.andWhere("(fn_calcula_distancia_por_direccion(address.id,:eventLatitude,:eventLongitude) <= :distance)",
-            {distance: req.body.distance, eventLatitude: Number(event?.latitude), eventLongitude: Number(event?.longitude)});
+          if(distance != null){
+            players.andWhere("person.id IN (select personId from address a where (fn_calcula_distancia_por_direccion(a.id,:eventLatitude,:eventLongitude) <= :distance))",
+            {distance: distance, eventLatitude: event?.latitude, eventLongitude: event?.longitude});
           }
 
-          if(req.body.min_age !== null && req.body.max_age){
-            players.andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) >= :minAge", {minAge: req.body.min_age})
-            .andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) <= :maxAge", {maxAge: req.body.max_age})
+          if(min_age != null && max_age!= null){
+            players.andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) >= :minAge", {minAge: min_age})
+            .andWhere("TIMESTAMPDIFF(YEAR, person.birth_date, CURDATE()) <= :maxAge", {maxAge: max_age});
           }
 
           const result = await players.getMany();
