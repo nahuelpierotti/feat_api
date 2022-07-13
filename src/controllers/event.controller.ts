@@ -386,7 +386,7 @@ export const setConfirmed = async (req: Request, res: Response) => {
     // join event_apply on player.id = event_apply.playerId
     // join event on event_apply.eventId = event.id
     // where event.stateId = 3;
-    console.log(result);
+
     if (result.affected) {
       const users = await getRepository(User)
         .createQueryBuilder("user")
@@ -406,7 +406,6 @@ export const setConfirmed = async (req: Request, res: Response) => {
 
       const event: Event = await Event.findOne(req.body.id);
 
-      console.log(event);
       let promises: any[] = [];
       users.forEach((user) => {
         promises.push(
@@ -431,7 +430,7 @@ export const setConfirmed = async (req: Request, res: Response) => {
 
 export const setCanceled = async (req: Request, res: Response) => {
   try {
-    const event = await createQueryBuilder()
+    const result = await createQueryBuilder()
       .update(Event)
       .set({
         state: +4,
@@ -440,7 +439,41 @@ export const setCanceled = async (req: Request, res: Response) => {
       .where("id = :id", { id: req.body.id })
       .execute();
 
-    res.status(200).json("Evento Cancelado Exitosamente!");
+    if (result.affected) {
+      const users = await getRepository(User)
+        .createQueryBuilder("user")
+        .select("user.mobileToken")
+        .innerJoin(Person, "person", "user.uid = person.userUid")
+        .innerJoin(Player, "player", "person.id = player.personId")
+        .innerJoin(
+          EventApply,
+          "event_apply",
+          "player.id = event_apply.playerId"
+        )
+        .innerJoin(Event, "event", "event_apply.eventId = event.id")
+        .where("event.stateId = :stateId", { stateId: 4 })
+        .andWhere("event_apply.stateId = 7")
+        .andWhere("event.id = :id", { id: req.body.id })
+        .getMany();
+
+      const event: Event = await Event.findOne(req.body.id);
+
+      let promises: any[] = [];
+      users.forEach((user) => {
+        promises.push(
+          sendPushToOneUser(
+            user.mobileToken,
+            "Evento Cancelado",
+            `Se cancelo el evento "${event.name}".\nHorario: ${event.start_time
+              .toString()
+              .substring(0, 5)} - ${event.end_time.toString().substring(0, 5)}`
+          )
+        );
+      });
+      Promise.all(promises).then((resp) => {
+        res.status(200).json("Evento Cancelado Exitosamente!");
+      });
+    }
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
