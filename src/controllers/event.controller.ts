@@ -11,7 +11,7 @@ import { PlayerList } from "../models/PlayerList";
 import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
 import { User } from "../models/User";
-import { sendPushToOneUser, subscribeTopic } from "../notifications";
+import { sendPushToOneUser, sendPushToTopic, subscribeTopic } from "../notifications";
 
 
 export const findAll = async (req: Request, res: Response) => {
@@ -358,6 +358,10 @@ export const setConfirmed = async (req: Request, res: Response) => {
     }).where("id = :id", { id: req.body.id})
     .execute()
     
+    const newEvent= await Event.findOne(event.raw.insertId); 
+
+    const topico=newEvent.id+"-"+newEvent.name.replace(/\s/g, "");
+    console.log(sendPushToTopic(topico,"Evento Confirmado!","El organizador del evento "+newEvent.name+" confirmo el evento en el que estas participando"))
     res.status(200).json("Evento Confirmado Exitosamente!");
     
   }catch (error) {

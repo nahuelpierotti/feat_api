@@ -35,14 +35,19 @@ export const sendPushToOneUser=async(tokenId: string, title: string, msg: string
 
 export const sendPushToTopic=async(topic: string, title: string,msg: string)=> {
     const message = {
-        topics: topic,
+        data: {
+          mensaje: msg
+        },
         notification: {
             title: title,
-            body: msg
-        }
-    }
-    sendMessage(message);
-    //admin.messaging().send(message)
+            body: msg,
+        },
+        topic: topic
+      };
+    //sendMessage(message);
+    admin.messaging().send(message)
+    .then(res=> console.log(res))
+    .catch(e => console.log(e))
 }
 
 export const sendMessage=async(message: any)=> {
