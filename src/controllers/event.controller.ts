@@ -11,7 +11,7 @@ import { PlayerList } from "../models/PlayerList";
 import { Sport } from "../models/Sport";
 import { SportGeneric } from "../models/SportGeneric";
 import { User } from "../models/User";
-import { sendPushToOneUser, subscribeTopic } from "../notifications";
+import { sendPushToOneUser, sendPushToTopic, subscribeTopic } from "../notifications";
 
 
 export const findAll = async (req: Request, res: Response) => {
@@ -238,6 +238,12 @@ export const findAllEventSuggestedForUser=async (req: Request,res:Response)=>{
         .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
+        .andWhere(""+
+             "EXISTS( "+
+                " SELECT 1 FROM address a "+
+                " WHERE  a.personId=person.id "+
+                "AND fn_calcula_distancia_por_direccion(a.id,event.latitude,event.longitude) <= person.willing_distance "+
+              " ) ")
         .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
         .getMany()
         
@@ -352,6 +358,10 @@ export const setConfirmed = async (req: Request, res: Response) => {
     }).where("id = :id", { id: req.body.id})
     .execute()
     
+    const newEvent= await Event.findOne(event.raw.insertId); 
+
+    const topico=newEvent.id+"-"+newEvent.name.replace(/\s/g, "");
+    console.log(sendPushToTopic(topico,"Evento Confirmado!","El organizador del evento "+newEvent.name+" confirmo el evento en el que estas participando"))
     res.status(200).json("Evento Confirmado Exitosamente!");
     
   }catch (error) {
@@ -528,84 +538,11 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
       const startTime= req.body.startTime;
       const endTime= req.body.endTime;
       const distance= req.body.distance;
-/*
-        const addresses = await getRepository(Address)
-        .createQueryBuilder("address")
-        .innerJoin(Person, "person", "person.id = address.personId")
-        .where('person.userUid = :uid', {uid: req.body.uid })
-        .getMany()
 
-        let filterEvents: Event[] = [];
-
-        const person= await getRepository(Person)
-        .createQueryBuilder("person")
-        .leftJoinAndSelect("person.availability","availability")
-        .leftJoinAndSelect("availability.day","day")
-        .leftJoin("person.user", "user")
-        .where('user.uid = :uid', {uid: req.body.uid })
-        .getOne()
-
-        let event= await getRepository(Event)
-        .createQueryBuilder("event")
-        .innerJoinAndSelect("event.sport", "sport")
-        .innerJoinAndSelect("event.state", "state")
-        .innerJoinAndSelect("event.periodicity", "periodicity")
-        .innerJoinAndSelect("event.organizer", "organizer")
-        .leftJoin(Person, "person", "event.organizerId = person.id")
-        .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
-        .where("person.userUid <> :uid", {uid: req.body.uid })
-        .andWhere("event.state <> 4") //filtro eventos cancelados
-        .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
-        .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
-        .andWhere("(sport.capacity-(SELECT count(*) FROM player_list WHERE eventId= event.id AND stateId=9))>0")
-        .andWhere("sport.sportGeneric IN (select sportGenericId from player where personId = :personId)", {personId: person?.id});
-
-        if(sportGenericId != null){
-          event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: sportGenericId});
-        }
-
-        if(dayId != null){
-          event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: dayId});
-        }
-
-        if(startTime != null && endTime != null){
-          event.andWhere("event.start_time >= :startTime", {startTime: startTime})
-          .andWhere("event.end_time <= :endTime", {endTime: endTime});
-        }
-
-        if(distance != null){
-          let eventAux = null;
-          let resultAux = null;
-          for (let address of addresses){
-            eventAux = event;
-              eventAux.andWhere("(fn_calcula_distancia_por_direccion(:addressId,event.latitude,event.longitude) <= :distance)",
-              {distance: distance, addressId: address.id});
-              eventAux.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
-
-              resultAux = await eventAux.getMany();
-
-              //ACA FILTRAMOS LA LISTA CON LOS RESULTADOS ELIMINANDO LOS EVENTOS QUE TENGAN EL MISMO ID QUE EL EVENTO QUE VAMOS A PUSHEAR EN LA LISTA PARA EVITAR DUPLICAODS
-             if(resultAux.length > 0){
-                let filterAux = filterEvents;
-                for(let result of resultAux){
-                    filterEvents = filterAux.filter(element =>{
-                      element.id !== result.id;
-                    })
-                    filterEvents.push(result);
-                }
-              }
-
-          }
-          res.status(200).json(resultAux);
-      }else{
-        event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC");
-        filterEvents = await event.getMany();
-        res.status(200).json(filterEvents);
-      }       */
       if(distance!=null){
           const result = await Event.query(
-            'call get_events_suggested_for_user_filter(?,?)',[req.params.uid,req.body.distance]);
-          console.log(result) 
+            'call get_events_suggested_for_user_filter(?,?)',[req.body.uid,req.body.distance]);
+            console.log("Filtro distancia: "+distance) 
       }
         
         let event= await getRepository(Event)
@@ -617,37 +554,48 @@ export const filterEventSuggestedForUser=async (req: Request,res:Response)=>{
         .leftJoin(Person, "person", "sug.personId = person.id")
         .innerJoin(Player,"player","person.id=player.personId and sport.sportGeneric=player.sportGenericId")
         .innerJoin(User, "user", "user.uid = person.userUid")
-        .where('user.uid = :uid', {uid: req.params.uid })
+        .where('user.uid = :uid', {uid: req.body.uid })
         .andWhere("event.organizer <> person.id")
         .andWhere('event.id = sug.eventId')
         .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
         .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
         .andWhere('player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) ')
 
-        if(sportGenericId != null || dayId != null || (startTime != null && endTime != null)){
+        if(sportGenericId != null || dayId != null || (startTime != null && endTime != null)
+        || distance!=null){
           if(sportGenericId != null){
             event.andWhere("sport.sportGeneric = :sportGenericId", {sportGenericId: sportGenericId});
+            console.log("Filtro sportGeneric: "+sportGenericId) 
           }
 
           if(dayId != null){
             event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", {dayId: dayId});
+            console.log("Filtro dayId: "+dayId) 
           }
 
           if(startTime != null && endTime != null){
             event.andWhere("event.start_time >= :startTime", {startTime: startTime})
             .andWhere("event.end_time <= :endTime", {endTime: endTime});
+
+            console.log("Filtro startTime: "+startTime+" endTime: "+endTime) 
+          }
+
+          if(distance != null){
+            event.andWhere(""+
+             "EXISTS( "+
+                " SELECT 1 FROM address a "+
+                " WHERE  a.personId=person.id "+
+                "AND fn_calcula_distancia_por_direccion(a.id,event.latitude,event.longitude) <= "+distance+ 
+              " ) ");
           }
 
           event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
-          event.getMany()
-
         }else{
           event.orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
-          event.getMany()
       }
-
-      //console.log("Event: "+ json(event.getMany()))
+      
       const eventsFiltered=await event.getMany()
+      console.log("Eventos Filtrados: "+eventsFiltered)
 
       res.status(200).json(eventsFiltered);   
   }catch(error){
