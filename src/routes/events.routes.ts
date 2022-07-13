@@ -14,14 +14,16 @@ import {
   findAllOfTheWeek,
   findAllInvitationsForUser,
   findAllConfirmedOrAppliedByUser,
-  filterEventSuggestedForUser
+  filterEventSuggestedForUser,
 } from "../controllers/event.controller";
 
 const router = Router();
 
 router.route("/").get(findAll);
 
-router.route("/getAllEventSuggestedForUser/:uid").get(findAllEventSuggestedForUser);
+router
+  .route("/getAllEventSuggestedForUser/:uid")
+  .get(findAllEventSuggestedForUser);
 
 router.route("/getAllCreatedByUser/:uid").get(findAllCreatedByUser);
 
@@ -35,19 +37,20 @@ router.route("/getAllByUser/:uid").get(findAllByUser);
 
 router.route("/getEventById/:id").get(findOne);
 
-router.route("/create").post(create)
+router.route("/create").post(create);
 
-router.route("/setConfirmed").put(setConfirmed)
+router.route("/setConfirmed").put(setConfirmed);
 
-router.route("/setCanceled").put(setCanceled)
+router.route("/setCanceled").put(setCanceled);
 
 router.route("/getAllEventsOfTheWeek/:uid").get(findAllOfTheWeek);
 
 router.route("/getAllInvitationsForUser/:uid").get(findAllInvitationsForUser);
 
-router.route("/getAllConfirmedOrAppliedByUser/:uid").get(findAllConfirmedOrAppliedByUser);
+router
+  .route("/getAllConfirmedOrAppliedByUser/:uid")
+  .get(findAllConfirmedOrAppliedByUser);
 
 router.route("/getfilterEventForUser").post(filterEventSuggestedForUser);
 
 export default router;
-
