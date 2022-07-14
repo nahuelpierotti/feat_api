@@ -469,7 +469,7 @@ type ResponseListUids = {
   uids: Array<ResponseUids>;
 };
 */
-export const getUidsByPlayers = async (req: Request, res: Response) => {
+export const getPhotoUrlsByPlayers = async (req: Request, res: Response) => {
   try {
     let idPlayers: Array<Int16Array> = [];
     idPlayers = req.body.idPlayers;
@@ -486,7 +486,7 @@ export const getUidsByPlayers = async (req: Request, res: Response) => {
     // WHERE player.id in (50,54);
     const result = await getRepository(User)
       .createQueryBuilder("user")
-      .select("user.uid as uId,player.id as playerId")
+      .select("person.photo_url photoUrl ,player.id as playerId")
       .innerJoin(Person, "person", "person.userUid = user.uid")
       .innerJoin(Player, "player", "player.personId = person.id")
       .where(`player.id in (${query})`)

@@ -432,20 +432,19 @@ export const setProfileImageUrl = async (req: Request, res: Response) => {
 
     const person= await getRepository(Person)
     .createQueryBuilder("person")
-    .where('person.userUid = :uid', {uid: req.body.uid })
+    .where('person.userUid = :uid', {uid: req.body.uId })
     .getOne()
 
     const personUpd= await
     createQueryBuilder()
     .update(Person)
     .set({
-      photo_url: req.body.photo_url
+      photo_url: req.body.photoUrl
 
     }).where("id = :id", { id: person?.id})
     .execute()
 
-    console.log(personUpd)
-    res.status(200).json("Actualizado Exitosamente!");
+    res.status(200).json("Foto Actualizada Exitosamente!");
 
   }catch (error) {
     console.log(error);
