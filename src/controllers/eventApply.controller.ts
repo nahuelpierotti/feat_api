@@ -79,15 +79,15 @@ export const create = async (req: Request, res: Response) => {
         .createQueryBuilder("user")
         .select("user.mobileToken")
         .innerJoin(Person, "person", "user.uid = person.userUid")
-        .innerJoin(Player, "player", "person.id = player.personId")
+        /*.innerJoin(Player, "player", "person.id = player.personId")
         .innerJoin(
           EventApply,
           "event_apply",
           "player.id = event_apply.playerId"
-        )
-        .innerJoin(Event, "event", "event_apply.eventId = event.id")
+        )*/
+        .innerJoin(Event, "event", "event.organizerId = person.id")
         .where("event.id = :id", { id: eventId })
-        .andWhere("event_apply.origin='O'")
+        //.andWhere("event_apply.origin='O'")
         .getOne();
     }
 
@@ -262,6 +262,18 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
                 event.name
             )
           );
+          if(event.status==2){
+            console.log(
+              "Evento LLeno Push to Organizer: ",
+              sendPushToOneUser(
+                organizador.mobileToken,
+                "Evento Completo",
+                "Se completo la lista de participantes al evento " +
+                  event.name+
+                ". Podes verificar la lista de participantes y confirmar el evento."  
+              )
+            );
+          }
         }
         res.status(200).json("Invitacion Aceptada Exitosamente!");
       } else {

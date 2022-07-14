@@ -166,6 +166,7 @@ try{
         max_age: req.body.maxAge,
         notifications: req.body.notifications,
         willing_distance: req.body.willingDistance,
+        photo_url: req.body.photo_url
     })
     .execute()
 
