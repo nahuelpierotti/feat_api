@@ -41,6 +41,6 @@ router.route("/setDismissedFromList").post(setDismissedFromList);
 
 router.route("/filterPlayersForEvent").post(filterAllPlayersSuggestedForEvent);
 
-router.route("/test").post(getUidsByPlayers);
+router.route("/getUsersUidByPlayer").post(getUidsByPlayers);
 
 export default router;

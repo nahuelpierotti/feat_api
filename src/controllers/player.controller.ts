@@ -471,6 +471,7 @@ export const setDismissedFromList = async (req: Request, res: Response) => {
   }
 };
 
+/*
 type ResponseUids = {
   uid: String;
   playerId: String;
@@ -479,7 +480,7 @@ type ResponseUids = {
 type ResponseListUids = {
   uids: Array<ResponseUids>;
 };
-
+*/
 export const getUidsByPlayers = async (req: Request, res: Response) => {
   try {
     let idPlayers: Array<Int16Array> = [];
@@ -493,7 +494,7 @@ export const getUidsByPlayers = async (req: Request, res: Response) => {
     });
 
     query = query.slice(0, -1);
-    console.log(query);
+    console.log("Query: "+query);
 
     // SELECT * FROM user join person on person.userUid = user.uid
     // JOIN player on player.personId = person.id
@@ -506,7 +507,9 @@ export const getUidsByPlayers = async (req: Request, res: Response) => {
       .where(`player.id in (${query})`)
       .getRawMany();
 
-    if (result.length > 0) {
+      res.status(200).json(result);
+
+    /*if (result.length > 0) {
       let response: ResponseListUids;
 
       result.forEach((row) => {
@@ -517,7 +520,7 @@ export const getUidsByPlayers = async (req: Request, res: Response) => {
         });
         res.send(200).json(response);
       });
-    }
+    }*/
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
