@@ -29,7 +29,6 @@ export const findAll = async (req: Request, res: Response) => {
       .leftJoinAndSelect("player.valuation", "valuation")
       .getMany();
 
-    //console.log(player);
     res.status(200).json(player);
   } catch (error) {
     console.log(error);
@@ -153,7 +152,6 @@ export const create = async (req: Request, res: Response) => {
       })
       .execute();
 
-    console.log(player);
     res.status(200).json("Jugador Creado Exitosamente!");
   } catch (error) {
     console.log(error);
@@ -170,15 +168,14 @@ export const findAllPlayersSuggestedForEvent = async (
       "call get_players_suggested_for_event(?)",
       [req.params.eventId]
     );
-    console.log(result);
 
     const pl = await getRepository(Player)
       .createQueryBuilder("player")
       .leftJoin(PlayerSuggestion, "sug", "player.id = sug.playerId")
       .where("sug.eventId = :id", { id: req.params.eventId })
+      .orderBy("player.calification", "ASC")
       .getMany();
 
-    console.log("Sugeridos usuario: " + pl);
     pl.forEach((jug) => {
       const upd_qualif = Player.query("call set_player_calification(?)", [
         jug.id,
@@ -198,8 +195,6 @@ export const findAllPlayersSuggestedForEvent = async (
         "player.id NOT IN(select playerId from player_list  where eventId=sug.eventId  and stateId not in(11,15) union  select playerId from event_apply  where eventId=sug.eventId  and concat(origin,stateId) in('P6','P8','O8','O6') ) "
       )
       .getMany();
-
-    console.log(players);
 
     res.status(200).json(players);
   } catch (error) {
@@ -417,9 +412,6 @@ export const setDismissedFromList = async (req: Request, res: Response) => {
     const playerId = req.body.playerId;
     const eventId = req.body.eventId;
 
-    console.log("playerId: ", playerId);
-    console.log("eventId: ", eventId);
-
     const player_list = await createQueryBuilder()
       .select("list")
       //.addSelect("player.id")
@@ -430,8 +422,6 @@ export const setDismissedFromList = async (req: Request, res: Response) => {
       .andWhere("list.eventId= :eventId", { eventId })
       .getOneOrFail();
 
-    console.log(player_list);
-
     const listUpd = await createQueryBuilder()
       .update(PlayerList)
       .set({
@@ -441,8 +431,6 @@ export const setDismissedFromList = async (req: Request, res: Response) => {
       .andWhere("player = :playerId",{playerId: event_apply.player})*/
       .where("id= :id", { id: player_list.id })
       .execute();
-
-    console.log(listUpd);
 
     const event_apply = await createQueryBuilder()
       .select("eventApply")
@@ -487,14 +475,11 @@ export const getUidsByPlayers = async (req: Request, res: Response) => {
     idPlayers = req.body.idPlayers;
     let query = "";
 
-    console.log(idPlayers);
-
     idPlayers.forEach((idPlayer) => {
       query = query.concat(`${idPlayer},`);
     });
 
     query = query.slice(0, -1);
-    console.log("Query: "+query);
 
     // SELECT * FROM user join person on person.userUid = user.uid
     // JOIN player on player.personId = person.id
@@ -532,9 +517,6 @@ export const setAbandonedFromList = async (req: Request, res: Response) => {
     const playerId = req.body.playerId;
     const eventId = req.body.eventId;
 
-    console.log("playerId: ", playerId);
-    console.log("eventId: ", eventId);
-
     const player_list = await createQueryBuilder()
       .select("list")
       //.addSelect("player.id")
@@ -545,8 +527,6 @@ export const setAbandonedFromList = async (req: Request, res: Response) => {
       .andWhere("list.eventId= :eventId", { eventId })
       .getOneOrFail();
 
-    console.log(player_list);
-
     const listUpd = await createQueryBuilder()
       .update(PlayerList)
       .set({
@@ -556,8 +536,6 @@ export const setAbandonedFromList = async (req: Request, res: Response) => {
       .andWhere("player = :playerId",{playerId: event_apply.player})*/
       .where("id= :id", { id: player_list.id })
       .execute();
-
-    console.log(listUpd);
 
     res.status(200).json("Jugador Excluido Exitosamente!!");
   } catch (error) {
