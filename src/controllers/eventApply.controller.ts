@@ -25,8 +25,6 @@ export const create = async (req: Request, res: Response) => {
       .andWhere("eventApply.eventId= :eventId",{eventId})
       .getOne()
 
-      console.log(existe)
-
       if(existe){
         res.status(200).json("La Solicitud ya habia sido enviada Exitosamente!");
       }else{
@@ -41,8 +39,6 @@ export const create = async (req: Request, res: Response) => {
             player: + playerId,    
             date: () => 'CURRENT_TIMESTAMP'
           }).execute()
-        
-          console.log(event_apply)
 
         res.status(200).json("Solicitud Enviada Exitosamente!");
       }
@@ -69,11 +65,6 @@ export const create = async (req: Request, res: Response) => {
         .where("person.userUid = :uid", { uid: req.params.userUid})
         .andWhere("event.id= :eventId",{eventId: req.params.eventId})
         .getOneOrFail()
-
-
-        console.log(player)
-
-
 
         res.status(200).json(player);
   
@@ -102,7 +93,6 @@ export const create = async (req: Request, res: Response) => {
       .andWhere("eventApply.eventId= :eventId",{eventId})
       .getOneOrFail()
 
-      console.log(event_apply)
       res.status(200).json(event_apply);
   
     }catch (error) {
@@ -117,7 +107,7 @@ export const create = async (req: Request, res: Response) => {
       const eventId = req.body.eventId
       
       const event_complete=await Event.findOne(eventId);
-      console.log("Detalle evento: "+event_complete);
+
       if(event_complete.status==2){
         res.status(200).json("El evento se completo antes de poder aceptar la solicitud");
       }else{
@@ -154,9 +144,7 @@ export const create = async (req: Request, res: Response) => {
         .andWhere("player = :playerId",{playerId: event_apply.player})*/
         .where("id= :id",{id: event_apply.id})
         .execute()
-      
-        console.log(applyUpd)
-
+  
         const accept_apply= await
         createQueryBuilder()
         .insert()
@@ -169,12 +157,9 @@ export const create = async (req: Request, res: Response) => {
             date: () => 'CURRENT_TIMESTAMP'
           }).execute()
         
-          console.log(accept_apply)
-
           const event=await Event.findOne(eventId);
-          console.log("event: "+event)
           const tema=event.id+"-"+event.name.replace(/\s/g, "");
-          console.log("Topic: "+tema)
+          console.log("Event Apply Topic: ",tema)
 
           if(event_apply.origin=='P'){  //significa que el jugador solicito unirse
             const userToken = await getRepository(User)
@@ -187,8 +172,8 @@ export const create = async (req: Request, res: Response) => {
 
             
             userToken.forEach((user) =>{ 
-              console.log(subscribeTopic(tema,user.mobileToken.toString()))
-              console.log(sendPushToOneUser(user.mobileToken.toString(), "Te confirmaron en un partido", "El evento "+event.name+" te confirmo en su lista de jugadores"))
+              console.log("Event Apply Suscribe to Topic: ",subscribeTopic(tema,user.mobileToken.toString()))
+              console.log("Event Apply Push to Topic: ",sendPushToOneUser(user.mobileToken.toString(), "Te confirmaron en un partido", "El evento "+event.name+" te confirmo en su lista de jugadores"))
             })
         }else{
 
@@ -202,7 +187,7 @@ export const create = async (req: Request, res: Response) => {
             .where("event.id= :eventId",{eventId: eventId})
             .getRawOne()
 
-            console.log("token: "+organizador.mobileToken)
+            console.log("Organizer token: "+organizador.mobileToken)
 
             const player = await getRepository(Person)
             .createQueryBuilder("person")
@@ -212,10 +197,9 @@ export const create = async (req: Request, res: Response) => {
             .getOne();
 
             const nombre=player?.lastname+" "+player?.names
-            console.log("Nombre jugador: "+nombre)
           
           
-            console.log(sendPushToOneUser(organizador.mobileToken, "Aceptaron tu invitacion", "El jugador "+nombre+" acepto tu solicitud al partido "+event.name))
+            console.log("Event Apply Push to Organizer: ",sendPushToOneUser(organizador.mobileToken, "Aceptaron tu invitacion", "El jugador "+nombre+" acepto tu solicitud al partido "+event.name))
 
         }
         res.status(200).json("Invitacion Aceptada Exitosamente!");
@@ -248,8 +232,7 @@ export const create = async (req: Request, res: Response) => {
       .where("eventApply.playerId = :playerId", {playerId })
       .andWhere("eventApply.eventId= :eventId",{eventId})
       .getOneOrFail()
-      
-      console.log(event_apply)
+    
 
       const applyUpd= await
       createQueryBuilder()
@@ -262,8 +245,6 @@ export const create = async (req: Request, res: Response) => {
       .andWhere("player = :playerId",{playerId: event_apply.player})*/
       .where("id= :id",{id: event_apply.id})
       .execute()
-
-      console.log(applyUpd)
 
       res.status(200).json("Invitacion Rechazada Exitosamente!!");
   
@@ -316,7 +297,6 @@ export const create = async (req: Request, res: Response) => {
 export const getEvent= async (id:string) => {
   try{
   const event=await Event.findOne(id);
-  console.log(event)
 
   return event;
   
