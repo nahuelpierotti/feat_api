@@ -51,7 +51,6 @@ export const findAllByOrganizer = async (req: Request, res: Response) => {
       .andWhere("event.state <> 4") //filtro eventos cancelados
       .getMany();
 
-    console.log(event);
     res.status(200).json(event);
   } catch (error) {
     console.log(error);
@@ -74,7 +73,6 @@ export const findAllCreatedByUser = async (req: Request, res: Response) => {
       .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
       .getMany();
 
-    console.log(event);
     res.status(200).json(event);
   } catch (error) {
     console.log(error);
@@ -90,12 +88,10 @@ export const findAllApplied = async (req: Request, res: Response) => {
       .where("person.userUid = :uid", { uid: req.params.uid })
       .getMany();
 
-    console.log("Sugeridos usuario: " + pl);
     pl.forEach((jug) => {
       const upd_qualif = Player.query("call set_player_calification(?)", [
         jug.id,
       ]);
-      console.log("Ejecuto actualizacion calif: " + upd_qualif);
     });
 
     const event = await getRepository(Event)
@@ -114,7 +110,7 @@ export const findAllApplied = async (req: Request, res: Response) => {
       .andWhere("event.state <> 4") //filtro eventos cancelados
       .getMany();
 
-    console.log(event);
+    
     res.status(200).json(event);
   } catch (error) {
     console.log(error);
@@ -154,7 +150,7 @@ export const findAllConfirmed = async (req: Request, res: Response) => {
       .andWhere("event.state <> 4") //filtro eventos cancelados
       .getMany();
 
-    console.log(event);
+    
     res.status(200).json(event);
   } catch (error) {
     console.log(error);
@@ -201,7 +197,7 @@ export const findOne = async (req: Request, res: Response) => {
       //.andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
       .getOne();
 
-    console.log(event);
+    
     res.status(200).json(event);
   } catch (error) {
     console.log(error);
@@ -231,7 +227,6 @@ export const findAllEventSuggestedForUser = async (
     const result = await Event.query("call get_events_suggested_for_user(?)", [
       req.params.uid,
     ]);
-    console.log(result);
 
     const event = await getRepository(Event)
       .createQueryBuilder("event")
@@ -302,11 +297,8 @@ export const create = async (req: Request, res: Response) => {
 
     const idEvento = event.raw.insertId;
 
-    console.log(event.raw.insertId);
     const nombre = req.body.name.replace(/\s/g, "");
     const tema = event.raw.insertId + "-" + nombre;
-
-    console.log("Tema: " + tema);
 
     const organizador = await getRepository(Player)
       .createQueryBuilder("player")
@@ -325,8 +317,8 @@ export const create = async (req: Request, res: Response) => {
 
     console.log("Token List: ", organizador.mobileToken);
 
-    console.log(subscribeTopic(tema, organizador.mobileToken.toString()));
-    console.log(
+    console.log("Suscribe to Topic: ",subscribeTopic(tema, organizador.mobileToken.toString()));
+    console.log("Push to One User: ",
       sendPushToOneUser(
         organizador.mobileToken.toString(),
         "Creaste un nuevo evento",
@@ -334,7 +326,6 @@ export const create = async (req: Request, res: Response) => {
       )
     );
 
-    console.log("Jugador del Organizador: " + organizador?.id);
 
     if (organizador?.id != undefined) {
       const event_apply = await createQueryBuilder()
