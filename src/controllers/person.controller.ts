@@ -425,3 +425,30 @@ try{
     await queryRunner.release();
   }
 };
+
+
+export const setProfileImageUrl = async (req: Request, res: Response) => {
+  try{
+
+    const person= await getRepository(Person)
+    .createQueryBuilder("person")
+    .where('person.userUid = :uid', {uid: req.body.uid })
+    .getOne()
+
+    const personUpd= await
+    createQueryBuilder()
+    .update(Person)
+    .set({
+      photo_url: req.body.photo_url
+
+    }).where("id = :id", { id: person?.id})
+    .execute()
+
+    console.log(personUpd)
+    res.status(200).json("Actualizado Exitosamente!");
+
+  }catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
