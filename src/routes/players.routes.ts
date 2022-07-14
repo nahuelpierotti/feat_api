@@ -10,7 +10,7 @@ import {
   findAllByUser,
   setDismissedFromList,
   filterAllPlayersSuggestedForEvent,
-  getUidsByPlayers,
+  getPhotoUrlsByPlayers,
 } from "../controllers/player.controller";
 
 const router = Router();
@@ -41,6 +41,6 @@ router.route("/setDismissedFromList").post(setDismissedFromList);
 
 router.route("/filterPlayersForEvent").post(filterAllPlayersSuggestedForEvent);
 
-router.route("/getUidsByPlayers").post(getUidsByPlayers);
+router.route("/getPhotoUrlsByPlayers").post(getPhotoUrlsByPlayers);
 
 export default router;
