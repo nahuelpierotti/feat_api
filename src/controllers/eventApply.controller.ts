@@ -156,9 +156,7 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
     const event_complete = await Event.findOne(eventId);
 
     if (event_complete.status == 2) {
-      res
-        .status(200)
-        .json("El evento se completo antes de poder aceptar la solicitud");
+      res.status(200).json({isComplete: true});
     } else {
       const existe = await createQueryBuilder()
         .select("eventApply.id")
@@ -230,6 +228,7 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
               )
             );
           });
+          res.status(200).json({isComplete: false});
         } else {
           const organizador = await getRepository(User)
             .createQueryBuilder("user")
@@ -273,13 +272,14 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
                 ". Podes verificar la lista de participantes y confirmar el evento."  
               )
             );
+            res.status(200).json({isComplete: true});
           }
+
+          res.status(200).json({isComplete: false});
         }
-        res.status(200).json("Invitacion Aceptada Exitosamente!");
+
       } else {
-        res
-          .status(200)
-          .json("La Invitacion ya habia sido aceptada anteriormente!");
+        res.status(200).json({isComplete: false});
       }
     }
   } catch (error) {
