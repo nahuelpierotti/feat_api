@@ -176,12 +176,22 @@ export const findAllPlayersSuggestedForEvent = async (
       .orderBy("player.calification", "ASC")
       .getMany();
 
+    let upds: any[]=[]
+
     pl.forEach((jug) => {
-      const upd_qualif = Player.query("call set_player_calification(?)", [
+      /*const upd_qualif = Player.query("call set_player_calification(?)", [
         jug.id,
-      ]);
-      console.log("Ejecuto actualizacion calif: " + upd_qualif);
+      ]);*/
+      upds.push(Player.query("call set_player_calification(?)", [
+        jug.id,
+      ]))
+      //console.log("Player Sug Ejecuto actualizacion calif: " + jug.id);
     });
+
+    Promise.all(upds).then(
+      res=> console.log("Player Sug Upd Calification: "+res)
+    ).catch(e=> console.log(e))
+
 
     const players = await getRepository(Player)
       .createQueryBuilder("player")
