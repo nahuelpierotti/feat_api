@@ -35,7 +35,6 @@ export const findOne = async (req: Request, res: Response) => {
       }
       
     */
-     //console.log(person)
       res.status(200).json(person);
     } catch (error) {
       console.log(error)
@@ -59,7 +58,6 @@ export const create = async (req: Request, res: Response) => {
     })
     .execute()
 
-    console.log(person)
     res.status(200).json("Persona creada exitosamente!");
 
   }catch (error) {
@@ -83,7 +81,6 @@ export const update = async (req: Request, res: Response) => {
     }).where("id = :id", { id: req.body.id})
     .execute()
 
-    console.log(personUpd)
     res.status(200).json("Actualizado Exitosamente!");
 
   }catch (error) {
@@ -107,7 +104,6 @@ export const updatePersonalInformation = async (req: Request, res: Response) => 
     }).where("id = :id", { id: req.body.id})
     .execute()
 
-    console.log(personUpd)
     res.status(200).json("Actualizado Exitosamente!");
 
   }catch (error) {
@@ -132,8 +128,6 @@ export const createPerson = async (req: Request, res: Response) => {
     })
     .execute()
 
-    console.log(person)
-    
     res.status(200).json(person);
 
   }catch (error) {
@@ -169,10 +163,7 @@ try{
     })
     .execute()
 
-    console.log(person)
     const idPersona=person.raw.insertId
-    console.log("nuevo id person: "+idPersona)
-
     
     const address= await
     createQueryBuilder()
@@ -190,7 +181,6 @@ try{
     })
     .execute()
 
-    console.log(address)
 
     /* AVAILABILITY*/
       const start_time1= req.body.startTimeSunday;
@@ -228,7 +218,6 @@ try{
 
         })
         .execute()
-        console.log(availability)
     }
 
     if(start_time2!=null && end_time2!=null){
@@ -245,7 +234,6 @@ try{
 
       })
       .execute()
-      console.log(availability)
   }
 
   if(start_time3!=null && end_time3!=null){
@@ -262,7 +250,7 @@ try{
 
         })
         .execute()
-        console.log(availability)
+
     }
     
     if(start_time4!=null && end_time4!=null){
@@ -279,7 +267,7 @@ try{
 
       })
       .execute()
-      console.log(availability)
+      
     }
 
     if(start_time5!=null && end_time5!=null){
@@ -296,7 +284,7 @@ try{
 
       })
       .execute()
-      console.log(availability)
+      
     }
 
     if(start_time6!=null && end_time6!=null){
@@ -313,7 +301,7 @@ try{
 
       })
       .execute()
-      console.log(availability)
+      
     }
 
     if(start_time7!=null && end_time7!=null){
@@ -330,7 +318,7 @@ try{
 
       })
       .execute()
-      console.log(availability)
+      
     }
     /* FIN AVAILABILITY*/
 

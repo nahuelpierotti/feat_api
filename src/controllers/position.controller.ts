@@ -11,8 +11,7 @@ export const findAll = async (req: Request, res: Response) => {
       .createQueryBuilder("position")
       .leftJoinAndSelect(SportGeneric,"sportGeneric","position.sport=sportGeneric.id")
       .getMany()
-  
-      //console.log(position);
+
       res.status(200).json(position);
     } catch (error) {
       console.log(error);
@@ -27,8 +26,7 @@ export const findAll = async (req: Request, res: Response) => {
       .where("position.id = :id", { id: req.params.id})
       .leftJoinAndSelect(SportGeneric,"sportGeneric","position.sport=sportGeneric.id")
       .getOne()
-  
-      //console.log(position);
+
       res.status(200).json(position);
     } catch (error) {
       console.log(error);
@@ -48,7 +46,6 @@ export const findAll = async (req: Request, res: Response) => {
       })
       .execute()
   
-      console.log(position)
       res.status(200).json("Posición Creada Exitosamente!");
   
     }catch (error) {
