@@ -9,6 +9,7 @@ import { PlayerList } from "../models/PlayerList";
 import { User } from "../models/User";
 import { Person } from "../models/Person";
 import { sendPushToOneUser, subscribeTopic } from "../notifications";
+import { State } from "../models/State";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -150,9 +151,17 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
     const playerId = req.body.playerId;
     const eventId = req.body.eventId;
 
-    const event_complete = await Event.findOne(eventId);
+    const event_complete = await
+        createQueryBuilder()
+        .select("event")
+        .from(Event, "event")
+        .innerJoin(State,"state","event.state=state.id")
+        .where("event.id= :eventId", { eventId })
+        .getRawOne();
 
-    if (event_complete.status == 2) {
+    //console.log("Primer entrada Evento Completo: ",event_complete)
+    
+    if (event_complete?.event_stateId == 2) {
       res.status(200).json({isComplete: true});
     } else {
       const existe = await createQueryBuilder()
@@ -192,8 +201,14 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
           })
           .execute();
 
-        const event = await Event.findOne(eventId);
-        const tema = event.id + "-" + event.name.replace(/\s/g, "");
+          const event = await
+          createQueryBuilder()
+          .select("event")
+          .from(Event, "event")
+          .innerJoin(State,"state","event.state=state.id")
+          .where("event.id= :eventId", { eventId })
+          .getRawOne();
+        const tema = event?.event_stateId + "-" + event?.event_name.replace(/\s/g, "");
 
         if (existe.origin == "P") {
           //significa que el jugador solicito unirse
@@ -211,11 +226,11 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
                 user.mobileToken.toString(),
                 "Te confirmaron en un partido",
                 "El evento " +
-                  event.name +
+                  event?.event_name +
                   " te confirmo en su lista de jugadores"
               )
           })
-          if(event.state==2){
+          if(event.event_stateId==2){
             res.status(200).json({isComplete: true});
           }else{
             res.status(200).json({isComplete: false});
@@ -245,15 +260,15 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
             "El jugador " +
               nombre +
               " acepto tu solicitud al partido " +
-              event.name
+              event?.event_name
           )
 
-          if(event.status==2){
+          if(event?.event_stateId==2){
             sendPushToOneUser(
               organizador.mobileToken,
               "Evento Completo",
               "Se completo la lista de participantes al evento " +
-                event.name+
+                event.event_name+
               ". Podes verificar la lista de participantes y confirmar el evento."  
             )
             
