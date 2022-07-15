@@ -20,7 +20,8 @@ export const qualifyPlayers = async (req: Request, res: Response) => {
             event: + eventId,
             player: + player_calification.id,    
             liked: player_calification.liked,
-            observation: player_calification.observation
+            observation: player_calification.observation,
+            qualifier: player_calification.qualifier
           }).execute()
         
         }

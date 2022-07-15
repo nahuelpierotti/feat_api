@@ -156,22 +156,19 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
       res.status(200).json({isComplete: true});
     } else {
       const existe = await createQueryBuilder()
-        .select("eventApply.id")
+        .select("eventApply")
         .from(EventApply, "eventApply")
         .where("eventApply.playerId = :playerId", { playerId })
         .andWhere("eventApply.eventId= :eventId", { eventId })
         .getOne();
 
       if (existe != undefined) {
-        const event_apply = await createQueryBuilder()
+        /*const event_apply = await createQueryBuilder()
           .select("eventApply")
-          //.addSelect("player.id")
           .from(EventApply, "eventApply")
-          /*.innerJoin("eventApply.player","player")
-        .innerJoin("player.person", "person")*/
           .where("eventApply.playerId = :playerId", { playerId })
           .andWhere("eventApply.eventId= :eventId", { eventId })
-          .getOneOrFail();
+          .getOneOrFail();*/
 
         const applyUpd = await createQueryBuilder()
           .update(EventApply)
@@ -180,14 +177,14 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
           })
           /*.where("event = :eventId", { eventId})
         .andWhere("player = :playerId",{playerId: event_apply.player})*/
-          .where("id= :id", { id: event_apply.id })
+          .where("id= :id", { id: existe.id })
           .execute();
 
         const accept_apply = await createQueryBuilder()
           .insert()
           .into(PlayerList)
           .values({
-            origin: event_apply.origin,
+            origin: existe.origin,
             state: 9,
             event: +eventId,
             player: playerId,
@@ -198,7 +195,7 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
         const event = await Event.findOne(eventId);
         const tema = event.id + "-" + event.name.replace(/\s/g, "");
 
-        if (event_apply.origin == "P") {
+        if (existe.origin == "P") {
           //significa que el jugador solicito unirse
           const userToken = await getRepository(User)
             .createQueryBuilder("user")
@@ -218,8 +215,11 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
                   " te confirmo en su lista de jugadores"
               )
           })
-
-          res.status(200).json({isComplete: false});
+          if(event.state==2){
+            res.status(200).json({isComplete: true});
+          }else{
+            res.status(200).json({isComplete: false});
+          }
         } else {
           const organizador = await getRepository(User)
             .createQueryBuilder("user")
@@ -258,13 +258,13 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
             )
             
             res.status(200).json({isComplete: true});
+          }else{
+            res.status(200).json({isComplete: false});
           }
-
-          res.status(200).json({isComplete: false});
         }
 
       } else {
-        res.status(200).json({isComplete: false});
+        res.status(400).json("No se encontro invitacion");
       }
     }
   } catch (error) {
