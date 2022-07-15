@@ -12,8 +12,6 @@ export const findAllByUser=async (req: Request,res:Response)=>{
         .innerJoin(Person, "person", "person.id = address.personId")
         .where('person.userUid = :userUid', {userUid: req.params.userUid })
         .getMany()
-        
-        console.log(result) 
           
         res.status(200).json(result);    
     }catch(error){
@@ -39,7 +37,6 @@ export const create = async (req: Request, res: Response) => {
     })
     .execute()
 
-    console.log(address)
     res.status(200).json("Direccion creada exitosamente!");
 
   }catch (error) {
@@ -64,7 +61,6 @@ export const update = async (req: Request, res: Response) => {
     }).where("address.id = :id", { id: req.body.id})
     .execute()
 
-    console.log(address)
     res.status(200).json("Creado Exitosamente!");
 
   }catch (error) {

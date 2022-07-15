@@ -23,7 +23,6 @@ export const qualifyPlayers = async (req: Request, res: Response) => {
             observation: player_calification.observation
           }).execute()
         
-          console.log(calification)
         }
         res.status(200).json("Calificaciones Enviadas Exitosamente!");
 
@@ -40,8 +39,6 @@ export const qualifyPlayers = async (req: Request, res: Response) => {
         .createQueryBuilder("calification")
         .where('calification.playerId = :playerId', {playerId: req.params.playerId })
         .getMany()
-        
-        console.log(result) 
           
         res.status(200).json(result);    
     }catch(error){
@@ -57,8 +54,6 @@ export const findAllByUser=async (req: Request,res:Response)=>{
         .innerJoin(Person,"person","player.personId=person.id")
         .where('person.userUid = :userUid', {userUid: req.params.userUid })
         .getMany()
-        
-        console.log(result) 
           
         res.status(200).json(result);    
     }catch(error){
