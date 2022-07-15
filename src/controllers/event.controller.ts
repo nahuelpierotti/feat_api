@@ -318,6 +318,7 @@ export const create = async (req: Request, res: Response) => {
     //console.log("Token List: ", organizador.mobileToken);
 
     if (organizador?.id != undefined) {
+    /* A pedido del Camarada Rao
     
       subscribeTopic(tema, organizador.mobileToken.toString())
       sendPushToOneUser(
@@ -325,6 +326,8 @@ export const create = async (req: Request, res: Response) => {
           "Creaste un nuevo evento",
           "Ya podes invitar a jugadores"
         )
+        
+        */
       
       const event_apply = await createQueryBuilder()
         .insert()
