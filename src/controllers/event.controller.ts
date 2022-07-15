@@ -317,16 +317,15 @@ export const create = async (req: Request, res: Response) => {
 
     //console.log("Token List: ", organizador.mobileToken);
 
-    subscribeTopic(tema, organizador.mobileToken.toString())
-    sendPushToOneUser(
-        organizador.mobileToken.toString(),
-        "Creaste un nuevo evento",
-        "Ya podes invitar a jugadores"
-      )
-    
-
-
     if (organizador?.id != undefined) {
+    
+      subscribeTopic(tema, organizador.mobileToken.toString())
+      sendPushToOneUser(
+          organizador.mobileToken.toString(),
+          "Creaste un nuevo evento",
+          "Ya podes invitar a jugadores"
+        )
+      
       const event_apply = await createQueryBuilder()
         .insert()
         .into(EventApply)
@@ -350,6 +349,23 @@ export const create = async (req: Request, res: Response) => {
           date: () => "CURRENT_TIMESTAMP",
         })
         .execute();
+    }else{
+
+      const organizador = await getRepository(Player)
+      .createQueryBuilder("player")
+      .select("player.id,user.mobileToken")
+      .leftJoin(Person, "person", "player.personId=person.id")
+      .leftJoin(User, "user", "person.userUid=user.uid")
+      .where("person.id= :id", { id: +req.body.organizer })
+      .getRawOne();
+
+
+      subscribeTopic(tema, organizador.mobileToken.toString())
+      sendPushToOneUser(
+          organizador.mobileToken.toString(),
+          "Creaste un nuevo evento",
+          "Ya podes invitar a jugadores"
+        )
     }
 
     res.status(200).json("Evento Creado Exitosamente!");
