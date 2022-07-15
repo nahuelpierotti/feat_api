@@ -303,7 +303,7 @@ export const setDeniedApply = async (req: Request, res: Response) => {
       .from(PlayerList, "list")
       .where("list.playerId = :playerId", { playerId })
       .andWhere("list.eventId= :eventId", { eventId })
-      .andWhere("list.statusId in(9,10) ")
+      .andWhere("list.stateId in(9,10) ")
       .getRawOne();
       
       if(playerList!= undefined){
