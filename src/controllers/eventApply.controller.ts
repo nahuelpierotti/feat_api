@@ -297,8 +297,29 @@ export const setDeniedApply = async (req: Request, res: Response) => {
       .andWhere("player = :playerId",{playerId: event_apply.player})*/
       .where("id= :id", { id: event_apply.id })
       .execute();
+    
+      const playerList = await createQueryBuilder()
+      .select("list")
+      .from(PlayerList, "list")
+      .where("list.playerId = :playerId", { playerId })
+      .andWhere("list.eventId= :eventId", { eventId })
+      .andWhere("list.statusId in(9,10) ")
+      .getRawOne();
+      
+      if(playerList!= undefined){
+          const listUpd = await createQueryBuilder()
+          .update(PlayerList)
+          .set({
+            state: 15,
+          })
+          .where("id= :id", { id: playerList.id })
+          .execute();
 
-    res.status(200).json("Invitacion Rechazada Exitosamente!!");
+        res.status(200).json("Jugador Abandono Exitosamente!!"); 
+      }else{
+        res.status(200).json("Invitacion Rechazada Exitosamente!!");
+      }
+
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
