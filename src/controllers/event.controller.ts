@@ -587,7 +587,8 @@ export const findAllConfirmedOrAppliedByUser = async (
       .createQueryBuilder("event")
       .select(
         "event.id,event.name,event.date,event.start_time,event.end_time,event.latitude,event.longitude,state.description as state_desc,sport.description sport_desc,case when eventApply.stateId=6 then 'Aplicado' else 'Confirmado' end as origen," +
-          " CASE WHEN event.organizer=person.id THEN true else false end as is_organizer "
+          " CASE WHEN event.organizer=person.id THEN true else false end as is_organizer, "+
+          " CASE WHEN (select count(distinct eventId,qualifier) from calification where eventId=event.id and qualifier=eventApply.playerId )>0 THEN true ELSE false END as eventQualified "
       )
       .leftJoin("event.sport", "sport")
       .leftJoin("event.state", "state")
@@ -611,6 +612,7 @@ export const findAllConfirmedOrAppliedByUser = async (
       ) // filtro de solicitudes rechazadas
       .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
       .getRawMany();
+      //  .getSql()
 
     res.status(200).json(eventList);
   } catch (error) {
