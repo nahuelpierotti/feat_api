@@ -306,7 +306,7 @@ export const create = async (req: Request, res: Response) => {
       .leftJoin(Person, "person", "player.personId=person.id")
       .leftJoin(User, "user", "person.userUid=user.uid")
       .leftJoin(Event, "event", "person.id=event.organizer")
-      .leftJoin(
+      .innerJoin(
         Sport,
         "sport",
         "event.sportId=sport.id and player.sportGenericId=sport.sportGenericId"
@@ -588,7 +588,7 @@ export const findAllConfirmedOrAppliedByUser = async (
       .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
       .andWhere("event.state <> 4") //filtro eventos cancelados
       .andWhere(
-        "concat(eventApply.stateId,eventApply.origin) NOT IN('6O','8O')"
+        "concat(eventApply.stateId,eventApply.origin) NOT IN('6O','8O','8P')"
       ) // filtro de solicitudes rechazadas
       .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
       .getRawMany();
