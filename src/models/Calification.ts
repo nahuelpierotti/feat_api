@@ -17,6 +17,9 @@ export class Calification extends BaseEntity{
     @Column()
     liked: boolean;
 
+    @Column()
+    qualifier: number
+
     @ManyToOne(() => Event)
     @JoinColumn()
     event: number
