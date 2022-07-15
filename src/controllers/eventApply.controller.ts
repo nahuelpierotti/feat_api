@@ -304,7 +304,7 @@ export const setDeniedApply = async (req: Request, res: Response) => {
       .where("list.playerId = :playerId", { playerId })
       .andWhere("list.eventId= :eventId", { eventId })
       .andWhere("list.stateId in(9,10) ")
-      .getRawOne();
+      .getOneOrFail();
       
       if(playerList!= undefined){
           const listUpd = await createQueryBuilder()
