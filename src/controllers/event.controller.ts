@@ -244,7 +244,7 @@ export const findAllEventSuggestedForUser = async (
       .where("user.uid = :uid", { uid: req.params.uid })
       .andWhere("event.organizer <> person.id")
       .andWhere("event.id = sug.eventId")
-      .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
+      .andWhere("event.state not in(4,2,5) ") //filtro eventos cancelados, completos y finalizados
       .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
       .andWhere(
         "player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) "
@@ -306,7 +306,7 @@ export const create = async (req: Request, res: Response) => {
       .leftJoin(Person, "person", "player.personId=person.id")
       .leftJoin(User, "user", "person.userUid=user.uid")
       .leftJoin(Event, "event", "person.id=event.organizer")
-      .leftJoin(
+      .innerJoin(
         Sport,
         "sport",
         "event.sportId=sport.id and player.sportGenericId=sport.sportGenericId"
@@ -317,16 +317,18 @@ export const create = async (req: Request, res: Response) => {
 
     //console.log("Token List: ", organizador.mobileToken);
 
-    subscribeTopic(tema, organizador.mobileToken.toString())
-    sendPushToOneUser(
-        organizador.mobileToken.toString(),
-        "Creaste un nuevo evento",
-        "Ya podes invitar a jugadores"
-      )
-    
-
-
     if (organizador?.id != undefined) {
+    /* A pedido del Camarada Rao
+    
+      subscribeTopic(tema, organizador.mobileToken.toString())
+      sendPushToOneUser(
+          organizador.mobileToken.toString(),
+          "Creaste un nuevo evento",
+          "Ya podes invitar a jugadores"
+        )
+        
+        */
+      
       const event_apply = await createQueryBuilder()
         .insert()
         .into(EventApply)
@@ -350,6 +352,23 @@ export const create = async (req: Request, res: Response) => {
           date: () => "CURRENT_TIMESTAMP",
         })
         .execute();
+    }else{
+
+      const organizador = await getRepository(Player)
+      .createQueryBuilder("player")
+      .select("player.id,user.mobileToken")
+      .leftJoin(Person, "person", "player.personId=person.id")
+      .leftJoin(User, "user", "person.userUid=user.uid")
+      .where("person.id= :id", { id: +req.body.organizer })
+      .getRawOne();
+
+
+      subscribeTopic(tema, organizador.mobileToken.toString())
+      sendPushToOneUser(
+          organizador.mobileToken.toString(),
+          "Creaste un nuevo evento",
+          "Ya podes invitar a jugadores"
+        )
     }
 
     res.status(200).json("Evento Creado Exitosamente!");
@@ -481,7 +500,7 @@ export const findAllOfTheWeek = async (req: Request, res: Response) => {
       .leftJoinAndSelect("event.periodicity", "periodicity")
       .where("DATE(event.date) >= CURRENT_DATE")
       .andWhere(" DATE(event.date) <= DATE_ADD(NOW(), INTERVAL 7 DAY) ")
-      .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
+      .andWhere("event.state not in(4,2,5) ") //filtro eventos cancelados, completos y finalizados
       .andWhere(
         "event.id NOT IN(" +
           " select eventId from player_list l " +
@@ -535,7 +554,7 @@ export const findAllInvitationsForUser = async (
       .andWhere("apply.stateId = 6")
       .andWhere("apply.origin = 'O'")
       .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
-      .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
+      .andWhere("event.state not in(4,2,5) ") //filtro eventos cancelados, completos y finalizados
       .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
       .getMany();
 
@@ -568,7 +587,8 @@ export const findAllConfirmedOrAppliedByUser = async (
       .createQueryBuilder("event")
       .select(
         "event.id,event.name,event.date,event.start_time,event.end_time,event.latitude,event.longitude,state.description as state_desc,sport.description sport_desc,case when eventApply.stateId=6 then 'Aplicado' else 'Confirmado' end as origen," +
-          " CASE WHEN event.organizer=person.id THEN true else false end as is_organizer "
+          " CASE WHEN event.organizer=person.id THEN true else false end as is_organizer, "+
+          " CASE WHEN (select count(distinct eventId,qualifier) from calification where eventId=event.id and qualifier=eventApply.playerId )>0 THEN true ELSE false END as eventQualified "
       )
       .leftJoin("event.sport", "sport")
       .leftJoin("event.state", "state")
@@ -588,10 +608,11 @@ export const findAllConfirmedOrAppliedByUser = async (
       .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
       .andWhere("event.state <> 4") //filtro eventos cancelados
       .andWhere(
-        "concat(eventApply.stateId,eventApply.origin) NOT IN('6O','8O')"
+        "concat(eventApply.stateId,eventApply.origin) NOT IN('6O','8O','8P')"
       ) // filtro de solicitudes rechazadas
       .orderBy("concat(date(event.date),' ',event.start_time)", "ASC")
       .getRawMany();
+      //  .getSql()
 
     res.status(200).json(eventList);
   } catch (error) {
@@ -669,7 +690,7 @@ export const filterEventSuggestedForUser = async (
       .where("user.uid = :uid", { uid: req.body.uid })
       .andWhere("event.organizer <> person.id")
       .andWhere("event.id = sug.eventId")
-      .andWhere("event.state not in(4,2) ") //filtro eventos cancelados y completos
+      .andWhere("event.state not in(4,2,5) ") //filtro eventos cancelados, completos y finalizados
       .andWhere("concat(date(event.date),' ',start_time)>=CURRENT_TIMESTAMP")
       .andWhere(
         "player.id NOT IN(select playerId from player_list  where eventId=event.id  union  select playerId from event_apply  where eventId=event.id ) "
@@ -717,6 +738,56 @@ export const filterEventSuggestedForUser = async (
     const eventsFiltered = await event.getMany();
 
     res.status(200).json(eventsFiltered);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
+export const setFinalized = async (req: Request, res: Response) => {
+  try {
+    const result = await createQueryBuilder()
+      .update(Event)
+      .set({
+        state: +5,
+        updated: () => "CURRENT_TIMESTAMP",
+      })
+      .where("id = :id", { id: req.body.id })
+      .execute();
+
+    if (result.affected) {
+      const users = await getRepository(User)
+        .createQueryBuilder("user")
+        .select("user.mobileToken")
+        .innerJoin(Person, "person", "user.uid = person.userUid")
+        .innerJoin(Player, "player", "person.id = player.personId")
+        .innerJoin(
+          PlayerList,
+          "list",
+          "player.id = list.playerId"
+        )
+        .innerJoin(Event, "event", "list.eventId = event.id")
+        .where("event.stateId = :stateId", { stateId: 4 })
+        .andWhere("list.stateId in(9,10)")
+        .andWhere("event.id = :id", { id: req.body.id })
+        .getMany();
+
+      const event: Event = await Event.findOne(req.body.id);
+
+      let promises: any[] = [];
+      users.forEach((user) => {
+        promises.push(
+          sendPushToOneUser(
+            user.mobileToken,
+            "Evento Finalizado ",
+            `El organizador indico que el evento "${event.name}" finalizo.\nYa podes entrar a la app para calificar a los participantes`
+          )
+        );
+      });
+      Promise.all(promises).then((resp) => {
+        res.status(200).json("Evento Finalizado Exitosamente!");
+      });
+    }
   } catch (error) {
     console.log(error);
     res.status(400).json(error);

@@ -15,6 +15,7 @@ import {
   findAllInvitationsForUser,
   findAllConfirmedOrAppliedByUser,
   filterEventSuggestedForUser,
+  setFinalized,
 } from "../controllers/event.controller";
 
 const router = Router();
@@ -52,5 +53,7 @@ router
   .get(findAllConfirmedOrAppliedByUser);
 
 router.route("/getfilterEventForUser").post(filterEventSuggestedForUser);
+
+router.route("/setFinalized").put(setFinalized);
 
 export default router;

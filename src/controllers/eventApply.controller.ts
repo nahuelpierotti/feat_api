@@ -9,6 +9,7 @@ import { PlayerList } from "../models/PlayerList";
 import { User } from "../models/User";
 import { Person } from "../models/Person";
 import { sendPushToOneUser, subscribeTopic } from "../notifications";
+import { State } from "../models/State";
 
 export const create = async (req: Request, res: Response) => {
   try {
@@ -150,28 +151,33 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
     const playerId = req.body.playerId;
     const eventId = req.body.eventId;
 
-    const event_complete = await Event.findOne(eventId);
+    const event_complete = await
+        createQueryBuilder()
+        .select("event")
+        .from(Event, "event")
+        .innerJoin(State,"state","event.state=state.id")
+        .where("event.id= :eventId", { eventId })
+        .getRawOne();
 
-    if (event_complete.status == 2) {
+    //console.log("Primer entrada Evento Completo: ",event_complete)
+    
+    if (event_complete?.event_stateId == 2) {
       res.status(200).json({isComplete: true});
     } else {
       const existe = await createQueryBuilder()
-        .select("eventApply.id")
+        .select("eventApply")
         .from(EventApply, "eventApply")
         .where("eventApply.playerId = :playerId", { playerId })
         .andWhere("eventApply.eventId= :eventId", { eventId })
         .getOne();
 
       if (existe != undefined) {
-        const event_apply = await createQueryBuilder()
+        /*const event_apply = await createQueryBuilder()
           .select("eventApply")
-          //.addSelect("player.id")
           .from(EventApply, "eventApply")
-          /*.innerJoin("eventApply.player","player")
-        .innerJoin("player.person", "person")*/
           .where("eventApply.playerId = :playerId", { playerId })
           .andWhere("eventApply.eventId= :eventId", { eventId })
-          .getOneOrFail();
+          .getOneOrFail();*/
 
         const applyUpd = await createQueryBuilder()
           .update(EventApply)
@@ -180,14 +186,14 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
           })
           /*.where("event = :eventId", { eventId})
         .andWhere("player = :playerId",{playerId: event_apply.player})*/
-          .where("id= :id", { id: event_apply.id })
+          .where("id= :id", { id: existe.id })
           .execute();
 
         const accept_apply = await createQueryBuilder()
           .insert()
           .into(PlayerList)
           .values({
-            origin: event_apply.origin,
+            origin: existe.origin,
             state: 9,
             event: +eventId,
             player: playerId,
@@ -195,10 +201,16 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
           })
           .execute();
 
-        const event = await Event.findOne(eventId);
-        const tema = event.id + "-" + event.name.replace(/\s/g, "");
+          const event = await
+          createQueryBuilder()
+          .select("event")
+          .from(Event, "event")
+          .innerJoin(State,"state","event.state=state.id")
+          .where("event.id= :eventId", { eventId })
+          .getRawOne();
+        const tema = event?.event_stateId + "-" + event?.event_name.replace(/\s/g, "");
 
-        if (event_apply.origin == "P") {
+        if (existe.origin == "P") {
           //significa que el jugador solicito unirse
           const userToken = await getRepository(User)
             .createQueryBuilder("user")
@@ -214,12 +226,15 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
                 user.mobileToken.toString(),
                 "Te confirmaron en un partido",
                 "El evento " +
-                  event.name +
+                  event?.event_name +
                   " te confirmo en su lista de jugadores"
               )
           })
-
-          res.status(200).json({isComplete: false});
+          if(event.event_stateId==2){
+            res.status(200).json({isComplete: true});
+          }else{
+            res.status(200).json({isComplete: false});
+          }
         } else {
           const organizador = await getRepository(User)
             .createQueryBuilder("user")
@@ -245,26 +260,26 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
             "El jugador " +
               nombre +
               " acepto tu solicitud al partido " +
-              event.name
+              event?.event_name
           )
 
-          if(event.status==2){
+          if(event?.event_stateId==2){
             sendPushToOneUser(
               organizador.mobileToken,
               "Evento Completo",
               "Se completo la lista de participantes al evento " +
-                event.name+
+                event.event_name+
               ". Podes verificar la lista de participantes y confirmar el evento."  
             )
             
             res.status(200).json({isComplete: true});
+          }else{
+            res.status(200).json({isComplete: false});
           }
-
-          res.status(200).json({isComplete: false});
         }
 
       } else {
-        res.status(200).json({isComplete: false});
+        res.status(400).json("No se encontro invitacion");
       }
     }
   } catch (error) {
@@ -297,8 +312,29 @@ export const setDeniedApply = async (req: Request, res: Response) => {
       .andWhere("player = :playerId",{playerId: event_apply.player})*/
       .where("id= :id", { id: event_apply.id })
       .execute();
+    
+      const playerList = await createQueryBuilder()
+      .select("list")
+      .from(PlayerList, "list")
+      .where("list.playerId = :playerId", { playerId })
+      .andWhere("list.eventId= :eventId", { eventId })
+      .andWhere("list.stateId in(9,10) ")
+      .getOneOrFail();
+      
+      if(playerList!= undefined){
+          const listUpd = await createQueryBuilder()
+          .update(PlayerList)
+          .set({
+            state: 15,
+          })
+          .where("id= :id", { id: playerList.id })
+          .execute();
 
-    res.status(200).json("Invitacion Rechazada Exitosamente!!");
+        res.status(200).json("Jugador Abandono Exitosamente!!"); 
+      }else{
+        res.status(200).json("Invitacion Rechazada Exitosamente!!");
+      }
+
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
