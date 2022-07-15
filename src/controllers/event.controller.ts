@@ -722,3 +722,53 @@ export const filterEventSuggestedForUser = async (
     res.status(400).json(error);
   }
 };
+
+export const setFinalized = async (req: Request, res: Response) => {
+  try {
+    const result = await createQueryBuilder()
+      .update(Event)
+      .set({
+        state: +5,
+        updated: () => "CURRENT_TIMESTAMP",
+      })
+      .where("id = :id", { id: req.body.id })
+      .execute();
+
+    if (result.affected) {
+      const users = await getRepository(User)
+        .createQueryBuilder("user")
+        .select("user.mobileToken")
+        .innerJoin(Person, "person", "user.uid = person.userUid")
+        .innerJoin(Player, "player", "person.id = player.personId")
+        .innerJoin(
+          PlayerList,
+          "list",
+          "player.id = list.playerId"
+        )
+        .innerJoin(Event, "event", "list.eventId = event.id")
+        .where("event.stateId = :stateId", { stateId: 4 })
+        .andWhere("list.stateId in(9,10)")
+        .andWhere("event.id = :id", { id: req.body.id })
+        .getMany();
+
+      const event: Event = await Event.findOne(req.body.id);
+
+      let promises: any[] = [];
+      users.forEach((user) => {
+        promises.push(
+          sendPushToOneUser(
+            user.mobileToken,
+            "Evento Finalizado ",
+            `El organizador indico que el evento "${event.name}" finalizo.\nYa podes entrar a la app para calificar a los participantes`
+          )
+        );
+      });
+      Promise.all(promises).then((resp) => {
+        res.status(200).json("Evento Finalizado Exitosamente!");
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
