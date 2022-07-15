@@ -11,7 +11,7 @@ export const findAll = async (req: Request, res: Response) => {
       .leftJoinAndSelect("availability.day", "day")
       .getMany()
   
-      //console.log(availability);
+      //;
       res.status(200).json(availability);
     } catch (error) {
       console.log(error);
@@ -28,7 +28,7 @@ export const findAll = async (req: Request, res: Response) => {
       .leftJoinAndSelect("availability.day", "day")
       .getOne()
   
-      //console.log(availability);
+      //;
       res.status(200).json(availability);
     } catch (error) {
       console.log(error);
@@ -74,7 +74,6 @@ export const findAll = async (req: Request, res: Response) => {
 
         })
         .execute()
-        console.log(availability)
     }
 
     if(start_time2!=null && end_time2!=null){
@@ -91,7 +90,7 @@ export const findAll = async (req: Request, res: Response) => {
 
       })
       .execute()
-      console.log(availability)
+      
   }
 
   if(start_time3!=null && end_time3!=null){
@@ -108,7 +107,7 @@ export const findAll = async (req: Request, res: Response) => {
 
         })
         .execute()
-        console.log(availability)
+        
     }
     
     if(start_time4!=null && end_time4!=null){
@@ -125,7 +124,7 @@ export const findAll = async (req: Request, res: Response) => {
 
       })
       .execute()
-      console.log(availability)
+      
     }
 
     if(start_time5!=null && end_time5!=null){
@@ -142,7 +141,7 @@ export const findAll = async (req: Request, res: Response) => {
 
       })
       .execute()
-      console.log(availability)
+      
     }
 
     if(start_time6!=null && end_time6!=null){
@@ -159,7 +158,7 @@ export const findAll = async (req: Request, res: Response) => {
 
       })
       .execute()
-      console.log(availability)
+      
     }
 
     if(start_time7!=null && end_time7!=null){
@@ -176,7 +175,7 @@ export const findAll = async (req: Request, res: Response) => {
 
       })
       .execute()
-      console.log(availability)
+      
     }
       res.status(200).json("Creado Exitosamente!");
   
@@ -198,7 +197,7 @@ export const findAll = async (req: Request, res: Response) => {
       }).where("availability.id = :id", { id: req.body.id})
       .execute()
   
-      console.log(availability)
+      
       res.status(200).json("Creado Exitosamente!");
   
     }catch (error) {

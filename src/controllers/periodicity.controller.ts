@@ -32,8 +32,7 @@ export const findAll = async (req: Request, res: Response) => {
         description: req.body.description
       })
       .execute()
-  
-      console.log(periodicity)
+
       res.status(200).json("Creado Exitosamente!");
   
     }catch (error) {

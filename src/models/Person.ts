@@ -46,6 +46,11 @@ export class Person extends BaseEntity{
     })
     willing_distance: number
 
+    @Column({
+        nullable: true,
+    })
+    photo_url: string
+
     @OneToOne(() => User)
     @JoinColumn()
     user: String;

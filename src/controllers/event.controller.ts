@@ -315,16 +315,15 @@ export const create = async (req: Request, res: Response) => {
       .andWhere("event.id= :eventId", { eventId: idEvento })
       .getRawOne();
 
-    console.log("Token List: ", organizador.mobileToken);
+    //console.log("Token List: ", organizador.mobileToken);
 
-    console.log("Suscribe to Topic: ",subscribeTopic(tema, organizador.mobileToken.toString()));
-    console.log("Push to One User: ",
-      sendPushToOneUser(
+    subscribeTopic(tema, organizador.mobileToken.toString())
+    sendPushToOneUser(
         organizador.mobileToken.toString(),
         "Creaste un nuevo evento",
         "Ya podes invitar a jugadores"
       )
-    );
+    
 
 
     if (organizador?.id != undefined) {
@@ -652,7 +651,6 @@ export const filterEventSuggestedForUser = async (
         "call get_events_suggested_for_user_filter(?,?)",
         [req.body.uid, req.body.distance]
       );
-      console.log("Filtro distancia: " + distance);
     }
 
     let event = await getRepository(Event)
@@ -687,20 +685,16 @@ export const filterEventSuggestedForUser = async (
         event.andWhere("sport.sportGeneric = :sportGenericId", {
           sportGenericId: sportGenericId,
         });
-        console.log("Filtro sportGeneric: " + sportGenericId);
       }
 
       if (dayId != null) {
         event.andWhere("DAYOFWEEK(DATE(event.date))= :dayId", { dayId: dayId });
-        console.log("Filtro dayId: " + dayId);
       }
 
       if (startTime != null && endTime != null) {
         event
           .andWhere("event.start_time >= :startTime", { startTime: startTime })
           .andWhere("event.end_time <= :endTime", { endTime: endTime });
-
-        console.log("Filtro startTime: " + startTime + " endTime: " + endTime);
       }
 
       if (distance != null) {
@@ -721,7 +715,6 @@ export const filterEventSuggestedForUser = async (
     }
 
     const eventsFiltered = await event.getMany();
-    console.log("Eventos Filtrados: " + eventsFiltered);
 
     res.status(200).json(eventsFiltered);
   } catch (error) {

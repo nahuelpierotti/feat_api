@@ -20,7 +20,7 @@ export const subscribeTopic = async (
     .messaging()
     .subscribeToTopic(registrationTokens, event)
     .then((response: any) => {
-      console.log("Successfully subscribed to topic:", response);
+   //   console.log("Successfully subscribed to topic:", response);
     })
     .catch((error: any) => {
       console.log("Error subscribing to topic:", error);
@@ -68,11 +68,11 @@ export const sendPushToTopic = async (
 export const sendMessage = async (message: any) => {
   fcm.send(message, function (err: any, response: any) {
     if (err) {
-      console.log("Something has gone wrong!" + err);
-      console.log("Respponse:! " + response);
+      //console.log("Something has gone wrong!" + err);
+      //console.log("Respponse:! " + response);
     } else {
       // showToast("Successfully sent with response");
-      console.log("Successfully sent with response: ", response);
+      //console.log("Successfully sent with response: ", response);
     }
   });
 };

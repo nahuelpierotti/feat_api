@@ -42,8 +42,6 @@ export const create = async (req: Request, res: Response) => {
         mobileToken: req.body.mobile_token,
     })
     .execute()
-
-    console.log(user)
     res.status(200).json("Usuario creado exitosamente!");
 
   }catch (error) {

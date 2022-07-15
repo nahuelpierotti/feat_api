@@ -79,15 +79,15 @@ export const create = async (req: Request, res: Response) => {
         .createQueryBuilder("user")
         .select("user.mobileToken")
         .innerJoin(Person, "person", "user.uid = person.userUid")
-        .innerJoin(Player, "player", "person.id = player.personId")
+        /*.innerJoin(Player, "player", "person.id = player.personId")
         .innerJoin(
           EventApply,
           "event_apply",
           "player.id = event_apply.playerId"
-        )
-        .innerJoin(Event, "event", "event_apply.eventId = event.id")
+        )*/
+        .innerJoin(Event, "event", "event.organizerId = person.id")
         .where("event.id = :id", { id: eventId })
-        .andWhere("event_apply.origin='O'")
+        //.andWhere("event_apply.origin='O'")
         .getOne();
     }
 
@@ -128,9 +128,6 @@ export const getEventApply = async (req: Request, res: Response) => {
     const userUid = req.body.userUid;
     const eventId = req.body.eventId;
 
-    console.log(userUid);
-    console.log(eventId);
-
     const event_apply = await createQueryBuilder()
       .select("eventApply.origin")
       .addSelect("player.id")
@@ -156,9 +153,7 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
     const event_complete = await Event.findOne(eventId);
 
     if (event_complete.status == 2) {
-      res
-        .status(200)
-        .json("El evento se completo antes de poder aceptar la solicitud");
+      res.status(200).json({isComplete: true});
     } else {
       const existe = await createQueryBuilder()
         .select("eventApply.id")
@@ -202,7 +197,6 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
 
         const event = await Event.findOne(eventId);
         const tema = event.id + "-" + event.name.replace(/\s/g, "");
-        console.log("Event Apply Topic: ", tema);
 
         if (event_apply.origin == "P") {
           //significa que el jugador solicito unirse
@@ -215,21 +209,17 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
             .getMany();
 
           userToken.forEach((user) => {
-            console.log(
-              "Event Apply Suscribe to Topic: ",
-              subscribeTopic(tema, user.mobileToken.toString())
-            );
-            console.log(
-              "Event Apply Push to Topic: ",
-              sendPushToOneUser(
+            subscribeTopic(tema, user.mobileToken.toString())
+            sendPushToOneUser(
                 user.mobileToken.toString(),
                 "Te confirmaron en un partido",
                 "El evento " +
                   event.name +
                   " te confirmo en su lista de jugadores"
               )
-            );
-          });
+          })
+
+          res.status(200).json({isComplete: false});
         } else {
           const organizador = await getRepository(User)
             .createQueryBuilder("user")
@@ -240,8 +230,6 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
             .where("event.id= :eventId", { eventId: eventId })
             .getRawOne();
 
-          console.log("Organizer token: " + organizador.mobileToken);
-
           const player = await getRepository(Person)
             .createQueryBuilder("person")
             .select("person")
@@ -251,23 +239,32 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
 
           const nombre = player?.lastname + " " + player?.names;
 
-          console.log(
-            "Event Apply Push to Organizer: ",
+          sendPushToOneUser(
+            organizador.mobileToken,
+            "Aceptaron tu invitacion",
+            "El jugador " +
+              nombre +
+              " acepto tu solicitud al partido " +
+              event.name
+          )
+
+          if(event.status==2){
             sendPushToOneUser(
               organizador.mobileToken,
-              "Aceptaron tu invitacion",
-              "El jugador " +
-                nombre +
-                " acepto tu solicitud al partido " +
-                event.name
+              "Evento Completo",
+              "Se completo la lista de participantes al evento " +
+                event.name+
+              ". Podes verificar la lista de participantes y confirmar el evento."  
             )
-          );
+            
+            res.status(200).json({isComplete: true});
+          }
+
+          res.status(200).json({isComplete: false});
         }
-        res.status(200).json("Invitacion Aceptada Exitosamente!");
+
       } else {
-        res
-          .status(200)
-          .json("La Invitacion ya habia sido aceptada anteriormente!");
+        res.status(200).json({isComplete: false});
       }
     }
   } catch (error) {
@@ -280,9 +277,6 @@ export const setDeniedApply = async (req: Request, res: Response) => {
   try {
     const playerId = req.body.playerId;
     const eventId = req.body.eventId;
-
-    console.log("playerId: ", playerId);
-    console.log("eventId: ", eventId);
 
     const event_apply = await createQueryBuilder()
       .select("eventApply")

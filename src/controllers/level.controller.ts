@@ -9,8 +9,7 @@ export const findAll = async (req: Request, res: Response) => {
       const level= await getRepository(Level)
       .createQueryBuilder("level")
       .getMany()
-  
-      //console.log(level);
+
       res.status(200).json(level);
     } catch (error) {
       console.log(error);
@@ -24,8 +23,7 @@ export const findAll = async (req: Request, res: Response) => {
       .createQueryBuilder("level")
       .where("level.id = :id", { id: req.params.id})
       .getOne()
-  
-      //console.log(level);
+
       res.status(200).json(level);
     } catch (error) {
       console.log(error);
@@ -45,7 +43,6 @@ export const findAll = async (req: Request, res: Response) => {
       })
       .execute()
   
-      console.log(level)
       res.status(200).json("Nivel Creado Exitosamente!");
   
     }catch (error) {
@@ -62,8 +59,6 @@ export const findAll = async (req: Request, res: Response) => {
       .innerJoin(SportGeneric, "gen", "level.sportGenericId = gen.id")
       .where("gen.id = :id", { id: req.params.id})
       .getMany()
-  
-      console.log(level)
 
       res.status(200).json(level);
     } catch (error) {
