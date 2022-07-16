@@ -162,8 +162,10 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
     //console.log("Primer entrada Evento Completo: ",event_complete)
     
     if (event_complete?.event_stateId == 2) {
+      //console.log("Primer if: ",event_complete?.event_stateId)
       res.status(200).json({isComplete: true});
     } else {
+      //console.log("Else Primer  if: ",event_complete?.event_stateId)
       const existe = await createQueryBuilder()
         .select("eventApply")
         .from(EventApply, "eventApply")
@@ -230,11 +232,14 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
                   " te confirmo en su lista de jugadores"
               )
           })
-          if(event.event_stateId==2){
+          /*if(event.event_stateId==2){
+            console.log("Segundo if: ",event?.event_stateId)
             res.status(200).json({isComplete: true});
           }else{
+            console.log("Else Segundo if: ",event?.event_stateId)
             res.status(200).json({isComplete: false});
-          }
+          }*/
+        //  res.status(200).json({isComplete: false});
         } else {
           const organizador = await getRepository(User)
             .createQueryBuilder("user")
@@ -264,6 +269,7 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
           )
 
           if(event?.event_stateId==2){
+            console.log("if Se lleno notif organiz: ",event?.event_stateId)
             sendPushToOneUser(
               organizador.mobileToken,
               "Evento Completo",
@@ -271,16 +277,18 @@ export const setAcceptedApply = async (req: Request, res: Response) => {
                 event.event_name+
               ". Podes verificar la lista de participantes y confirmar el evento."  
             )
-            
-            res.status(200).json({isComplete: true});
+            console.log("Entro el ultimo player ")
+            //res.status(200).json({isComplete: false});
           }else{
-            res.status(200).json({isComplete: false});
+            //console.log("Else if notif organiz: ",event?.event_stateId)
+          //  res.status(200).json({isComplete: false});
           }
         }
 
       } else {
         res.status(400).json("No se encontro invitacion");
       }
+      res.status(200).json({isComplete: false});
     }
   } catch (error) {
     console.log(error);
