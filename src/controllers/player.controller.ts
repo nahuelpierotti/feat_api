@@ -188,10 +188,10 @@ export const findAllPlayersSuggestedForEvent = async (
       //console.log("Player Sug Ejecuto actualizacion calif: " + jug.id);
     });
 
-    Promise.all(upds).then(
+    /*Promise.all(upds).then(
       res=> console.log("Player Sug Upd Calification: "+res)
     ).catch(e=> console.log(e))
-
+*/
 
     const players = await getRepository(Player)
       .createQueryBuilder("player")
