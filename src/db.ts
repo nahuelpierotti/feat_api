@@ -27,11 +27,11 @@ export const connectDatabase = async () => {
   try {
     await createConnection({
       type: "mysql",
-      database: "feat",
-      username: "doadmin",
-      password: "AVNS_yEniYgRa5Lbaebs",
-      host: "feat-do-user-11714103-0.b.db.ondigitalocean.com",
-      port: Number(25060),
+      database: "vfkka3nbrg32ocsw",
+      username: "r4385rqcgmj9zeah",
+      password: "o7dadyrfff125zen",
+      host: "y6aj3qju8efqj0w1.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+      port: Number(3306),
       synchronize: true,
       entities: [User, UserType, Person, Sport,Day,Level,Valuation, 
         Position,Availability,Player,Address,Periodicity,
