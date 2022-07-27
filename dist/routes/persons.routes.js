@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const person_controller_1 = require("../controllers/person.controller");
+const router = (0, express_1.Router)();
+router.route("/create").post(person_controller_1.create);
+router.route("/update/").put(person_controller_1.update);
+router.route("/update_personal_information").put(person_controller_1.updatePersonalInformation);
+router.route("/getPersonByPlayerId/:id").get(person_controller_1.findPersonByPlayerId);
+router.route("/getPersonById/:uid").get(person_controller_1.findOne);
+router.route("/createPersonTransaction").post(person_controller_1.createPersonTransaction);
+router.route("/setProfileImageUrl").put(person_controller_1.setProfileImageUrl);
+exports.default = router;

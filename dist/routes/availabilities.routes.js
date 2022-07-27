@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const availability_controller_1 = require("../controllers/availability.controller");
+const router = (0, express_1.Router)();
+router.route("/").get(availability_controller_1.findAll);
+router.route("/:id").get(availability_controller_1.findOne);
+router.route("/create").post(availability_controller_1.create);
+router.route("/update").put(availability_controller_1.update);
+exports.default = router;

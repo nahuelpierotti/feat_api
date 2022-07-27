@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const position_controller_1 = require("../controllers/position.controller");
+const router = (0, express_1.Router)();
+router.route("/").get(position_controller_1.findAll);
+router.route("/:id").get(position_controller_1.findOne);
+router.route("/create").post(position_controller_1.create);
+router.route("/getAllBySportGeneric/:id").get(position_controller_1.findAllBySportGeneric);
+exports.default = router;

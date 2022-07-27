@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const eventApply_controller_1 = require("../controllers/eventApply.controller");
+const router = (0, express_1.Router)();
+router.route("/getPlayerByPersonUidAndEvent/:userUid/:eventId").get(eventApply_controller_1.getPlayerByPersonUidAndEvent);
+router.route("/create").post(eventApply_controller_1.create);
+router.route("/setAcceptedApply").post(eventApply_controller_1.setAcceptedApply);
+router.route("/setDeniedApply").post(eventApply_controller_1.setDeniedApply);
+router.route("/getEventApply").post(eventApply_controller_1.getEventApply);
+router.route("/exists/:playerId/:eventId").get(eventApply_controller_1.exists);
+exports.default = router;
